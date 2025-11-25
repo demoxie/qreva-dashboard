@@ -112,10 +112,10 @@ const LoginPage = ({ onLogin, ROLES }) => {
     
     // Mock user database - Change the role here to test different user types
     const mockUsers = {
-      'admin@qreva.com': { role: ROLES.ADMIN, name: 'Admin User' },
-      'agent@qreva.com': { role: ROLES.AGENT, name: 'Agent User' },
-      'aggregator@qreva.com': { role: ROLES.AGGREGATOR, name: 'Aggregator User' },
-      'manager@qreva.com': { role: ROLES.AGGREGATORMANAGER, name: 'Manager User' },
+      'admin@greva.com': { role: ROLES.ADMIN, name: 'Admin User' },
+      'agent@greva.com': { role: ROLES.AGENT, name: 'Agent User' },
+      'aggregator@greva.com': { role: ROLES.AGGREGATOR, name: 'Aggregator User' },
+      'manager@greva.com': { role: ROLES.AGGREGATORMANAGER, name: 'Manager User' },
     };
 
     // Default role if email not in mock database
@@ -337,10 +337,10 @@ const LoginPage = ({ onLogin, ROLES }) => {
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-xs text-blue-800 font-semibold mb-2">🔧 Development Mode - Test Accounts:</p>
               <div className="text-xs text-blue-700 space-y-1">
-                <p><strong>Admin:</strong> admin@qreva.com (any password)</p>
-                <p><strong>Agent:</strong> agent@qreva.com (any password)</p>
-                <p><strong>Aggregator:</strong> aggregator@qreva.com (any password)</p>
-                <p><strong>Manager:</strong> manager@qreva.com (any password)</p>
+                <p><strong>Admin:</strong> admin@greva.com (any password)</p>
+                <p><strong>Agent:</strong> agent@greva.com (any password)</p>
+                <p><strong>Aggregator:</strong> aggregator@greva.com (any password)</p>
+                <p><strong>Manager:</strong> manager@greva.com (any password)</p>
                 <p className="text-blue-600 mt-2">⚠️ Any other email will login as Admin by default</p>
               </div>
             </div>

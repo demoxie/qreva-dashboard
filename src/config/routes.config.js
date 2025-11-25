@@ -131,6 +131,46 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
+   AIRTIME_DETAILS: {
+    path: '/airtime/details/:type/:id',
+    label: 'View Details',
+    parent: '/airtime',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
+    DATA_DETAILS: {
+    path: '/data/details/:type/:id',
+    label: 'View Details',
+    parent: '/data',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
+    BILLS_DETAILS: {
+    path: '/bills/details/:type/:id',
+    label: 'View Details',
+    parent: '/bills',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
+    TRANSFER_DETAILS: {
+    path: '/transfers/details/:type/:id',
+    label: 'View Details',
+    parent: '/transfers',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
+    SOFTPOS_DETAILS: {
+    path: '/softpos/details/:type/:id',
+    label: 'View Details',
+    parent: '/softpos',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
 };
 
 // Helper function to get route config by path

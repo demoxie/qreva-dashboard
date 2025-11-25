@@ -1,25 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataGrid } from '@mui/x-data-grid';
-import { MoreVertical, Eye, Share2 } from 'lucide-react';
+import { MoreVertical, Eye, Share2, History } from 'lucide-react';
 import SearchFilterBar from '../common/SearchFilterBar';
-import PopupDialog from '../common/PopupDialog';
 
-const TransactionHistoryTable = ({ data, title = "Transaction History" }) => {
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showReceiptModal, setShowReceiptModal] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+const TransactionHistoryTable = ({ 
+  data, 
+  title = "Transaction History",
+  actions = [] // Array of action objects from parent
+}) => {
+  // Dropdown state
+  const [dropdown, setDropdown] = useState({ open: false, anchor: null, row: null, x: 0, y: 0 });
 
-  const handleViewDetails = (transaction) => {
-    setSelectedTransaction(transaction);
-    setShowDetailsModal(true);
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClick(e) {
+      if (dropdown.open && dropdown.anchor && !dropdown.anchor.contains(e.target)) {
+        setDropdown({ open: false, anchor: null, row: null, x: 0, y: 0 });
+      }
+    }
+    if (dropdown.open) {
+      document.addEventListener('mousedown', handleClick);
+    }
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [dropdown]);
+
+  // Default icon mapping
+  const iconMap = {
+    'view': Eye,
+    'share': Share2,
+    'history': History,
   };
 
-  const handleShareReceipt = (transaction) => {
-    setSelectedTransaction(transaction);
-    setShowReceiptModal(true);
+  const handleAction = (action, row) => {
+    if (action.onClick) {
+      action.onClick(row);
+    }
+    setDropdown({ open: false, anchor: null, row: null, x: 0, y: 0 });
   };
-
 
   const columns = [
     { 
@@ -70,89 +88,90 @@ const TransactionHistoryTable = ({ data, title = "Transaction History" }) => {
       width: 80,
       sortable: false,
       renderCell: (params) => (
-        <div className="relative group">
-          <button className="text-[#7C8D96] hover:text-[#1E1E1E]">
-            <MoreVertical size={16} />
-          </button>
-          
-          {/* Dropdown menu */}
-          <div className="absolute right-0 top-8 bg-white rounded-lg shadow-lg border border-[#E8EBED] py-2 w-48 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-            <button
-              onClick={() => handleViewDetails(params.row)}
-              className="w-full px-4 py-2 text-left text-sm font-general text-[#1E1E1E] hover:bg-[#F5F6F7] flex items-center gap-2"
-            >
-              <Eye size={16} />
-              View Transaction Details
-            </button>
-            <button
-              onClick={() => handleShareReceipt(params.row)}
-              className="w-full px-4 py-2 text-left text-sm font-general text-[#1E1E1E] hover:bg-[#F5F6F7] flex items-center gap-2"
-            >
-              <Share2 size={16} />
-              Share Receipt
-            </button>
-          </div>
-        </div>
+        <button
+          className="text-[#7C8D96] hover:text-[#1E1E1E]"
+          onClick={e => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setDropdown({
+              open: true,
+              anchor: e.currentTarget,
+              row: params.row,
+              x: rect.right - 192,
+              y: rect.bottom + 4
+            });
+          }}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <MoreVertical size={16} />
+        </button>
       )
     }
   ];
 
   return (
     <>
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle className="text-base">{title}</CardTitle>
-          <SearchFilterBar 
-            onSearch={(value) => console.log('Search:', value)}
-            onFilter={() => console.log('Filter clicked')}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-base">{title}</CardTitle>
+            <SearchFilterBar 
+              onSearch={(value) => console.log('Search:', value)}
+              onFilter={() => console.log('Filter clicked')}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <DataGrid
+            rows={data}
+            columns={columns}
+            checkboxSelection
+            disableRowSelectionOnClick
+            pageSizeOptions={[5, 10, 25]}
+            initialState={{
+              pagination: { paginationModel: { pageSize: 5 } },
+            }}
+            sx={{
+              border: 0,
+              '& .MuiDataGrid-cell': {
+                borderBottom: '1px solid #f0f0f0',
+              },
+              '& .MuiDataGrid-columnHeaders': {
+                backgroundColor: '#fafafa',
+                borderBottom: '1px solid #e0e0e0',
+              },
+            }}
           />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <DataGrid
-          rows={data}
-          columns={columns}
-          checkboxSelection
-          disableRowSelectionOnClick
-          pageSizeOptions={[5, 10, 25]}
-          initialState={{
-            pagination: { paginationModel: { pageSize: 5 } },
-          }}
-          sx={{
-            border: 0,
-            '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid #f0f0f0',
-            },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: '#fafafa',
-              borderBottom: '1px solid #e0e0e0',
-            },
-          }}
-          onRowSelectionModelChange={(newSelection) => {
-            setSelectedRows(newSelection);
-          }}
-        />
-      </CardContent>
-    </Card>
-     {/* View Details Modal */}
-      <PopupDialog
-        isOpen={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
-        title="View Details"
-        data={selectedTransaction}
-        type="transaction"
-      />
+        </CardContent>
+      </Card>
 
-      {/* Share Receipt Modal */}
-      <PopupDialog
-        isOpen={showReceiptModal}
-        onClose={() => setShowReceiptModal(false)}
-        title="Share Receipt"
-        data={selectedTransaction}
-        type="transaction"
-      />
-      </>
+      {/* Dynamic Dropdown menu */}
+      {dropdown.open && actions.length > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            top: dropdown.y,
+            left: dropdown.x,
+            zIndex: 9999,
+          }}
+          className="bg-white rounded-lg shadow-lg border border-[#E8EBED] py-2 w-48"
+          onMouseDown={e => e.stopPropagation()}
+        >
+          {actions.map((action, index) => {
+            const Icon = action.icon || iconMap[action.type] || Eye;
+            return (
+              <button
+                key={index}
+                onClick={() => handleAction(action, dropdown.row)}
+                className="w-full px-4 py-2 text-left text-sm font-general text-[#1E1E1E] hover:bg-[#F5F6F7] flex items-center gap-2"
+              >
+                <Icon size={16} />
+                {action.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </>
   );
 };
 

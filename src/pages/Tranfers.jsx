@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import TransferStats from '@/components/base/TransferStats';
 import TransferStatusPie from '@/components/charts/TransferStatusPie';
@@ -7,14 +8,18 @@ import MultiLineChart from '@/components/charts/MultiLineChart';
 import BarChartComponent from '@/components/charts/BarChartComponent';
 import TransferRegionsTable from '@/components/tables/TransferRegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
+import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
+import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
 
 const Transfers = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const navigate = useNavigate();
 
-  const breadcrumbs = [
-    { label: 'Transfers', path: '/transfers' }
-  ];
+  // Modal states
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const multiLineData = [
     { day: 'Today', bank: 14500, wallet: 14200 },
@@ -65,11 +70,43 @@ const Transfers = () => {
   ];
 
   const transferTransactions = [
-    { id: 1, senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Successful', type: 'Credit', revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025' },
-    { id: 2, senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Pending', type: 'Debit', revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025' },
-    { id: 3, senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Successful', type: 'Credit', revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025' },
-    { id: 4, senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Failed', type: 'Credit', revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025' },
-    { id: 5, senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Successful', type: 'Debit', revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
+    { id: 1, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'First Time', type: 'Credit', revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025', category: 'Transfer', desc: 'Wallet Transfer', location: 'Lagos' },
+    { id: 2, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Repeat Buyer', type: 'Debit', revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025', category: 'Transfer', desc: 'Bank Transfer', location: 'Abuja' },
+    { id: 3, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'First Time', type: 'Credit', revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025', category: 'Transfer', desc: 'Wallet Transfer', location: 'Enugu' },
+    { id: 4, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'Repeat Buyer', type: 'Credit', revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025', category: 'Transfer', desc: 'Bank Transfer', location: 'Rivers' },
+    { id: 5, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', senderName: 'Rejoice Regina Rose', recipientName: 'Peculiar Regina', status: 'First Time', type: 'Debit', revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025', category: 'Transfer', desc: 'Wallet Transfer', location: 'Lagos' }
+  ];
+
+  // Navigation handler for regions
+  const handleViewRegionDetails = (regionId) => {
+    navigate(`/transfers/details/region/${regionId}`);
+  };
+
+  // Transaction actions
+  const transactionActions = [
+    {
+      label: 'View Transaction Details',
+      type: 'view',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowDetailsModal(true);
+      }
+    },
+    {
+      label: 'Share Receipt',
+      type: 'share',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowShareModal(true);
+      }
+    },
+    {
+      label: 'View Transaction History',
+      type: 'history',
+      onClick: (transaction) => {
+        navigate(`/transfers/details/transaction/${transaction.id}`);
+      }
+    }
   ];
 
   return (
@@ -78,7 +115,6 @@ const Transfers = () => {
         <PageHeader
           title="Transfers"
           subtitle="Here is how this has been performing so far"
-          breadcrumbs={breadcrumbs}
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
         />
@@ -105,13 +141,30 @@ const Transfers = () => {
           title="Daily Transaction Count"
         />
 
-        <TransferRegionsTable data={transferRegions} />
+        <TransferRegionsTable 
+          data={transferRegions}
+          onViewDetails={handleViewRegionDetails}
+        />
 
         <TransactionHistoryTable 
           data={transferTransactions}
           title="Transactions"
+          actions={transactionActions}
         />
       </div>
+
+      {/* External Modals */}
+      <TransactionDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        transaction={selectedTransaction}
+      />
+
+      <ShareReceiptModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        transaction={selectedTransaction}
+      />
     </div>
   );
 };

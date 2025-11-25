@@ -1,5 +1,4 @@
-// src/config/routeComponentMap.js
-
+// ===== Import All Page Components Here =====
 import DashboardContent from "@/pages/DashboardContent";
 import AirtimePurchase from "@/pages/AirtimePurchase";
 import DataPurchase from "@/pages/DataPurchase";
@@ -7,6 +6,13 @@ import KYCVerification from "@/pages/KYCVerification";
 import BillsPayment from "@/pages/BillsPayment";
 import SoftPOS from "@/pages/SoftPOS";
 import Transfers from "@/pages/Tranfers";
+
+//Nested Details Pages
+import AirtimeDetails from "@/pages/commonlynested/AirTimeDetails";
+import DataDetails from "@/pages/commonlynested/DataDetails";
+import BillsDetails from "@/pages/commonlynested/BillsDetails";
+import TransferDetails from "@/pages/commonlynested/TransferDetails";
+import SoftPOSDetails from "@/pages/commonlynested/SoftPOSDetails";
 
 // Transactions
 // import RequestPage from "../pages/transactions/RequestPage";
@@ -36,6 +42,13 @@ export const RouteComponentMap = {
   BILLS: BillsPayment,
   SOFTPOS: SoftPOS,
   TRANSFERS: Transfers,
+
+  // Nested Details Pages
+  AIRTIME_DETAILS: AirtimeDetails,
+  DATA_DETAILS: DataDetails,
+  BILLS_DETAILS: BillsDetails,
+  TRANSFER_DETAILS: TransferDetails,
+  SOFTPOS_DETAILS: SoftPOSDetails,
 
   // Transactions
 //   REQUEST: RequestPage,
