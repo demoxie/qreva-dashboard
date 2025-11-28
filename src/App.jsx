@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import Sidebar from './components/base/SideBar';
 import { AuthContext, useAuth } from './hooks/useAuth';
 import Breadcrumb from './components/common/BreadCrumb';
+import ScrollToTop from './components/common/ScrollToTop';
 
 // ============ ROLE-BASED ACCESS CONTROL ============
 export const ROLES = {
@@ -106,6 +107,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ScrollToTop />
         <Routes>
           <Route path="/login" element={<PublicRoute><LoginWrapper /></PublicRoute>} />
           {/* Generate routes dynamically from config */}

@@ -171,6 +171,14 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
+    KYC_DETAILS: {
+    path: '/kyc/details/:type/:id',
+    label: 'View Details',
+    parent: '/kyc',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
 };
 
 // Helper function to get route config by path

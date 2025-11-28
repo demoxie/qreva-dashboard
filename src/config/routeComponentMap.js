@@ -6,6 +6,8 @@ import KYCVerification from "@/pages/KYCVerification";
 import BillsPayment from "@/pages/BillsPayment";
 import SoftPOS from "@/pages/SoftPOS";
 import Transfers from "@/pages/Tranfers";
+import Users from "@/pages/Users";
+import Agents from "@/pages/Agents";
 
 //Nested Details Pages
 import AirtimeDetails from "@/pages/commonlynested/AirTimeDetails";
@@ -13,6 +15,9 @@ import DataDetails from "@/pages/commonlynested/DataDetails";
 import BillsDetails from "@/pages/commonlynested/BillsDetails";
 import TransferDetails from "@/pages/commonlynested/TransferDetails";
 import SoftPOSDetails from "@/pages/commonlynested/SoftPOSDetails";
+import KYCDetails from "@/pages/commonlynested/KYCDetails";
+import UserProfileDetails from "@/pages/commonlynested/UserProfileDetails";
+import AgentProfileDetails from "@/pages/commonlynested/AgentProfileDetails";
 
 // Transactions
 // import RequestPage from "../pages/transactions/RequestPage";
@@ -42,6 +47,8 @@ export const RouteComponentMap = {
   BILLS: BillsPayment,
   SOFTPOS: SoftPOS,
   TRANSFERS: Transfers,
+  USERS: Users,
+  AGENTS: Agents,
 
   // Nested Details Pages
   AIRTIME_DETAILS: AirtimeDetails,
@@ -49,6 +56,9 @@ export const RouteComponentMap = {
   BILLS_DETAILS: BillsDetails,
   TRANSFER_DETAILS: TransferDetails,
   SOFTPOS_DETAILS: SoftPOSDetails,
+  KYC_DETAILS: KYCDetails,
+  USER_DETAILS: UserProfileDetails,
+  AGENT_DETAILS: AgentProfileDetails,
 
   // Transactions
 //   REQUEST: RequestPage,

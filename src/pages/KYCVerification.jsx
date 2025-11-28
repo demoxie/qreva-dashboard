@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import KYCStats from '@/components/base/KYCStats';
 import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
@@ -6,10 +7,18 @@ import TopAgentsCard from '@/components/cards/TopAgentsCard';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import KYCRegionsTable from '@/components/tables/KYCRegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
+import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
+import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
 
 const KYCVerification = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const navigate = useNavigate();
+
+  // Modal states
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const bvnVsNinData = [
     { id: 0, value: 30, label: 'NIN Verifications', color: '#F59E0B' },
@@ -45,11 +54,43 @@ const KYCVerification = () => {
   ];
 
   const kycTransactions = [
-    { id: 1, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'NIN', location: 'Lagos', commission: 200, revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025' },
-    { id: 2, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'BVN', location: 'Lagos', commission: 200, revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025' },
-    { id: 3, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'NIN', location: 'Abia', commission: 200, revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025' },
-    { id: 4, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'NIN', location: 'Enugu', commission: 200, revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025' },
-    { id: 5, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'BVN', location: 'Abuja', commission: 200, revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
+    { id: 1, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'NIN', status: 'First Time', category: 'KYC', desc: 'NIN Verification', location: 'Lagos', commission: 200, revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025' },
+    { id: 2, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'BVN', status: 'Repeat Buyer', category: 'KYC', desc: 'BVN Verification', location: 'Lagos', commission: 200, revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025' },
+    { id: 3, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'NIN', status: 'First Time', category: 'KYC', desc: 'NIN Verification', location: 'Abia', commission: 200, revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025' },
+    { id: 4, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'NIN', status: 'Repeat Buyer', category: 'KYC', desc: 'NIN Verification', location: 'Enugu', commission: 200, revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025' },
+    { id: 5, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'BVN', status: 'First Time', category: 'KYC', desc: 'BVN Verification', location: 'Abuja', commission: 200, revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
+  ];
+
+  // Navigation handler for regions
+  const handleViewRegionDetails = (regionId) => {
+    navigate(`/kyc/details/region/${regionId}`);
+  };
+
+  // Transaction actions
+  const transactionActions = [
+    {
+      label: 'View Transaction Details',
+      type: 'view',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowDetailsModal(true);
+      }
+    },
+    {
+      label: 'Share Receipt',
+      type: 'share',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowShareModal(true);
+      }
+    },
+    {
+      label: 'View Transaction History',
+      type: 'history',
+      onClick: (transaction) => {
+        navigate(`/kyc/details/transaction/${transaction.id}`);
+      }
+    }
   ];
 
   return (
@@ -58,7 +99,6 @@ const KYCVerification = () => {
         <PageHeader
           title="KYC Verification"
           subtitle="Here is how this has been performing so far"
-          breadcrumb="KYC Verification"
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
         />
@@ -97,13 +137,30 @@ const KYCVerification = () => {
           title="Daily Transaction Volume"
         />
 
-        <KYCRegionsTable data={kycRegionsData} />
+        <KYCRegionsTable 
+          data={kycRegionsData}
+          onViewDetails={handleViewRegionDetails}
+        />
 
         <TransactionHistoryTable 
           data={kycTransactions}
           title="Transactions"
+          actions={transactionActions}
         />
       </div>
+
+      {/* External Modals */}
+      <TransactionDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        transaction={selectedTransaction}
+      />
+
+      <ShareReceiptModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        transaction={selectedTransaction}
+      />
     </div>
   );
 };
