@@ -6,104 +6,92 @@ export const ROUTES = {
     label: 'Dashboard',
     parent: null,
     icon: 'dashboard',
-    permission: 'dashboard',
+    permission: 'dashboard:view',
   },
-  
+
+
   // Transaction routes
   AIRTIME: {
     path: '/airtime',
     label: 'Airtime Purchase',
-    parent: '/dashboard',
     icon: 'airtime',
-    permission: 'transactions',
+    permission: 'airtime:view',
   },
   DATA: {
     path: '/data',
     label: 'Data Purchase',
-    parent: '/dashboard',
     icon: 'data',
-    permission: 'transactions',
+    permission: 'data:view',
   },
   BILLS: {
     path: '/bills',
     label: 'Bills Payment',
-    parent: '/dashboard',
     icon: 'bills',
-    permission: 'transactions',
+    permission: 'bills:view',
   },
   REQUEST: {
     path: '/request',
     label: 'Request',
-    parent: '/dashboard',
     icon: 'request',
-    permission: 'transactions',
+    permission: 'request:view',
   },
   TRANSFERS: {
     path: '/transfers',
     label: 'Transfers',
-    parent: '/dashboard',
     icon: 'transfers',
-    permission: 'transactions',
+    permission: 'transfers:view',
   },
   SOFTPOS: {
     path: '/softpos',
     label: 'SoftPOS',
-    parent: '/dashboard',
     icon: 'softpos',
-    permission: 'transactions',
+    permission: 'softpos:view',
   },
   KYC: {
     path: '/kyc',
     label: 'KYC Verification',
-    parent: '/dashboard',
     icon: 'kyc',
-    permission: 'transactions',
+    permission: 'kyc:view',
   },
   EARNINGS: {
     path: '/earnings',
     label: 'My Earnings',
-    parent: '/dashboard',
     icon: 'earnings',
-    permission: 'transactions',
+    permission: 'earnings:view',
   },
-  
+
   // Account routes
   USERS: {
     path: '/users',
     label: 'Users',
-    parent: '/dashboard',
     icon: 'users',
-    permission: 'accounts',
+    permission: 'users:view',
   },
   AGENTS: {
     path: '/agents',
     label: 'Agents',
-    parent: '/dashboard',
     icon: 'agents',
-    permission: 'accounts',
+    permission: 'agents:view',
   },
   AGGREGATION: {
     path: '/aggregation',
     label: 'Aggregators',
-    parent: '/dashboard',
     icon: 'aggregation',
-    permission: 'aggregation',
+    permission: 'aggregation:view',
   },
   AGGREGATOR_MANAGER: {
     path: '/aggregator-manager',
     label: 'Aggregator Manager',
-    parent: '/dashboard',
     icon: 'aggregatorManager',
-    permission: 'accounts',
+    permission: 'aggManager:view',
   },
-  
+
   // Approval routes
   ACCOUNTS_APPROVALS: {
     path: '/accounts-approvals',
     label: 'Account Approvals',
-    parent: '/dashboard',
     icon: 'accountsApprovals',
-    permission: 'approvals',
+    permission: 'approvals:view',
   },
   
   // Nested/Dynamic routes
@@ -228,7 +216,7 @@ export const MENU_STRUCTURE = [
     id: 'transactions',
     type: 'section',
     label: 'TRANSACTIONS',
-    permission: 'transactions',
+    permission: 'section:transactions',
     items: [
       { routeKey: 'AIRTIME' },
       { routeKey: 'DATA' },
@@ -244,7 +232,7 @@ export const MENU_STRUCTURE = [
     id: 'accounts',
     type: 'section',
     label: 'ACCOUNTS',
-    permission: 'accounts',
+    permission: 'section:accounts',
     items: [
       { routeKey: 'USERS' },
       { routeKey: 'AGENTS' },
@@ -256,7 +244,7 @@ export const MENU_STRUCTURE = [
     id: 'approvals',
     type: 'section',
     label: 'APPROVALS',
-    permission: 'approvals',
+    permission: 'section:approvals',
     items: [
       { routeKey: 'ACCOUNTS_APPROVALS' },
     ],

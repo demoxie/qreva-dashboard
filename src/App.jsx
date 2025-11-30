@@ -17,10 +17,63 @@ export const ROLES = {
 };
 
 export const PERMISSIONS = {
-  [ROLES.ADMIN]: ['dashboard', 'transactions', 'accounts', 'approvals', 'settings'],
-  [ROLES.AGGREGATORMANAGER]: ['dashboard', 'transactions', 'accounts'],
-  [ROLES.AGGREGATOR]: ['dashboard', 'transactions', 'aggregation'],
-  [ROLES.AGENT]: ['dashboard', 'transactions']
+  [ROLES.ADMIN]: [
+    // Section visibility
+    'section:transactions',
+    'section:accounts',
+    'section:approvals',
+
+    // Item-level permissions
+    'dashboard:view',
+    'airtime:view',
+    'data:view',
+    'bills:view',
+    'request:view',
+    'transfers:view',
+    'softpos:view',
+    'kyc:view',
+    'earnings:view',
+
+    'users:view',
+    'agents:view',
+    'aggregation:view',
+    'aggManager:view',
+
+    'approvals:view',
+  ],
+
+  [ROLES.AGENT]: [
+    'dashboard:view',
+
+    // Can see transaction section
+    'section:transactions',
+
+    // But only specific items
+    'airtime:view',
+    'data:view',
+  ],
+
+  [ROLES.AGGREGATOR]: [
+    'dashboard:view',
+    'section:transactions',
+
+    'aggregation:view',
+    'airtime:view',
+    'data:view',
+  ],
+
+  [ROLES.AGGREGATORMANAGER]: [
+    'dashboard:view',
+
+    'section:transactions',
+    'section:accounts',
+
+    'agents:view',
+    'aggregation:view',
+    'users:view',
+    'airtime:view',
+    'data:view',
+  ],
 };
 
 //  PROTECTED ROUTE COMPONENT 
