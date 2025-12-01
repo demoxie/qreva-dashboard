@@ -40,7 +40,7 @@ const DashboardContent = () => {
           onTimeFilterChange={setTimeFilter}
         />
 
-         <DashboardStats />
+                 <DashboardStats />
 
         {/* Admin Layout */}
         {isAdmin && (

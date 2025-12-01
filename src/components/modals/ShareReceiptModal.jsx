@@ -1,142 +1,147 @@
-import { useState } from 'react';
-import { X, Mail, MessageSquare, Copy, Check } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 
 const ShareReceiptModal = ({ isOpen, onClose, transaction }) => {
-  const [copied, setCopied] = useState(false);
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-
   if (!isOpen || !transaction) return null;
 
-  const receiptLink = `https://app.example.com/receipt/${transaction.id}`;
-
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(receiptLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleEmailShare = () => {
-    console.log('Send receipt to email:', email);
-    // Handle email sending
-  };
-
-  const handleSMSShare = () => {
-    console.log('Send receipt to phone:', phone);
-    // Handle SMS sending
+  const handleShareReceipt = () => {
+    console.log('Share receipt:', transaction);
+    // Handle receipt sharing
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black bg-opacity-50"
+        className="absolute inset-0 bg-black/50 bg-opacity-50"
         onClick={onClose}
       />
       
       {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Share Receipt</h2>
+        <div className="flex items-center justify-between p-6 pb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">Share Receipt</h2>
+            <p className="text-sm text-gray-500 mt-1">Here are the receipts of this transaction</p>
+          </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <X size={20} />
+            <X size={20} className="text-gray-500" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Transaction Summary */}
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm text-gray-600">Transaction</span>
-              <span className="font-medium text-gray-900">{transaction.desc}</span>
+        {/* Receipt Card */}
+        <div className="px-6 pb-6">
+          <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 bg-white">
+            {/* Decorative circles at top */}
+            <div className="flex justify-between mb-6">
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-gray-200"></div>
+              ))}
             </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Amount</span>
-              <span className="text-lg font-bold text-gray-900">₦{transaction.amount?.toLocaleString()}</span>
-            </div>
-          </div>
 
-          {/* Copy Link */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Receipt Link
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={receiptLink}
-                readOnly
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
-              />
-              <button
-                onClick={handleCopyLink}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-2"
-              >
-                {copied ? <Check size={16} className="text-green-600" /> : <Copy size={16} />}
-                {copied ? 'Copied' : 'Copy'}
-              </button>
+            {/* Receipt Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">q</span>
+                </div>
+                <span className="font-semibold text-gray-900">qreva</span>
+              </div>
+              <span className="text-xs text-gray-500">Transaction Receipt</span>
             </div>
-          </div>
 
-          {/* Email Share */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Share via Email
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Enter email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                onClick={handleEmailShare}
-                className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <Mail size={16} />
-                Send
-              </button>
+            {/* Amount */}
+            <div className="text-center mb-6">
+              <div className="text-3xl font-bold text-orange-500 mb-2">
+                ₦{transaction.amount?.toLocaleString() || '3,000,000'}
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+                Transaction Successful!
+              </div>
+              <div className="text-xs text-gray-500 mt-2">
+                Completed on Mon October, 2025 | 12:00 PM
+              </div>
             </div>
-          </div>
 
-          {/* SMS Share */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Share via SMS
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="tel"
-                placeholder="Enter phone number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              <button
-                onClick={handleSMSShare}
-                className="px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"
-              >
-                <MessageSquare size={16} />
-                Send
-              </button>
+            {/* Transaction Details */}
+            <div className="space-y-3 text-sm mb-6">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Recipient Details</span>
+                <div className="text-right">
+                  <div className="font-medium text-gray-900">
+                    {transaction.recipient || 'Rejoice Regina Rose'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {transaction.location || 'Safe Haven | 0892481526'}
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex justify-between">
+                <span className="text-gray-600">Sender Details</span>
+                <div className="text-right">
+                  <div className="font-medium text-gray-900">
+                    {transaction.sender || 'Victor Odiluwa'}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {transaction.senderInfo || 'Ent | 0181 | 2091826245'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-600">Transaction ID</span>
+                <span className="font-medium text-gray-900 font-mono text-xs">
+                  {transaction.id || '1810200100009377192750444'}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-600">Category</span>
+                <span className="font-medium text-gray-900">{transaction.category || 'Transfer'}</span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-600">Transaction Date</span>
+                <span className="font-medium text-gray-900">
+                  {transaction.date || '18th October, 2025 | 09:00am'}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-gray-600">Status</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-green-600 font-medium">Successful</span>
+                  <ExternalLink size={14} className="text-gray-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Decorative circles at bottom */}
+            <div className="flex justify-between mt-6">
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-gray-200"></div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-3 p-6 border-t border-gray-200">
+        {/* Action Buttons */}
+        <div className="px-6 pb-6 space-y-3">
+          <button
+            onClick={handleShareReceipt}
+            className="w-full py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            Share Receipt
+          </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="w-full py-3 bg-orange-50 text-orange-500 font-medium rounded-lg hover:bg-orange-100 transition-colors"
           >
-            Close
+            Dismiss
           </button>
         </div>
       </div>
