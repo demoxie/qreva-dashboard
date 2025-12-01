@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import KYCStats from '@/components/base/KYCStats';
 import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
@@ -6,11 +7,18 @@ import TopAgentsCard from '@/components/cards/TopAgentsCard';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import KYCRegionsTable from '@/components/tables/KYCRegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
+import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
+import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
 
 const SoftPOS = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const navigate = useNavigate();
 
+  // Modal states
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const multiLineData = [
     { day: 'Today', cardPayments: 14500, qrPayments: 14200 },
@@ -41,20 +49,51 @@ const SoftPOS = () => {
   ];
 
   const SoftPOSTransactions = [
-    { id: 1, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', location: 'Lagos', commission: 200, revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025' },
-    { id: 2, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'cardPayments', location: 'Lagos', commission: 200, revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025' },
-    { id: 3, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', location: 'Abia', commission: 200, revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025' },
-    { id: 4, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', location: 'Enugu', commission: 200, revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025' },
-    { id: 5, agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'cardPayments', location: 'Abuja', commission: 200, revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
+    { id: 1, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', status: 'First Time', category: 'SoftPOS', desc: 'QR Payment', location: 'Lagos', commission: 200, revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025' },
+    { id: 2, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'cardPayments', status: 'Repeat Buyer', category: 'SoftPOS', desc: 'Card Payment', location: 'Lagos', commission: 200, revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025' },
+    { id: 3, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', status: 'First Time', category: 'SoftPOS', desc: 'QR Payment', location: 'Abia', commission: 200, revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025' },
+    { id: 4, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', status: 'Repeat Buyer', category: 'SoftPOS', desc: 'QR Payment', location: 'Enugu', commission: 200, revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025' },
+    { id: 5, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'cardPayments', status: 'First Time', category: 'SoftPOS', desc: 'Card Payment', location: 'Abuja', commission: 200, revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
+  ];
+
+  // Navigation handler for regions
+  const handleViewRegionDetails = (regionId) => {
+    navigate(`/softpos/details/region/${regionId}`);
+  };
+
+  // Transaction actions
+  const transactionActions = [
+    {
+      label: 'View Transaction Details',
+      type: 'view',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowDetailsModal(true);
+      }
+    },
+    {
+      label: 'Share Receipt',
+      type: 'share',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowShareModal(true);
+      }
+    },
+    {
+      label: 'View Transaction History',
+      type: 'history',
+      onClick: (transaction) => {
+        navigate(`/softpos/details/transaction/${transaction.id}`);
+      }
+    }
   ];
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
       <div className="p-6">
         <PageHeader
-          title="KYC Verification"
+          title="Soft POS"
           subtitle="Here is how this has been performing so far"
-          breadcrumb="KYC Verification"
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
         />
@@ -63,7 +102,7 @@ const SoftPOS = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <TransactionPercentagePie 
-             data={[
+            data={[
               { id: 0, value: 30, label: 'Card Payments', color: '#F59E0B' },
               { id: 1, value: 70, label: 'QR Payments', color: '#06b6d4' }
             ]}
@@ -81,13 +120,30 @@ const SoftPOS = () => {
           title="Daily Transaction Volume"
         />
 
-        <KYCRegionsTable data={SoftPOSRegionsData} />
+        <KYCRegionsTable 
+          data={SoftPOSRegionsData}
+          onViewDetails={handleViewRegionDetails}
+        />
 
         <TransactionHistoryTable 
           data={SoftPOSTransactions}
           title="Transactions"
+          actions={transactionActions}
         />
       </div>
+
+      {/* External Modals */}
+      <TransactionDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        transaction={selectedTransaction}
+      />
+
+      <ShareReceiptModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        transaction={selectedTransaction}
+      />
     </div>
   );
 };

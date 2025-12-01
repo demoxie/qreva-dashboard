@@ -1,13 +1,36 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ChevronLeft, Bell, Settings } from 'lucide-react';
 import { getRouteConfig } from '@/config/routes.config';
 
 const Breadcrumb = ({ user }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
 
   const currentRoute = getRouteConfig(location.pathname);
   const canGoBack = currentRoute.parent !== null;
+
+  // Generate dynamic label based on route type and params
+  const getDynamicLabel = () => {
+    const { type, id } = params;
+    
+    // If no dynamic params, use default label
+    if (!type && !id) {
+      return currentRoute.label;
+    }
+
+    // Handle different view types
+    if (type === 'region') {
+      return 'View Location Details';
+    }
+    
+    if (type === 'transaction') {
+      return 'View Transaction History';
+    }
+
+    // Default fallback
+    return currentRoute.label;
+  };
 
   const handleBack = () => {
     if (canGoBack) {
@@ -29,7 +52,7 @@ const Breadcrumb = ({ user }) => {
           </button>
         )}
         <h1 className="text-sm font-general font-medium text-[#FF5B04]">
-          {currentRoute.label}
+          {getDynamicLabel()}
         </h1>
       </div>
 

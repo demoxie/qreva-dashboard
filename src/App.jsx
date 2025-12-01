@@ -5,7 +5,8 @@ import { RouteComponentMap } from './config/routeComponentMap';
 import LoginPage from './pages/LoginPage';
 import Sidebar from './components/base/SideBar';
 import { AuthContext, useAuth } from './hooks/useAuth';
-import Breadcrumb from './components/common/BreadCrumb';
+import Breadcrumb from './components/common/BreadCrumb'; //fixed import
+import ScrollToTop from './components/common/ScrollToTop';
 
 // ============ ROLE-BASED ACCESS CONTROL ============
 export const ROLES = {
@@ -16,10 +17,63 @@ export const ROLES = {
 };
 
 export const PERMISSIONS = {
-  [ROLES.ADMIN]: ['dashboard', 'transactions', 'accounts', 'approvals', 'settings'],
-  [ROLES.AGGREGATORMANAGER]: ['dashboard', 'transactions', 'accounts'],
-  [ROLES.AGGREGATOR]: ['dashboard', 'transactions', 'aggregation'],
-  [ROLES.AGENT]: ['dashboard', 'transactions']
+  [ROLES.ADMIN]: [
+    // Section visibility
+    'section:transactions',
+    'section:accounts',
+    'section:approvals',
+
+    // Item-level permissions
+    'dashboard:view',
+    'airtime:view',
+    'data:view',
+    'bills:view',
+    'request:view',
+    'transfers:view',
+    'softpos:view',
+    'kyc:view',
+    'earnings:view',
+
+    'users:view',
+    'agents:view',
+    'aggregation:view',
+    'aggManager:view',
+
+    'approvals:view',
+  ],
+
+  [ROLES.AGENT]: [
+    'dashboard:view',
+
+    // Can see transaction section
+    'section:transactions',
+
+    // But only specific items
+    'airtime:view',
+    'data:view',
+  ],
+
+  [ROLES.AGGREGATOR]: [
+    'dashboard:view',
+    'section:transactions',
+
+    'aggregation:view',
+    'airtime:view',
+    'data:view',
+  ],
+
+  [ROLES.AGGREGATORMANAGER]: [
+    'dashboard:view',
+
+    'section:transactions',
+    'section:accounts',
+
+    'agents:view',
+    'aggregation:view',
+    'users:view',
+    'airtime:view',
+    'data:view',
+  ],
 };
 
 //  PROTECTED ROUTE COMPONENT 
@@ -106,6 +160,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <ScrollToTop />
         <Routes>
           <Route path="/login" element={<PublicRoute><LoginWrapper /></PublicRoute>} />
           {/* Generate routes dynamically from config */}

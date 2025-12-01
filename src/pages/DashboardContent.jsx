@@ -40,54 +40,105 @@ const DashboardContent = () => {
           onTimeFilterChange={setTimeFilter}
         />
 
-        <DashboardStats />
+                 <DashboardStats />
 
-        {/* Charts Section - 40-60 Split for Admin/Agent */}
-        {(isAdmin || isAgent) && (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6  ">
-            <div className="lg:col-span-2 ">
-              <TopTransactionValueCard data={topTransactionTypes} />
+        {/* Admin Layout */}
+        {isAdmin && (
+          <>
+            {/* Top Transaction Value + Top Customers - 40-60 Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+              <div className="lg:col-span-2">
+                <TopTransactionValueCard data={topTransactionTypes} />
+              </div>
+              <div className="lg:col-span-3">
+                <TopCustomersCard 
+                  data={topCustomers} 
+                  title="Top Customers"
+                />
+              </div>
             </div>
-            <div className="lg:col-span-3">
-              <TopCustomersCard 
-                data={topCustomers} 
-                title={isAdmin ? 'Top Customers' : 'Top Agents'}
+
+            {/* Daily Transaction Volume */}
+            <TransactionVolumeChart data={dailyTransactionData} />
+
+            {/* Top Regions Table */}
+            <RegionsTable data={regionsData} />
+
+            {/* Transaction History */}
+            <TransactionHistoryTable data={transactionHistoryData} />
+          </>
+        )}
+
+        {/* Agent Layout */}
+        {isAgent && (
+          <>
+            {/* Top Transaction Value + Top % Transactions - 40-60 Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+              <div className="lg:col-span-2">
+                <TopTransactionValueCard data={topTransactionTypes} />
+              </div>
+              <div className="lg:col-span-3">
+                <TransactionPercentagePie data={transactionPercentages} />
+              </div>
+            </div>
+
+            {/* Daily Transaction Volume */}
+            <TransactionVolumeChart data={dailyTransactionData} />
+
+            {/* Card vs QR Payments - Side by Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <PaymentComparisonPie
+                data={cardVsQRPayments}
+                title="Card Payments vs QR Payments %"
+                showPercentage={true}
+              />
+              <PaymentComparisonPie
+                data={cardVsQRPayments}
+                title="Card Payments vs QR Payments Commission"
+                showPercentage={false}
+                amountData={['₦4,000,000', '₦170,823']}
               />
             </div>
-          </div>
+
+            {/* Transaction History */}
+            <TransactionHistoryTable data={transactionHistoryData} />
+          </>
         )}
 
-        {/* Charts Section for Agent/Aggregator (50-50 split) */}
-        {(isAgent || isAggregator) && !isAdmin && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <TransactionPercentagePie data={transactionPercentages} />
-          </div>
+        {/* Aggregator & Aggregator Manager Layout */}
+        {(isAggregator || isAggregatorManager) && (
+          <>
+            {/* Top Transaction Value + Top % Transactions - 40-60 Split */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
+              <div className="lg:col-span-2">
+                <TopTransactionValueCard data={topTransactionTypes} />
+              </div>
+              <div className="lg:col-span-3">
+                <TransactionPercentagePie data={transactionPercentages} />
+              </div>
+            </div>
+
+            {/* Daily Transaction Volume */}
+            <TransactionVolumeChart data={dailyTransactionData} />
+
+            {/* Top Agents + Card vs QR Payments - Side by Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <TopCustomersCard 
+                data={topCustomers} 
+                title="Top Agents"
+                showTabs={true}
+              />
+              <PaymentComparisonPie
+                data={cardVsQRPayments}
+                title="Card Payments vs QR Payments %"
+                showPercentage={true}
+              />
+            </div>
+
+            {/* Transaction History */}
+            <TransactionHistoryTable data={transactionHistoryData} />
+          </>
         )}
-
-        {/* Charts Section for Aggregator Manager */}
-        {isAggregatorManager && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <PaymentComparisonPie
-              data={cardVsQRPayments}
-              title="Card Payments vs QR Payments %"
-              showPercentage={true}
-            />
-            <PaymentComparisonPie
-              data={cardVsQRPayments}
-              title="Card Payments vs QR Payments Commission"
-              showPercentage={false}
-              amountData={['₦4,000,000', '₦170,823']}
-            />
-          </div>
-        )}
-
-        <TransactionVolumeChart data={dailyTransactionData} />
-
-        {(isAdmin || isAggregatorManager) && (
-          <RegionsTable data={regionsData} />
-        )}
-
-        <TransactionHistoryTable data={transactionHistoryData} />
       </div>
     </div>
   );
