@@ -335,13 +335,13 @@ const LoginPage = ({ onLogin, ROLES }) => {
 
             {/* Development Helper - Remove in production */}
             <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <p className="text-xs text-blue-800 font-semibold mb-2">🔧 Development Mode - Test Accounts:</p>
+              <p className="text-xs text-blue-800 font-semibold mb-2"> Development Mode - Test Accounts:</p>
               <div className="text-xs text-blue-700 space-y-1">
                 <p><strong>Admin:</strong> admin@qreva.com (any password)</p>
                 <p><strong>Agent:</strong> agent@qreva.com (any password)</p>
                 <p><strong>Aggregator:</strong> aggregator@qreva.com (any password)</p>
                 <p><strong>Manager:</strong> manager@qreva.com (any password)</p>
-                <p className="text-blue-600 mt-2">⚠️ Any other email will login as Admin by default</p>
+                <p className="text-blue-600 mt-2"> Any other email will login as Admin by default</p>
               </div>
             </div>
           </div>
