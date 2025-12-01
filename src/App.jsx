@@ -5,7 +5,7 @@ import { RouteComponentMap } from './config/routeComponentMap';
 import LoginPage from './pages/LoginPage';
 import Sidebar from './components/base/SideBar';
 import { AuthContext, useAuth } from './hooks/useAuth';
-import Breadcrumb from './components/common/BreadCrumb';
+import Breadcrumb from './components/common/BreadCrumb'; //fixed import
 import ScrollToTop from './components/common/ScrollToTop';
 
 // ============ ROLE-BASED ACCESS CONTROL ============
