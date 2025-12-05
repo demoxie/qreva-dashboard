@@ -8,6 +8,10 @@ import SoftPOS from "@/pages/SoftPOS";
 import Transfers from "@/pages/Tranfers";
 import Users from "@/pages/Users";
 import Agents from "@/pages/Agents";
+import Aggregators from "@/pages/Aggregators";
+import AggregatorManagers from "@/pages/AggregatorManager";
+import MyEarnings from "@/pages/MyEarnings";
+import AccountApprovals from "@/pages/AccountApprovals";
 
 //Nested Details Pages
 import AirtimeDetails from "@/pages/commonlynested/AirTimeDetails";
@@ -18,25 +22,21 @@ import SoftPOSDetails from "@/pages/commonlynested/SoftPOSDetails";
 import KYCDetails from "@/pages/commonlynested/KYCDetails";
 import UserProfileDetails from "@/pages/commonlynested/UserProfileDetails";
 import AgentProfileDetails from "@/pages/commonlynested/AgentProfileDetails";
+import AggregatorProfileDetails from "@/pages/commonlynested/AggregatorProfileDetails";
+import AggregatorManagerProfileDetails from "@/pages/commonlynested/AggregatorManagerProfileDetails";
+import AccountApprovalDetails from "@/pages/commonlynested/AccountApprovalDetails";
 
 // Transactions
 // import RequestPage from "../pages/transactions/RequestPage";
 // import EarningsPage from "../pages/transactions/EarningsPage";
 
 // Accounts
-// import UsersPage from "../pages/accounts/UsersPage";
-// import AgentsPage from "../pages/accounts/AgentsPage";
-// import AggregationPage from "../pages/accounts/AggregationPage";
-// import AggregatorManagerPage from "../pages/accounts/AggregatorManagerPage";
+
 
 // Approvals
 // import AccountsApprovalsPage from "../pages/approvals/AccountsApprovalsPage";
-
-// Dynamic Pages
-// import UserDetails from "../pages/accounts/UserDetails";
-// import AgentDetails from "../pages/accounts/AgentDetails";
-// import TransactionDetails from "../pages/transactions/TransactionDetails";
-
+//
+// Disputed Transactions
 
 // ===== Component Mapper by ROUTES Key =====
 export const RouteComponentMap = {
@@ -49,6 +49,10 @@ export const RouteComponentMap = {
   TRANSFERS: Transfers,
   USERS: Users,
   AGENTS: Agents,
+  AGGREGATOR: Aggregators,
+  AGGREGATOR_MANAGER: AggregatorManagers,
+  EARNINGS: MyEarnings,
+  ACCOUNTS_APPROVALS: AccountApprovals,
 
   // Nested Details Pages
   AIRTIME_DETAILS: AirtimeDetails,
@@ -59,23 +63,15 @@ export const RouteComponentMap = {
   KYC_DETAILS: KYCDetails,
   USER_DETAILS: UserProfileDetails,
   AGENT_DETAILS: AgentProfileDetails,
+  AGGREGATOR_DETAILS: AggregatorProfileDetails,
+  AGGREGATOR_MANAGER_DETAILS: AggregatorManagerProfileDetails,
+  ACCOUNTS_APPROVALS_DETAILS: AccountApprovalDetails,
 
   // Transactions
 //   REQUEST: RequestPage,
-//   TRANSFERS: TransfersPage,
 //   EARNINGS: EarningsPage,
-
-  // Accounts
-//   USERS: UsersPage,
-//   AGENTS: AgentsPage,
-//   AGGREGATION: AggregationPage,
-//   AGGREGATOR_MANAGER: AggregatorManagerPage,
 
   // Approvals
 //   ACCOUNTS_APPROVALS: AccountsApprovalsPage,
-
-  // Dynamic Routes
-//   USER_DETAILS: UserDetails,
-//   AGENT_DETAILS: AgentDetails,
-//   TRANSACTION_DETAILS: TransactionDetails,
+// Seetings
 };

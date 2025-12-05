@@ -1,27 +1,27 @@
 const CustomPagination = () => {
   return (
     <div className="flex items-center justify-between w-full px-4">
-      <span className="text-sm font-general text-[#7C8D96]">
+      <span className="text-sm font-general text-[#7C8D96] font-semibold">
         Page 1 of 30
       </span>
       <div className="flex items-center gap-2">
-        <button className="px-3 py-1.5 text-sm font-general text-white bg-[#FF6B2C] border border-[#FF6B2C] rounded-md">
+        <button className="px-3 py-1.5 text-sm font-general text-[#FF5B04] bg-[#FFEFE6] border border-[#FFEFE6] rounded-md">
           1
         </button>
-        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96] border border-[#E8EBED] rounded-md hover:bg-[#F5F6F7] transition-colors">
+        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96]  rounded-md hover:bg-[#F5F6F7] transition-colors">
           2
         </button>
-        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96] border border-[#E8EBED] rounded-md hover:bg-[#F5F6F7] transition-colors">
+        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96]  rounded-md hover:bg-[#F5F6F7] transition-colors">
           3
         </button>
         <span className="px-2 text-[#B0B7C3]">...</span>
-        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96] border border-[#E8EBED] rounded-md hover:bg-[#F5F6F7] transition-colors">
+        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96]  rounded-md hover:bg-[#F5F6F7] transition-colors">
           10
         </button>
-        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96] border border-[#E8EBED] rounded-md hover:bg-[#F5F6F7] transition-colors">
+        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96]  rounded-md hover:bg-[#F5F6F7] transition-colors">
           11
         </button>
-        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96] border border-[#E8EBED] rounded-md hover:bg-[#F5F6F7] transition-colors">
+        <button className="px-3 py-1.5 text-sm font-general text-[#7C8D96]  rounded-md hover:bg-[#F5F6F7] transition-colors">
           12
         </button>
        

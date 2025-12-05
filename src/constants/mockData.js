@@ -65,17 +65,26 @@ export const topTransactionTypes = [
 ];
 
 export const transactionPercentages = [
-  { id: 0, value: 30, label: 'Airtime', color: '#F59E0B' },
-  { id: 1, value: 20, label: 'Transfers', color: '#06b6d4' },
-  { id: 2, value: 20, label: 'SoftPOS', color: '#10B981' },
-  { id: 3, value: 10, label: 'KYC Ver.', color: '#8B5CF6' },
-  { id: 4, value: 20, label: 'Requests', color: '#F59E0B' },
-  { id: 5, value: 10, label: 'Data', color: '#EC4899' }
+  { id: 0, value: 30, label: 'Airtime', color: '#E85304' },
+  { id: 1, value: 20, label: 'Transfers', color: '#FF5B04' },
+  { id: 2, value: 20, label: 'SoftPOS', color: '#FF7C36' },
+  { id: 3, value: 10, label: 'KYC Ver.', color: '#26C8B9' },
+  { id: 4, value: 20, label: 'Requests', color: '#FF7C36' },
+  { id: 5, value: 10, label: 'Data', color: '#26C8B9' }
+];
+
+export const airtimePercentages = [
+  { id: 0, value: 30, label: 'Airtel', color: '#E85304' },
+  { id: 1, value: 20, label: 'MTN', color: '#FF5B04' },
+  { id: 2, value: 20, label: 'Etisalat', color: '#FF7C36' },
+  { id: 3, value: 10, label: 'Glo', color: '#26C8B9' },
+  { id: 4, value: 20, label: '9Mobile', color: '#FF7C36' },
 ];
 
 export const cardVsQRPayments = [
-  { id: 0, value: 30, label: 'Card Payments', color: '#F59E0B' },
-  { id: 1, value: 70, label: 'QR Payments', color: '#06b6d4' }
+  { id: 1, value: 70, label: 'QR Payments', color: '#26C8B9' },
+  { id: 0, value: 30, label: 'Card Payments', color: '#E85304' }
+  
 ];
 
 export const topCustomers = [

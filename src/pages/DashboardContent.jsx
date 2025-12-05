@@ -18,16 +18,44 @@ import {
   regionsData,
   transactionHistoryData
 } from '@/constants/mockData';
+import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
+import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 
 const DashboardContent = () => {
   const { user } = useAuth();
   const [timeFilter, setTimeFilter] = useState('Today');
+
+    // Modal states
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+
 
   // Role checks
   const isAdmin = user?.role === 'admin';
   const isAgent = user?.role === 'agent';
   const isAggregator = user?.role === 'aggregator';
   const isAggregatorManager = user?.role === 'aggregator_manager';
+
+    // Transaction actions - defined in parent, passed to table
+  const transactionActions = [
+    {
+      label: 'View Transaction Details',
+      type: 'view',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowDetailsModal(true);
+      }
+    },
+    {
+      label: 'Share Receipt',
+      type: 'share',
+      onClick: (transaction) => {
+        setSelectedTransaction(transaction);
+        setShowShareModal(true);
+      }
+    },
+  ];
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50">
@@ -40,11 +68,14 @@ const DashboardContent = () => {
           onTimeFilterChange={setTimeFilter}
         />
 
-                 <DashboardStats />
+                 
 
         {/* Admin Layout */}
         {isAdmin && (
           <>
+          <DashboardStats 
+            role="admin"
+          />
             {/* Top Transaction Value + Top Customers - 40-60 Split */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
               <div className="lg:col-span-2">
@@ -65,13 +96,30 @@ const DashboardContent = () => {
             <RegionsTable data={regionsData} />
 
             {/* Transaction History */}
-            <TransactionHistoryTable data={transactionHistoryData} />
+             <TransactionHistoryTable 
+            data={transactionHistoryData} 
+            actions={transactionActions}
+            />
+            <TransactionDetailsModal
+              isOpen={showDetailsModal}
+              onClose={() => setShowDetailsModal(false)}
+              transaction={selectedTransaction}
+            />
+
+                  <ShareReceiptModal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              transaction={selectedTransaction}
+            />
           </>
         )}
 
         {/* Agent Layout */}
         {isAgent && (
           <>
+          <DashboardStats 
+            role="agent"
+          />
             {/* Top Transaction Value + Top % Transactions - 40-60 Split */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
               <div className="lg:col-span-2">
@@ -108,6 +156,9 @@ const DashboardContent = () => {
         {/* Aggregator & Aggregator Manager Layout */}
         {(isAggregator || isAggregatorManager) && (
           <>
+          <DashboardStats 
+            role="aggregator"
+          />
             {/* Top Transaction Value + Top % Transactions - 40-60 Split */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
               <div className="lg:col-span-2">
@@ -136,8 +187,24 @@ const DashboardContent = () => {
             </div>
 
             {/* Transaction History */}
-            <TransactionHistoryTable data={transactionHistoryData} />
+            <TransactionHistoryTable 
+            data={transactionHistoryData} 
+            actions={transactionActions}
+            />
+            <TransactionDetailsModal
+              isOpen={showDetailsModal}
+              onClose={() => setShowDetailsModal(false)}
+              transaction={selectedTransaction}
+            />
+
+                  <ShareReceiptModal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              transaction={selectedTransaction}
+            />
           </>
+
+          
         )}
       </div>
     </div>

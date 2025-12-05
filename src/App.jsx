@@ -36,7 +36,7 @@ export const PERMISSIONS = {
 
     'users:view',
     'agents:view',
-    'aggregation:view',
+    'aggregator:view',
     'aggManager:view',
 
     'approvals:view',
@@ -57,7 +57,7 @@ export const PERMISSIONS = {
     'dashboard:view',
     'section:transactions',
 
-    'aggregation:view',
+    'aggregator:view',
     'airtime:view',
     'data:view',
   ],
@@ -69,7 +69,7 @@ export const PERMISSIONS = {
     'section:accounts',
 
     'agents:view',
-    'aggregation:view',
+    'aggregator:view',
     'users:view',
     'airtime:view',
     'data:view',

@@ -8,14 +8,14 @@ const TransactionPercentagePie = ({ data, title = "Top % Transactions" }) => {
         <CardTitle className="text-base">{title}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-8">
-          <div className="flex-1">
+        <div className="flex flex-wrap items-center gap-8">
+          <div className="flex-1 min-w-[150px]">
             <PieChart
               series={[{
                 data: data,
-                innerRadius: 60,
+                innerRadius: 80,
                 outerRadius: 100,
-                paddingAngle: 2,
+                paddingAngle: 0,
                 cornerRadius: 5,
               }]}
               height={200}
@@ -25,13 +25,13 @@ const TransactionPercentagePie = ({ data, title = "Top % Transactions" }) => {
               }}
             />
           </div>
-          <div className="flex-1 space-y-3">
+          <div className="min-w-[150px] space-y-3">
             <div className="grid grid-cols-2 gap-3">
               {data.map((item) => (
                 <div key={item.id} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }}></div>
-                  <span className="text-sm">{item.label}</span>
-                  <span className="text-sm font-medium ml-auto">{item.value}%</span>
+                  <div className="w-1 h-7 rounded" style={{ backgroundColor: item.color }}></div>
+                  <span className="text-sm text-[#808C91] font-general">{item.label}</span>
+                  <span className="text-sm font-medium ml-auto flex items-center gap-1">{item.value}<p className='text-[#808C91]'>%</p></span>
                 </div>
               ))}
             </div>

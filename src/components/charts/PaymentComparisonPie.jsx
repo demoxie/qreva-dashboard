@@ -10,16 +10,16 @@ const PaymentComparisonPie = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="text-lg text-[#1E1E1E] font-urbanist font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col items-center">
           <PieChart
             series={[{
               data: data,
-              innerRadius: 60,
+              innerRadius: 80,
               outerRadius: 100,
-              paddingAngle: 2,
+              paddingAngle: 0,
               cornerRadius: 5,
             }]}
             height={200}
@@ -31,8 +31,8 @@ const PaymentComparisonPie = ({
           <div className="flex gap-6 mt-4">
             {data.map((item, idx) => (
               <div key={item.id} className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded" style={{ backgroundColor: item.color }}></div>
-                <span className="text-sm">{item.label}</span>
+                <div className="w-1 h-7 rounded" style={{ backgroundColor: item.color }}></div>
+                <span className="text-sm text-[#808C91] font-general  ">{item.label}</span>
                 <span className="text-sm font-medium">
                   {showPercentage ? `${item.value}%` : amountData?.[idx] || ''}
                 </span>

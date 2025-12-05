@@ -13,7 +13,7 @@ import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import {
   dailyTransactionData,
   topTransactionTypes,
-  transactionPercentages,
+  airtimePercentages,
   topCustomers,
   regionsData,
   transactionHistoryData,
@@ -103,15 +103,15 @@ const AirtimePurchase = () => {
 
         {/* Transaction Volume and Percentage Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 ">
             <TransactionVolumeChart 
               data={dailyTransactionData}
               title="Daily Transaction Volume"
             />
           </div>
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 ">
             <TransactionPercentagePie 
-              data={transactionPercentages}
+              data={airtimePercentages}
               title="Top % Purchase from Customers"
             />
           </div>

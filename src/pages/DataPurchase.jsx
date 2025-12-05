@@ -16,7 +16,8 @@ import {
   transactionPercentages,
   topCustomers,
   regionsData,
-  transactionHistoryData
+  transactionHistoryData,
+  airtimePercentages
 } from '@/constants/mockData';
 
 const DataPurchase = () => {
@@ -115,7 +116,7 @@ const DataPurchase = () => {
           </div>
           <div className="lg:col-span-1">
             <TransactionPercentagePie 
-              data={transactionPercentages}
+              data={airtimePercentages}
               title="Top % Purchase from Customers"
             />
           </div>
