@@ -6,7 +6,9 @@ import DataTable from '@/components/tables/DataTable';
 import AddAggregatorModal from '@/components/modals/AddAggregatorModal';
 import AggregatorAddedModal from '@/components/modals/AggregatorAddedModal';
 import ConfirmDialog from '@/components/modals/ConfirmDialogComponent';
-import { Eye, Ban, History } from 'lucide-react';
+import CustomEye from '@/components/icons/CustomEye';
+import CustomUser from '@/components/icons/CustomUser';
+import CustomHistory from '@/components/icons/CustomHistory';
 
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -91,9 +93,10 @@ const Aggregators = () => {
       field: 'name',
       headerName: 'Aggregator Name',
       width: 250,
+      flex: 1,
       renderCell: (params) => (
         <div className="flex flex-col justify-center h-full">
-          <div className="text-sm font-medium">{params.row.name}</div>
+          <div className="text-sm font-general font-medium">{params.row.name}</div>
           <div className="text-xs text-gray-500">{params.row.email}</div>
         </div>
       )
@@ -102,6 +105,7 @@ const Aggregators = () => {
       field: 'totalTransactions', 
       headerName: 'Total Transactions', 
       width: 150,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
           {params.value}
@@ -112,6 +116,7 @@ const Aggregators = () => {
       field: 'totalVolume',
       headerName: 'Total Volume (₦)',
       width: 150,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
           {params.value?.toLocaleString()}
@@ -122,6 +127,7 @@ const Aggregators = () => {
       field: 'totalRevenue',
       headerName: 'Total Revenue (₦)',
       width: 150,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
           {params.value?.toLocaleString()}
@@ -132,6 +138,7 @@ const Aggregators = () => {
       field: 'totalCommission',
       headerName: 'Total Commission (₦)',
       width: 180,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
           {params.value?.toLocaleString()}
@@ -142,8 +149,9 @@ const Aggregators = () => {
       field: 'joinedDate', 
       headerName: 'Joined Date', 
       width: 180,
+      flex: 1,
       renderCell: (params) => (
-        <span className="text-sm text-gray-500 flex items-center h-full">{params.value}</span>
+        <span className="text-sm font-general text-gray-500 flex items-center h-full">{params.value}</span>
       )
     }
   ];
@@ -152,12 +160,12 @@ const Aggregators = () => {
   const tableActions = [
     {
       label: 'View Profile Details',
-      icon: Eye,
+      icon: CustomEye,
       onClick: (row) => navigate(`/aggregators/${row.id}`)
     },
     {
       label: 'Suspend Aggregator',
-      icon: Ban,
+      icon: CustomUser,
       onClick: (row) => {
         setSelectedAggregator(row);
         setShowSuspendModal(true);
@@ -165,7 +173,7 @@ const Aggregators = () => {
     },
     {
       label: 'View Transaction History',
-      icon: History,
+      icon: CustomHistory,
       onClick: (row) => navigate(`/aggregators/${row.id}?tab=transactions`)
     }
   ];

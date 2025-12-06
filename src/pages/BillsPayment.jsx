@@ -19,6 +19,9 @@ import {
   transactionHistoryData,
   airtimeProviders
 } from '@/constants/mockData';
+import CustomEye from '@/components/icons/CustomEye';
+import CustomShare from '@/components/icons/CustomShare';
+import CustomHistory from '@/components/icons/CustomHistory';
 
 const BillsPayment = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -43,6 +46,7 @@ const BillsPayment = () => {
     {
       label: 'View Transaction Details',
       type: 'view',
+      icon: CustomEye,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowDetailsModal(true);
@@ -51,6 +55,7 @@ const BillsPayment = () => {
     {
       label: 'Share Receipt',
       type: 'share',
+      icon: CustomShare,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowShareModal(true);
@@ -59,6 +64,7 @@ const BillsPayment = () => {
     {
       label: 'View Transaction History',
       type: 'history',
+      icon: CustomHistory,
       onClick: (transaction) => {
         navigate(`/bills/details/transaction/${transaction.id}`);
       }
@@ -108,6 +114,7 @@ const BillsPayment = () => {
             <TransactionPercentagePie 
               data={transactionPercentages}
               title="Top % Purchase from Customers"
+              wrapped={true}
             />
           </div>
         </div>

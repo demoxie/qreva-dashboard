@@ -14,12 +14,12 @@ const BaseModal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md', ha
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
       <div className={`bg-white rounded-lg p-6 ${maxWidth} w-full mx-4`}>
         {/* Header (Only render if title or close button is needed) */}
         {(title || hasCloseButton) && (
           <div className={`flex ${title && hasCloseButton ? 'justify-between' : 'justify-end'} items-center mb-4`}>
-            {title && <h3 className="text-xl font-semibold text-[#1E1E1E]">{title}</h3>}
+            {title && <h3 className="text-2xl font-bold font-urbanist text-[#1E1E1E]">{title}</h3>}
             {hasCloseButton && <CloseButton onClick={onClose} />}
           </div>
         )}

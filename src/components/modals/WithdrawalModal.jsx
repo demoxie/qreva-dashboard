@@ -18,11 +18,11 @@ const WithdrawModal = ({
 }) => {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Withdraw Now">
-      <p className="text-sm text-[#808C91] mb-4">Kindly input the right info to perform this action</p>
+      <p className="text-sm text-[#808C91] font-general font-medium mb-4">Kindly input the right info to perform this action</p>
 
       {/* Frequent Beneficiaries */}
       <div className="mb-4">
-        <label className="text-xs text-[#808C91] mb-2 block">Frequent Beneficiaries</label>
+        <label className="text-xs text-[#808C91] mb-2 block  font-general">Frequent Beneficiaries</label>
         <div className="flex gap-2 overflow-x-auto pb-2">
           {frequentBeneficiaries.map((beneficiary, idx) => (
             <button
@@ -34,48 +34,50 @@ const WithdrawModal = ({
                 setAccountName('PECULIAR REGINA');
               }}
             >
-              <div className="w-10 h-10 rounded-full bg-[#FFECE5] flex items-center justify-center text-[#FF5B04] font-medium text-sm mb-1">
+              <div className="w-10 h-10 rounded-full bg-[#333333]/5 flex items-center justify-center text-[#FF9157] font-medium text-sm mb-1">
                 {beneficiary.initial}
               </div>
-              <span className="text-xs text-[#1E1E1E]">{beneficiary.name}</span>
+              <span className="text-xs font-general text-[#1E1E1E]">{beneficiary.name}</span>
             </button>
           ))}
         </div>
       </div>
 
       {/* Bank Name Dropdown */}
-      <div className="mb-4">
-        <label className="text-sm text-[#808C91] mb-1 block">Recipient Bank Name</label>
+      <div className="mb-4 relative">
         <select
           value={bankName}
           onChange={(e) => setBankName(e.target.value)}
-          className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5B04]/20"
+          className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm font-general text-[#808C91] focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 appearance-none pr-12"
         >
           <option value="">Bank Name</option>
           <option value="Access Bank">Access Bank</option>
           <option value="GTBank">GTBank</option>
           <option value="First Bank">First Bank</option>
         </select>
+        {/* Custom Chevron */}
+        <div className="pointer-events-none cursor-pointer absolute top-1/2 right-4 transform -translate-y-1/2 bg-[#333333]/5 rounded-full p-2 flex items-center justify-center">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+            <path d="M7 10l5 5 5-5" stroke="#FF9157" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
       </div>
-
-      {/* Account Number */}
       <div className="mb-4">
-        <label className="text-sm text-[#808C91] mb-1 block">Account Number</label>
         <input
           type="text"
           placeholder="Account Number"
           value={accountNumber}
           onChange={(e) => setAccountNumber(e.target.value)}
-          className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5B04]/20"
+          className="w-full px-4 py-3 font-general border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20"
         />
         {accountNumber && (
-          <div className="text-xs text-[#FF5B04] mt-1 text-right">{accountName}</div>
+          <div className="text-xs text-[#084059] mt-1 text-right">{accountName}</div>
         )}
       </div>
 
       {/* Amount */}
       <div className="mb-6">
-        <div className="border-2 border-[#17B4A5] rounded-lg p-4">
+        <div className="border-2 border-[#E8EBED] rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20">
           <div className="flex items-baseline">
             <span className="text-2xl font-semibold text-[#1E1E1E] mr-1">₦</span>
             <input
@@ -88,7 +90,7 @@ const WithdrawModal = ({
           </div>
           <div className="flex justify-between items-center mt-2">
             <span className="text-xs text-[#808C91]">Transfer Amount (Min. 200)</span>
-            <span className="text-xs text-[#1E1E1E]">Your Earnings: <span className="font-semibold">3,000,000</span></span>
+            <span className="text-xs text-[#1E1E1E] font-general">Your Earnings: <span className="font-semibold">3,000,000</span></span>
           </div>
         </div>
       </div>

@@ -19,6 +19,9 @@ import {
   transactionHistoryData,
   airtimeProviders
 } from '@/constants/mockData';
+import CustomEye from '@/components/icons/CustomEye';
+import CustomShare from '@/components/icons/CustomShare';
+import CustomHistory from '@/components/icons/CustomHistory';
 
 const AirtimePurchase = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -47,6 +50,7 @@ const AirtimePurchase = () => {
   const transactionActions = [
     {
       label: 'View Transaction Details',
+      icon: CustomEye,
       type: 'view',
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
@@ -56,6 +60,7 @@ const AirtimePurchase = () => {
     {
       label: 'Share Receipt',
       type: 'share',
+      icon: CustomShare,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowShareModal(true);
@@ -64,6 +69,7 @@ const AirtimePurchase = () => {
     {
       label: 'View Transaction History',
       type: 'history',
+      icon: CustomHistory,
       onClick: (transaction) => {
         navigate(`/airtime/details/transaction/${transaction.id}`);
       }
@@ -113,6 +119,7 @@ const AirtimePurchase = () => {
             <TransactionPercentagePie 
               data={airtimePercentages}
               title="Top % Purchase from Customers"
+              wrapped={true}
             />
           </div>
         </div>

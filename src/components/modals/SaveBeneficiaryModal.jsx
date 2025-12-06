@@ -13,7 +13,7 @@ const SaveBeneficiaryModal = ({
 }) => {
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Save Beneficiary">
-      <p className="text-sm text-[#808C91] mb-4">Give this beneficiary a nickname to save them for future use.</p>
+      <p className="text-sm text-[#808C91] mb-4 font-general font-medium">Kindly input what you would love to save as name</p>
 
       {/* Current Account Details (Read-only) */}
       <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg mb-4">
@@ -35,16 +35,16 @@ const SaveBeneficiaryModal = ({
           placeholder="e.g., Mom's Account, Secondary Bank"
           value={beneficiaryName}
           onChange={(e) => setBeneficiaryName(e.target.value)}
-          className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5B04]/20"
+          className="w-full px-4 py-3 border font-general border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20"
         />
       </div>
 
       <button
         onClick={confirmSaveBeneficiary}
         disabled={!beneficiaryName}
-        className="w-full py-3 bg-[#17B4A5] text-white rounded-lg font-medium hover:bg-[#0D8F83] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+        className="w-full py-3 bg-[#FF5B04] text-white rounded-lg font-medium cursor-pointer transition-colors disabled:bg-[#9A9A9A] disabled:cursor-not-allowed"
       >
-        Confirm & Save
+        Save as Beneficiary
       </button>
     </BaseModal>
   );

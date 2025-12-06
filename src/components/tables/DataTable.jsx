@@ -94,22 +94,47 @@ const DataTable = ({
         </CardHeader>
         <CardContent className="px-0 h-full">
           <DataGrid
+          className='w-full'
             rows={data}
             columns={gridColumns}
             checkboxSelection={showCheckbox}
             disableRowSelectionOnClick
+            disableColumnResize
+            columnBufferPx={0}
             pageSizeOptions={pageSizeOptions}
             initialState={{
               pagination: { paginationModel: { pageSize } },
             }}
             sx={{
               border: 0,
+              width: '%100',
+                '& .MuiDataGrid-row:hover': {
+                    backgroundColor: 'transparent !important',
+                },
+                '& .MuiDataGrid-cell:hover': {
+                    backgroundColor: 'transparent !important',
+                },
+                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
+                    outline: 'none !important',
+                },
+                '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
+                    outline: 'none !important',
+                },
+                '& .MuiDataGrid-row.Mui-selected': {
+                    backgroundColor: 'transparent !important',
+                },
+                '& .MuiDataGrid-row.Mui-selected:hover': {
+                    backgroundColor: 'transparent !important',
+                },
               '& .MuiDataGrid-cell': {
                 borderBottom: '1px solid #f0f0f0',
                 padding: '12px 16px',
+                //margin: '16px 0px',
                 fontSize: '14px',
                 fontFamily: 'General Sans, sans-serif',
                 color: '#1E1E1E',
+                display: 'flex',
+                alignItems: 'center',
               },
               '& .MuiDataGrid-columnHeaders': {
                 backgroundColor: 'transparent',

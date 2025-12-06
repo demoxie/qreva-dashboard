@@ -5,7 +5,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import BgImage from "../../assets/images/Vector.png"; // <-- your background image
 
-const DashboardStats = ({ stats, role, route }) => {
+const DashboardStats = ({ stats, route }) => {
   // Default stats
   const defaultStats = [
     { label: "Total Transactions", value: "45,823", change: "+20%", subtext: "80,000 Last 24 hours" },
@@ -16,6 +16,8 @@ const DashboardStats = ({ stats, role, route }) => {
 
   let statsToDisplay = stats || defaultStats;
 
+  const userRole = localStorage.getItem("userRole") || "admin";
+
   // ---------------------------
   // 1️⃣ GET DATA FOR CUSTOM CARD
   // ---------------------------
@@ -23,13 +25,13 @@ const DashboardStats = ({ stats, role, route }) => {
     if (route === "my-earnings") {
       return {
         label: "My Earnings",
-        value: "—",
+        value: stats[0]?.value || "₦0",
         change: "",
-        subtext: "Earnings overview placeholder"
+        subtext: stats[0]?.subtext || "₦0 in last 24 hours"
       };
     }
 
-    switch (role) {
+    switch (userRole) {
       case "agent":
       case "aggregator":
       case "aggregator_manager":
@@ -128,7 +130,7 @@ const DashboardStats = ({ stats, role, route }) => {
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       {statsToDisplay.map((stat, idx) => {
         // First card gets custom layout
-        if (idx === 0 && (role !== "admin" || route === "my-earnings")) {
+        if (idx === 0 && (userRole !== "admin" || route === "my-earnings")) {
           return <div key={idx}>{renderCustomFirstCard(stat)}</div>;
         }
 

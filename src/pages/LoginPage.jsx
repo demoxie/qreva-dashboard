@@ -123,7 +123,7 @@ const LoginPage = ({ onLogin, ROLES }) => {
 
     // Return user with role (simulating backend response)
     const user = mockUsers[email] || defaultUser;
-    
+    localStorage.setItem('userRole', user.role); // Store role in localStorage
     return {
       success: true,
       data: {
@@ -131,7 +131,8 @@ const LoginPage = ({ onLogin, ROLES }) => {
         username: user.name,
         role: user.role,
         token: 'mock-jwt-token-' + Date.now(), // Simulate JWT token
-      }
+      },
+      
     };
   };
 

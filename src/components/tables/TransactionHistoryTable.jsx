@@ -12,6 +12,7 @@ const TransactionHistoryTable = ({
       field: 'title', 
       headerName: 'Title', 
       width: 180,
+      flex: 1,
       renderCell: (params) => (
         <div className='flex flex-col justify-center h-full'>
           <div className="text-sm font-medium flex items-center h-full">{params.row.title}</div>
@@ -23,6 +24,7 @@ const TransactionHistoryTable = ({
       field: 'desc', 
       headerName: 'Description',
       width: 180,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
           {params.value}
@@ -33,6 +35,7 @@ const TransactionHistoryTable = ({
       field: 'category', 
       headerName: 'Category', 
       width: 130,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
           {params.value}
@@ -43,16 +46,24 @@ const TransactionHistoryTable = ({
       field: 'status', 
       headerName: 'Status', 
       width: 130,
-      renderCell: (params) => (
-        <span className="px-2 py-1.5 text-center bg-[#E9F9EF] text-[#4ED17E] font-general font-medium border border-[#4ED17E] text-xs rounded-md flex items-center justify-center h-full">
+      flex: 1,
+      renderCell: (params) => {
+        const statusColors = {
+          Pending: 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]',
+          Successful: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]'
+        };
+        return(
+        <span className={`px-2 py-1.5 text-center ${statusColors[params.value]} font-general font-medium  text-xs rounded-md flex items-center justify-center h-full`}>
           {params.value}
         </span>
-      )
+        );
+      }
     },
     { 
       field: 'type',
       headerName: 'Type',
       width: 100,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
           {params.value}
@@ -63,6 +74,7 @@ const TransactionHistoryTable = ({
       field: 'amount', 
       headerName: 'Amount (₦)', 
       width: 150,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
           {params.value?.toLocaleString()}
@@ -73,6 +85,7 @@ const TransactionHistoryTable = ({
       field: 'date', 
       headerName: 'Transaction Date', 
       width: 180,
+      flex: 1,
       renderCell: (params) => (
         <span className="text-sm text-gray-500 flex items-center h-full">{params.value}</span>
       )
