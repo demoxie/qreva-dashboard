@@ -29,7 +29,7 @@ const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Volume" 
   };
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 h-full">
       <CardHeader>
         <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
           {title}

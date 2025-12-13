@@ -42,7 +42,7 @@ const TopCustomersCard = ({
   };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">

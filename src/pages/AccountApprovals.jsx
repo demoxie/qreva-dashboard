@@ -1,23 +1,23 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DataGrid } from '@mui/x-data-grid';
-import { MoreVertical, Eye, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom'; 
 import PageHeader from '@/components/common/PageHeader';
-import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
+import DataTable from '@/components/tables/DataTable';
+import CustomEye from '@/components/icons/CustomEye';
+import CustomUser from '@/components/icons/CustomUser';
+import CustomHistory from '@/components/icons/CustomHistory';
 
 // Mock Data
 const mockApprovals = [
   { id: 1, name: 'Rejoice Regina Rose', email: 'emailaddress@gmail.com', account: 'Personal Account', tier: 'Tier 2', status: 'Declined', date: '10:00 AM | 25th March, 2025' },
-  { id: 2, name: 'John Doe', email: 'johndoe@gmail.com', account: 'Agent Account', tier: 'Tier 2', status: 'Declined', date: '10:00 AM | 24th March, 2025' },
+  { id: 2, name: 'John Doe', email: 'johndoe@gmail.com', account: 'Agent Account', tier: 'Tier 2', status: 'Pending', date: '10:00 AM | 24th March, 2025' },
   { id: 3, name: 'Sarah Smith', email: 'sarah@gmail.com', account: 'Merchant', tier: 'Tier 2', status: 'Declined', date: '09:00 AM | 25th March, 2025' },
-  { id: 4, name: 'Michael Brown', email: 'michael@gmail.com', account: 'Agent Account', tier: 'Tier 2', status: 'Declined', date: '10:00 AM | 25th March, 2025' },
+  { id: 4, name: 'Michael Brown', email: 'michael@gmail.com', account: 'Agent Account', tier: 'Tier 2', status: 'Approved', date: '10:00 AM | 25th March, 2025' },
   { id: 5, name: 'Emily Davis', email: 'emily@gmail.com', account: 'Personal Account', tier: 'Tier 2', status: 'Declined', date: '11:00 AM | 25th March, 2025' },
 ];
 
 const AccountApprovals = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Pending');
-  const [dropdown, setDropdown] = useState({ open: false, row: null, x: 0, y: 0 });
 
   const tabs = [
     { label: 'Pending', count: 9 },
@@ -31,6 +31,7 @@ const AccountApprovals = () => {
       field: 'name',
       headerName: 'Customer Name',
       width: 250,
+      flex: 1,
       renderCell: (params) => (
         <div className="flex items-center gap-3">
            {/* Checkbox is handled by DataGrid checkboxSelection prop */}
@@ -41,22 +42,33 @@ const AccountApprovals = () => {
         </div>
       )
     },
-    { field: 'account', headerName: 'User Account', width: 180 },
-    { field: 'tier', headerName: 'Tier', width: 100 },
+    { 
+      field: 'account', 
+      headerName: 'User Account', 
+      width: 180,
+      flex: 1,
+     },
+    { 
+      field: 
+      'tier', 
+      headerName: 'Tier', 
+      width: 100,
+      flex: 1, 
+    },
     {
       field: 'status',
       headerName: 'Status',
       width: 150,
+      flex: 1,
       renderCell: (params) => {
         let styleClass = '';
-        if (activeTab === 'Approved') styleClass = 'bg-green-50 text-green-600 border border-green-100';
-        else if (activeTab === 'Declined') styleClass = 'bg-red-50 text-red-600 border border-red-100';
-        else styleClass = 'bg-yellow-50 text-yellow-600 border border-yellow-100'; // Pending default style if needed
+        if (activeTab === 'Approved') styleClass = 'border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]';
+        else if (activeTab === 'Declined') styleClass = 'border border-[#E56566] bg-[#FCECEC] text-[#9E2D2D]';
+        else styleClass = 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]';
 
         // Override based on row data for demo
-        if (params.value === 'Declined') styleClass = 'bg-red-50 text-red-600 border border-red-100';
-        if (params.value === 'Approved') styleClass = 'bg-green-50 text-green-600 border border-green-100';
-
+        if (params.value === 'Declined') styleClass = 'border border-[#E56566] bg-[#FCECEC] text-[#9E2D2D]';
+        if (params.value === 'Approved') styleClass = 'border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]';
         return (
           <span className={`px-3 py-1 rounded-md text-xs font-medium ${styleClass}`}>
             {params.value}
@@ -64,32 +76,38 @@ const AccountApprovals = () => {
         );
       }
     },
-    { field: 'date', headerName: 'Submission Date', width: 220 },
-    {
-      field: 'actions',
-      headerName: '',
-      width: 80,
-      sortable: false,
-      renderCell: (params) => (
-        <button
-          className="p-1 hover:bg-gray-100 rounded-full"
-          onClick={(e) => {
-            e.stopPropagation();
-            const rect = e.currentTarget.getBoundingClientRect();
-            setDropdown({ open: true, row: params.row, x: rect.right - 180, y: rect.bottom + window.scrollY });
-          }}
-        >
-          <MoreVertical size={16} className="text-gray-400" />
-        </button>
-      )
-    }
+    { 
+      field: 'date', 
+      headerName: 'Submission Date', 
+      width: 220,
+      flex: 1, 
+    },
   ];
 
-  // Close dropdown handler
-  const handleCloseDropdown = () => setDropdown({ open: false, row: null, x: 0, y: 0 });
+  const tableActions = [
+      {
+        label: 'View Details',
+        icon: CustomEye,
+        onClick: (row) => navigate(`/users/${row.id}`)
+      },
+      {
+        label: 'Accept Approval',
+        icon: CustomUser,
+        onClick: (row) => {
+          setSelectedAggregator(row);
+          setShowSuspendModal(true);
+        }
+      },
+      {
+        label: 'Decline Approval',
+        icon: CustomHistory,
+        onClick: (row) => navigate(`/users/${row.id}?tab=transactions`)
+      }
+    ];
+
 
   return (
-    <div className="flex-1 overflow-auto bg-[#F7FAFA]" onClick={handleCloseDropdown}>
+    <div className="flex-1 overflow-auto bg-[#F7FAFA]">
       <div className="p-6">
         <PageHeader
           title="Account Approvals"
@@ -124,28 +142,13 @@ const AccountApprovals = () => {
         </div>
 
         {/* Table Container */}
-        <TransactionHistoryTable 
+        <DataTable 
           data={mockApprovals}
           title="Pending Approvals"
-         // actions={transactionActions}
+          columns={columns}
+          actions={tableActions}
         />
       </div>
-
-      {/* Floating Dropdown */}
-      {dropdown.open && (
-        <div
-          className="fixed bg-white rounded-lg shadow-xl border border-gray-100 w-40 py-1 z-50"
-          style={{ top: dropdown.y, left: dropdown.x }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={() => navigate(`/account-approvals/${dropdown.row.id}`)}
-            className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-          >
-            <Eye size={16} className="text-gray-400" /> View Details
-          </button>
-        </div>
-      )}
     </div>
   );
 };

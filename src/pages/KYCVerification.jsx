@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
-import KYCStats from '@/components/base/KYCStats';
-import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
-import TopAgentsCard from '@/components/cards/TopAgentsCard';
 import MultiLineChart from '@/components/charts/MultiLineChart';
-import KYCRegionsTable from '@/components/tables/KYCRegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
+import DashboardStats from '@/components/base/DashboardStats';
+import TopCustomersCard from '@/components/cards/TopCustomersCard';
+import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
+import RegionsTable from '@/components/tables/RegionsTable';
+import CustomEye from '@/components/icons/CustomEye';
+import CustomShare from '@/components/icons/CustomShare';
+import CustomHistory from '@/components/icons/CustomHistory';
 
 const KYCVerification = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -21,8 +24,8 @@ const KYCVerification = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   const bvnVsNinData = [
-    { id: 0, value: 30, label: 'NIN Verifications', color: '#F59E0B' },
-    { id: 1, value: 70, label: 'BVN Verification', color: '#06b6d4' }
+    { id: 0, value: 30, label: 'NIN Verifications', color: '#E85304' },
+    { id: 1, value: 70, label: 'BVN Verification', color: '#26C8B9' }
   ];
 
   const multiLineData = [
@@ -41,8 +44,8 @@ const KYCVerification = () => {
   ];
 
   const chartSeries = [
-    { data: multiLineData.map(d => d.bvn), color: '#06b6d4', label: 'BVN' },
-    { data: multiLineData.map(d => d.nin), color: '#F59E0B', label: 'NIN' }
+    { data: multiLineData.map(d => d.bvn), color: '#26C8B9', label: 'BVN' },
+    { data: multiLineData.map(d => d.nin), color: '#E85304', label: 'NIN' }
   ];
 
   const kycRegionsData = [
@@ -61,16 +64,143 @@ const KYCVerification = () => {
     { id: 5, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'BVN', status: 'First Time', category: 'KYC', desc: 'BVN Verification', location: 'Abuja', commission: 200, revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
   ];
 
-  // Navigation handler for regions
+  const stats = [
+    { 
+      label: 'Total KYC Verification Sum', 
+      value: '₦4,005,823', 
+      subtext: '₦50,000 in last 24 hours',
+      change: '+200%',
+    },
+    { 
+      label: 'Total BVN Verification Sum', 
+      value: '45,823', 
+      subtext: '50,000 in last 24 hours',
+      change: '+200%',
+    },
+    { 
+      label: 'Total NIN Verification Sum', 
+      value: '₦1,070,823', 
+      subtext: '₦50,000 in last 24 hours',
+      change: '+200%',
+    },
+    { 
+      label: 'Total Revenue', 
+      value: '₦1,070,823', 
+      subtext: '₦50,000 in last 24 hours',
+      change: '+200%',
+    },
+     { 
+      label: 'Total Verifications', 
+      value: '45,823', 
+      subtext: '50,000 in last 24 hours',
+      change: '-200%',
+    },
+    { 
+      label: 'Total BVN Verifications', 
+      value: '5,823', 
+      subtext: '1,000 in last 24 hours',
+      change: '+200%',
+    },
+    { 
+      label: 'Total NIN Verifications', 
+      value: '70,823', 
+      subtext: '1,000 in last 24 hours',
+      change: '+200%',
+    },
+    { 
+      label: 'Total Agent Commission', 
+      value: '₦40,823', 
+      subtext: '₦5,000 in last 24 hours',
+      change: '+200%',
+    },
+  ];
+
+    // Navigation handler for regions
   const handleViewRegionDetails = (regionId) => {
     navigate(`/kyc/details/region/${regionId}`);
   };
+
+   const columns = [
+    { 
+      field: 'location', 
+      headerName: 'Location', 
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params) => (
+        <span className="font-general text-sm flex items-center gap-3">
+          <p className='bg-[#F7FAFA] rounded-full w-6 h-6 flex items-center justify-center text-[#808C91] text-center border-2 border-[#E9F1F3]'>{params.row.id}</p> <p className='font-medium leading-[148%] text-[#1E1E1E]'>{params.row.location}</p>
+        </span>
+      )
+    },
+    { 
+      field: 'totalKYC', 
+      headerName: 'Total KYC Verifications', 
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center leading-[156%]">
+          {params.value?.toLocaleString()}
+        </span>
+      )
+    },
+    { 
+      field: 'totalSum', 
+      headerName: 'Total KYC Verifications Sum(N)', 
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center font-medium">
+          {params.value?.toLocaleString()}
+        </span>
+      )
+    },
+    { 
+      field: 'revenue', 
+      headerName: 'Total Revenue (N)', 
+      flex: 1,
+      minWidth: 220,
+      renderCell: (params) => (
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center font-medium">
+          {params.value?.toLocaleString()}
+        </span>
+      )
+    },
+    { 
+      field: 'commission', 
+      headerName: 'Total Commissions (N)', 
+      flex: 0.8,
+      minWidth: 150,
+      renderCell: (params) => (
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center">
+          {params.value}
+        </span>
+      )
+    },
+    {
+      field: 'actions',
+      headerName: '',
+      width: 130,
+      sortable: false,
+      renderCell: (params) => (
+        <button 
+          onClick={() => handleViewRegionDetails(params.row.id)}
+          className="font-general flex items-center text-sm text-[#26C8B9] underline underline-offset-2 cursor-pointer font-semibold"
+        >
+          View Details
+        </button>
+      )
+    }
+  ];
+
+
+
 
   // Transaction actions
   const transactionActions = [
     {
       label: 'View Transaction Details',
       type: 'view',
+      icon: CustomEye,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowDetailsModal(true);
@@ -79,6 +209,7 @@ const KYCVerification = () => {
     {
       label: 'Share Receipt',
       type: 'share',
+      icon: CustomShare,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowShareModal(true);
@@ -87,6 +218,7 @@ const KYCVerification = () => {
     {
       label: 'View Transaction History',
       type: 'history',
+      icon: CustomHistory,
       onClick: (transaction) => {
         navigate(`/kyc/details/transaction/${transaction.id}`);
       }
@@ -103,32 +235,25 @@ const KYCVerification = () => {
           onTimeFilterChange={setTimeFilter}
         />
 
-        <KYCStats />
+        <DashboardStats 
+         stats={stats}
+        />
 
         {/* BVN vs NIN and Top Agents */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <TransactionPercentagePie 
+        <div className="grid grid-cols-5 lg:grid-cols-5 gap-6 mb-6">
+          <div className='col-span-2'>
+            <PaymentComparisonPie 
             data={bvnVsNinData}
             title="BVN VS NIN %"
           />
-          <TransactionPercentagePie 
-            data={[
-              { id: 0, value: 30, label: 'NIN Verifications', color: '#F59E0B' },
-              { id: 1, value: 70, label: 'BVN Verification', color: '#06b6d4' }
-            ]}
-            title="BVN VS NIN Commission"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <TransactionPercentagePie 
-            data={bvnVsNinData}
-            title="BVN VS NIN %"
-          />
-          <TopAgentsCard 
+          </div>
+          <div className='col-span-3'>
+            <TopCustomersCard 
             data={topCustomers}
             title="Top Agents"
           />
+          </div>
+          
         </div>
 
         <MultiLineChart 
@@ -137,9 +262,10 @@ const KYCVerification = () => {
           title="Daily Transaction Volume"
         />
 
-        <KYCRegionsTable 
+        <RegionsTable 
           data={kycRegionsData}
           onViewDetails={handleViewRegionDetails}
+          columns={columns}
         />
 
         <TransactionHistoryTable 

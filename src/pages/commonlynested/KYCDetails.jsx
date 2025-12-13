@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
-import KYCStats from '@/components/base/KYCStats';
 import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
-import TopAgentsCard from '@/components/cards/TopAgentsCard';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
+import TopCustomersCard from '@/components/cards/TopCustomersCard';
+import DashboardStats from '@/components/base/DashboardStats';
 
 const KYCDetails = () => {
   const { type, id } = useParams();
@@ -107,7 +107,7 @@ const KYCDetails = () => {
             onTimeFilterChange={setTimeFilter}
           />
 
-          <KYCStats />
+          <DashboardStats />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <TransactionPercentagePie 
@@ -124,7 +124,7 @@ const KYCDetails = () => {
           </div>
 
           <div className="mb-6">
-            <TopAgentsCard 
+            <TopCustomersCard
               data={topCustomers}
               title="Top Agents"
             />
@@ -223,14 +223,14 @@ const KYCDetails = () => {
             </div>
           </div>
 
-          <KYCStats />
+          <DashboardStats />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <TransactionPercentagePie 
               data={bvnVsNinData}
               title="Verification Distribution"
             />
-            <TopAgentsCard 
+            <TopCustomersCard
               data={topCustomers}
               title="Related Agents"
             />

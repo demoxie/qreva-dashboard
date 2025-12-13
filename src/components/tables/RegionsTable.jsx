@@ -3,7 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import SearchFilterBar from '../common/SearchFilterBar';
 import CustomPagination from '../common/Pagination';
 
-const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
+const RegionsTable = ({ data = [], columns = [], title = "Top Regions", onViewDetails }) => {
   const handleViewDetails = (region) => {
     // If parent provides handler, use it (for navigation)
     if (onViewDetails) {
@@ -11,7 +11,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
     }
   };
 
-  const columns = [
+  const defaultColumns = [
     { 
       field: 'location', 
       headerName: 'Location', 
@@ -83,6 +83,8 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
     }
   ];
 
+  const tableColumns = columns.length > 0 ? columns : defaultColumns;
+
   return (
     <Card className="mb-6 px-0">
       <CardHeader>
@@ -99,7 +101,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
       <CardContent className="px-0">
         <DataGrid
           rows={data}
-          columns={columns}
+          columns={tableColumns}
           disableRowSelectionOnClick
           disableColumnMenu
           hideFooterSelectedRowCount

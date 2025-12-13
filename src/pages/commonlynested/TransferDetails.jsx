@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
-import TransferStats from '@/components/base/TransferStats';
-import TransferStatusPie from '@/components/charts/TransferStatusPie';
-import TopAgentsCard from '@/components/cards/TopAgentsCard';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import BarChartComponent from '@/components/charts/BarChartComponent';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
+import TopCustomersCard from '@/components/cards/TopCustomersCard';
+import DashboardStats from '@/components/base/DashboardStats';
+import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 
 const TransferDetails = () => {
   const { type, id } = useParams();
@@ -119,11 +119,13 @@ const TransferDetails = () => {
             onTimeFilterChange={setTimeFilter}
           />
 
-          <TransferStats />
+          <DashboardStats
+            stats={[]} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <TransferStatusPie />
-            <TopAgentsCard 
+            <PaymentComparisonPie
+             data={[]} />
+            <TopCustomersCard
               data={topCustomers}
               title="Top Users"
             />
@@ -227,11 +229,13 @@ const TransferDetails = () => {
             </div>
           </div>
 
-          <TransferStats />
+          <DashboardStats
+           stats={[]} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <TransferStatusPie />
-            <TopAgentsCard 
+            <PaymentComparisonPie
+             data={[]} />
+            <TopCustomersCard
               data={topCustomers}
               title="Transfer Distribution"
             />

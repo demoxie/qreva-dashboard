@@ -1,5 +1,7 @@
+import CustomEye from '../icons/CustomEye';
+import CustomHistory from '../icons/CustomHistory';
+import CustomShare from '../icons/CustomShare';
 import DataTable from './DataTable';
-import { Eye, Share2, History } from 'lucide-react';
 
 const TransactionHistoryTable = ({ 
   data, 
@@ -15,7 +17,7 @@ const TransactionHistoryTable = ({
       flex: 1,
       renderCell: (params) => (
         <div className='flex flex-col justify-center h-full'>
-          <div className="text-sm font-medium flex items-center h-full">{params.row.title}</div>
+          <div className="text-sm font-general font-medium flex items-center h-full">{params.row.title}</div>
           <div className="text-xs text-gray-500 flex items-center h-full">{params.row.acc}</div>
         </div>
       )
@@ -96,17 +98,17 @@ const TransactionHistoryTable = ({
   const defaultActions = [
     {
       label: 'View Details',
-      icon: Eye,
+      icon: CustomEye,
       onClick: (row) => console.log('View:', row)
     },
     {
       label: 'Share Transaction',
-      icon: Share2,
+      icon: CustomShare,
       onClick: (row) => console.log('Share:', row)
     },
     {
       label: 'View History',
-      icon: History,
+      icon: CustomHistory,
       onClick: (row) => console.log('History:', row)
     }
   ];

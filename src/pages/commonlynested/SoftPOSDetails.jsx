@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
-import KYCStats from '@/components/base/KYCStats';
 import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
-import TopAgentsCard from '@/components/cards/TopAgentsCard';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
+import TopCustomersCard from '@/components/cards/TopCustomersCard';
+import DashboardStats from '@/components/base/DashboardStats';
 
 const SoftPOSDetails = () => {
   const { type, id } = useParams();
@@ -102,7 +102,7 @@ const SoftPOSDetails = () => {
             onTimeFilterChange={setTimeFilter}
           />
 
-          <KYCStats />
+          <DashboardStats />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <TransactionPercentagePie 
@@ -112,7 +112,7 @@ const SoftPOSDetails = () => {
               ]}
               title="Card Payments vs QR Payments %"
             />
-            <TopAgentsCard 
+            <TopCustomersCard 
               data={topCustomers}
               title="Top Agents"
             />
@@ -211,7 +211,7 @@ const SoftPOSDetails = () => {
             </div>
           </div>
 
-          <KYCStats />
+          <DashboardStats />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <TransactionPercentagePie 
@@ -221,7 +221,7 @@ const SoftPOSDetails = () => {
               ]}
               title="Payment Distribution"
             />
-            <TopAgentsCard 
+            <TopCustomersCard 
               data={topCustomers}
               title="Related Agents"
             />
