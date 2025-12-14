@@ -2,7 +2,7 @@ import React, { useState, createContext, useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ROUTES, getAllRoutes } from './config/routes.config';
 import { RouteComponentMap } from './config/routeComponentMap';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/auth/LoginPage';
 import Sidebar from './components/base/SideBar';
 import { AuthContext, useAuth } from './hooks/useAuth';
 import Breadcrumb from './components/common/BreadCrumb'; //fixed import

@@ -133,37 +133,37 @@ const MyEarnings = () => {
   ];
 
     const handleWithdraw = () => {
-        // Add actual withdrawal logic validation here
-        setShowWithdrawModal(false);
-        setShowProcessingModal(true);
-        
-        setTimeout(() => {
-          setShowProcessingModal(false);
-          setShowTransferSuccessModal(true);
-        }, 2000); // Simulate API call delay
+      // Add actual withdrawal logic validation here
+      setShowWithdrawModal(false);
+      setShowProcessingModal(true);
+     
+      setTimeout(() => {
+       setShowProcessingModal(false);
+       setShowTransferSuccessModal(true);
+      }, 2000); // Simulate API call delay
     };
 
     const handleSaveBeneficiary = () => {
-        setShowTransferSuccessModal(false);
-        // Pre-fill beneficiary name if available from account lookup
-        setBeneficiaryName(accountName); 
-        setShowSaveBeneficiaryModal(true);
+      setShowTransferSuccessModal(false);
+      // Pre-fill beneficiary name if available from account lookup
+      setBeneficiaryName(accountName); 
+      setShowSaveBeneficiaryModal(true);
     };
 
     const confirmSaveBeneficiary = () => {
-        // Add actual save beneficiary API call here
-        setShowSaveBeneficiaryModal(false);
-        setShowSuccessModal(true);
+      // Add actual save beneficiary API call here
+      setShowSaveBeneficiaryModal(false);
+      setShowSuccessModal(true);
     };
 
     const handleAmountChange = (e) => {
-        const value = e.target.value.replace(/[^0-9]/g, '');
-        setAmount(value);
+      const value = e.target.value.replace(/[^0-9]/g, '');
+      setAmount(value);
     };
 
     const formatAmount = (value) => {
-        if (!value) return '';
-        return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      if (!value) return '';
+      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     };
 
 

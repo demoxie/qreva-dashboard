@@ -3,7 +3,8 @@ const PageHeader = ({
   subtitle, 
   timeFilter, 
   onTimeFilterChange,
-  actionButton 
+  actionButton, 
+  hidden 
 }) => {
   const filters = ['Today', 'Last 12 Hours', 'Weekly', 'Monthly', 'Yearly'];
 
@@ -15,30 +16,36 @@ const PageHeader = ({
       </div>
       <div className="flex items-center gap-4">
         {/* Time Filter */}
-        <div className="inline-flex gap-0 rounded-lg overflow-hidden border border-[#E8EBED]">
-          {filters.map((filter, idx) => {
-            const isActive = timeFilter === filter;
-            const isLast = idx === filters.length - 1;
-            
-            return (
-              <button
-                key={filter}
-                onClick={() => onTimeFilterChange(filter)}
-                className={`
-                  font-general font-medium text-sm py-2.5 px-4
-                  transition-all duration-200
-                  ${!isLast ? 'border-r border-[#E8EBED]' : ''}
-                  ${isActive 
-                    ? 'bg-[#FFEFE6] text-[#1E1E1E]' 
-                    : 'bg-white text-[#7C8D96] hover:bg-gray-50'
-                  }
-                `}
-              >
-                {filter}
-              </button>
-            );
-          })}
-        </div>
+        {
+          hidden ? null :
+          (
+          <div className="inline-flex gap-0 rounded-lg overflow-hidden border border-[#E8EBED]">
+                    {filters.map((filter, idx) => {
+                      const isActive = timeFilter === filter;
+                      const isLast = idx === filters.length - 1;
+                      
+                      return (
+                        <button
+                          key={filter}
+                          onClick={() => onTimeFilterChange(filter)}
+                          className={`
+                            font-general font-medium text-sm py-2.5 px-4
+                            transition-all duration-200
+                            ${!isLast ? 'border-r border-[#E8EBED]' : ''}
+                            ${isActive 
+                              ? 'bg-[#FFEFE6] text-[#1E1E1E]' 
+                              : 'bg-white text-[#7C8D96] hover:bg-gray-50'
+                            }
+                          `}
+                        >
+                          {filter}
+                        </button>
+                      );
+                    })}
+                  </div>
+          )
+        }
+        
         
         {/* Optional Action Button */}
         {actionButton && actionButton}

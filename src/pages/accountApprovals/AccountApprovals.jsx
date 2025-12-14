@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/tables/DataTable';
 import CustomEye from '@/components/icons/CustomEye';
-import CustomUser from '@/components/icons/CustomUser';
-import CustomHistory from '@/components/icons/CustomHistory';
+import CustomApprove from '@/components/icons/CustomApprove';
+import CustomDecline from '@/components/icons/CustomDecline';
 
 // Mock Data
 const mockApprovals = [
@@ -18,12 +18,31 @@ const mockApprovals = [
 const AccountApprovals = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Pending');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showAcceptModal, setShowAcceptModal] = useState(false);
+  const [showDeclineModal, setShowDeclineModal] = useState(false);
 
   const tabs = [
     { label: 'Pending', count: 9 },
     { label: 'Approved', count: 0 },
     { label: 'Declined', count: 0 }
   ];
+
+  // Handle Accept Approval
+  const handleAcceptApproval = () => {
+    console.log('Accepting approval for:', selectedUser);
+    // Add your API call here
+    setShowAcceptModal(false);
+    setSelectedUser(null);
+  };
+
+  // Handle Decline Approval
+  const handleDeclineApproval = () => {
+    console.log('Declining approval for:', selectedUser);
+    // Add your API call here
+    setShowDeclineModal(false);
+    setSelectedUser(null);
+  };
 
   // Columns definition
   const columns = [
@@ -49,8 +68,7 @@ const AccountApprovals = () => {
       flex: 1,
      },
     { 
-      field: 
-      'tier', 
+      field: 'tier', 
       headerName: 'Tier', 
       width: 100,
       flex: 1, 
@@ -85,26 +103,28 @@ const AccountApprovals = () => {
   ];
 
   const tableActions = [
-      {
-        label: 'View Details',
-        icon: CustomEye,
-        onClick: (row) => navigate(`/users/${row.id}`)
-      },
-      {
-        label: 'Accept Approval',
-        icon: CustomUser,
-        onClick: (row) => {
-          setSelectedAggregator(row);
-          setShowSuspendModal(true);
-        }
-      },
-      {
-        label: 'Decline Approval',
-        icon: CustomHistory,
-        onClick: (row) => navigate(`/users/${row.id}?tab=transactions`)
+    {
+      label: 'View Details',
+      icon: CustomEye,
+      onClick: (row) => navigate(`/users/${row.id}`)
+    },
+    {
+      label: 'Accept Approval',
+      icon: CustomApprove,
+      onClick: (row) => {
+        setSelectedUser(row);
+        setShowAcceptModal(true);
       }
-    ];
-
+    },
+    {
+      label: 'Decline Approval',
+      icon: CustomDecline,
+      onClick: (row) => {
+        setSelectedUser(row);
+        setShowDeclineModal(true);
+      }
+    }
+  ];
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -112,11 +132,12 @@ const AccountApprovals = () => {
         <PageHeader
           title="Account Approvals"
           subtitle="Here is the full list of KYC approvals on the platform"
-          showTimeFilter={false} // Custom filter UI below
+          showTimeFilter={false}
+          hidden={true}
         />
 
         {/* Custom Tabs */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 mb-6 mt-4">
           <div className="flex gap-8">
             {tabs.map((tab) => (
               <button
@@ -149,6 +170,64 @@ const AccountApprovals = () => {
           actions={tableActions}
         />
       </div>
+
+      {/* Accept Approval Modal */}
+      {showAcceptModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Accept Approval</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to accept the approval for <span className="font-medium">{selectedUser?.name}</span>?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowAcceptModal(false);
+                  setSelectedUser(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAcceptApproval}
+                className="px-4 py-2 text-sm font-medium text-white bg-[#4ED17E] rounded-lg hover:bg-[#3DB86A]"
+              >
+                Accept
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Decline Approval Modal */}
+      {showDeclineModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Decline Approval</h3>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to decline the approval for <span className="font-medium">{selectedUser?.name}</span>?
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setShowDeclineModal(false);
+                  setSelectedUser(null);
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeclineApproval}
+                className="px-4 py-2 text-sm font-medium text-white bg-[#E56566] rounded-lg hover:bg-[#D14546]"
+              >
+                Decline
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

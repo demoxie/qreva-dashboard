@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import DashboardStats from '@/components/base/DashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import TransactionVolumeChart from '@/components/charts/TransactionVolumeChart';
