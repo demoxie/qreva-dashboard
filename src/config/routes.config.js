@@ -88,7 +88,7 @@ export const ROUTES = {
 
   // Approval routes
   ACCOUNTS_APPROVALS: {
-    path: '/accounts-approvals',
+    path: '/account-approvals',
     label: 'Account Approvals',
     icon: 'accountsApprovals',
     permission: 'approvals:view',
@@ -184,9 +184,9 @@ export const ROUTES = {
     dynamic: true,
   },
   ACCOUNTS_APPROVALS_DETAILS: {
-    path: '/accounts-approvals/:type/:id',
+    path: '/account-approvals/:type/:id',
     label: 'View Details',
-    parent: 'accounts-approvals',
+    parent: 'account-approvals',
     icon: null,
     permission: 'approvals',
     dynamic: true,

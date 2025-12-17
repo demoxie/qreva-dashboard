@@ -1,34 +1,65 @@
-import DashboardStats from "@/components/base/DashboardStats";
-import PageHeader from "@/components/common/PageHeader";
+import DashboardStats from '@/components/base/DashboardStats';
+import PageHeader from '@/components/common/PageHeader';
+import RequestTabs from '@/components/request/RequestTabs';
+import RequestsSearch from '@/components/request/RequestSearch';
+import RequestsGrid from '@/components/request/RequestGrid';
+import RequestDetailsModal from '@/components/request/RequestDetailsModal';
+import { useRequestFilters } from '@/hooks/useRequestFilters';
+import { useRequestModals } from '@/hooks/useRequestModals';
+import { requestsData } from './data';
+import { stats, requestTabs } from './constants';
 
+export default function Request() {
+  const {
+    activeTab,
+    setActiveTab,
+    searchQuery,
+    setSearchQuery,
+    filteredRequests,
+    pendingCount
+  } = useRequestFilters(requestsData);
 
-const stats = [
-    { label: 'Total Requests', value: '70,823', change: '10%', subtext: '1,000 in last 24 hours', },
-    { label: 'Total Request volume', value: '₦570,823', change: '10%', subtext: '₦100,000 in last 24 hours' },
-    { label: 'Total Revenue', value: '₦500,000', change: '10%', subtext: '₦50,000 in last 24 hours' },
-    { label: 'Success Rate', value: '90%', change: '10%', subtext: '%2 in last 24 hours' }
-];
+  const {
+    showDetailsModal,
+    selectedRequest,
+    openDetailsModal,
+    closeDetailsModal
+  } = useRequestModals();
 
+  return (
+    <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+      <div className="p-6">
+        <PageHeader
+          title="Requests"
+          subtitle="View all your earnings and withdraw earnings here"
+          hidden={true}
+        />
 
+        <DashboardStats stats={stats} />
 
+        <RequestTabs
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          tabs={requestTabs}
+          pendingCount={pendingCount}
+        />
 
+        <RequestsSearch
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
-export default function Request () {
+        <RequestsGrid
+          requests={filteredRequests}
+          onViewDetails={openDetailsModal}
+        />
+      </div>
 
-    return(
-        <div className="min-h-screen">
-            <div className="p-4">
-                        <PageHeader
-                            title='Requests'
-                            subtitle='View all your earnings and withdraw earnings here'
-                            hidden={true}
-                            />
-
-                        <DashboardStats
-                        stats={stats}
-                            />    
-                    </div>
-        </div>
-       
-    );
+      <RequestDetailsModal
+        isOpen={showDetailsModal}
+        onClose={closeDetailsModal}
+        request={selectedRequest}
+      />
+    </div>
+  );
 }
