@@ -44,7 +44,8 @@ const BarChartComponent = ({
             tickLabelStyle: { 
               fontSize: 12,
               fill: '#7C8D96',
-              fontFamily: 'General Sans, sans-serif'
+              fontFamily: 'General Sans, sans-serif',
+              transform: 'rotate(0deg)',
             },
           }]}
           series={series.map(s => ({
@@ -53,11 +54,27 @@ const BarChartComponent = ({
             label: s.label,
           }))}
           height={height}
-          margin={{ left: 50, right: 20, top: 20, bottom: 60 }}
+          margin={{ left: 50, right: 20, top: 20, bottom: 40 }}
+          grid={{
+            horizontal: true,
+          }}
           sx={{
-            '.MuiChartsAxis-bottom .MuiChartsAxis-tickLabel': {
-              transform: 'rotate(-45deg)',
-              textAnchor: 'end',
+             ".MuiChartsAxis-left .MuiChartsAxis-line": {
+              stroke: "transparent",
+            },
+            ".MuiChartsGrid-horizontal line": {
+              stroke: "#BCC6CC",
+              strokeDasharray: "4 4",
+              opacity: 0.4,
+            },
+            ".MuiChartsAxis-bottom .MuiChartsAxis-line": {
+              stroke: "transparent",
+            },
+            ".MuiChartsAxis-bottom .MuiChartsAxis-tickLabel": {
+              dy: "10px",
+            },
+            ".MuiBarElement-root": {
+              rx: 4,
             },
           }}
         />

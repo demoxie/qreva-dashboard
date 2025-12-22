@@ -32,7 +32,7 @@
 }
 
 @theme {
-  --font-general: 'GeneralSans-Regular', sans-serif;
+  --font-general: 'GeneralSans', sans-serif;
 }
 
 @custom-variant dark (&:is(.dark *));

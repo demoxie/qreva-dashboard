@@ -16,7 +16,7 @@ import KYCIcon from '../../assets/icons/kycapproval.svg';
 import EarningsIcon from '../../assets/icons/earnings.svg';
 import AgentsIcon from '../../assets/icons/agents.svg';
 import UsersIcon from '../../assets/icons/aggregatormanager.svg';
-import AggregationIcon from '../../assets/icons/aggregators.svg';
+import AggregatorIcon from '../../assets/icons/aggregators.svg';
 import AggregatorManagerIcon from '../../assets/icons/userswitch.svg';
 import AccountsApprovalsIcon from '../../assets/icons/documentvalidation.svg';
 
@@ -33,7 +33,7 @@ const ICON_MAP = {
   earnings: EarningsIcon,
   users: UsersIcon,
   agents: AgentsIcon,
-  aggregation: AggregationIcon,
+  aggregator: AggregatorIcon,
   aggregatorManager: AggregatorManagerIcon,
   accountsApprovals: AccountsApprovalsIcon,
 };

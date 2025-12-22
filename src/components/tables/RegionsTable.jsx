@@ -3,7 +3,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import SearchFilterBar from '../common/SearchFilterBar';
 import CustomPagination from '../common/Pagination';
 
-const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
+const RegionsTable = ({ data = [], columns = [], title = "Top Regions", onViewDetails }) => {
   const handleViewDetails = (region) => {
     // If parent provides handler, use it (for navigation)
     if (onViewDetails) {
@@ -11,15 +11,15 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
     }
   };
 
-  const columns = [
+  const defaultColumns = [
     { 
       field: 'location', 
       headerName: 'Location', 
       flex: 1,
       minWidth: 150,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.row.id}. {params.row.location}
+        <span className="font-general text-sm flex items-center gap-3">
+          <p className='bg-[#F7FAFA] rounded-full w-6 h-6 flex items-center justify-center text-[#808C91] text-center border-2 border-[#E9F1F3]'>{params.row.id}</p> <p className='font-medium leading-[148%] text-[#1E1E1E]'>{params.row.location}</p>
         </span>
       )
     },
@@ -29,7 +29,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center leading-[156%]">
           {params.value?.toLocaleString()}
         </span>
       )
@@ -40,7 +40,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center font-medium">
           {params.value?.toLocaleString()}
         </span>
       )
@@ -51,7 +51,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
       flex: 1,
       minWidth: 220,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center font-medium">
           {params.value?.toLocaleString()}
         </span>
       )
@@ -62,7 +62,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
       flex: 0.8,
       minWidth: 150,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center">
           {params.value}%
         </span>
       )
@@ -75,7 +75,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
       renderCell: (params) => (
         <button 
           onClick={() => handleViewDetails(params.row)}
-          className="font-general text-sm text-[#06b6d4] hover:text-[#0891b2] font-medium transition-colors"
+          className="font-general flex items-center text-sm text-[#26C8B9] underline underline-offset-2 cursor-pointer font-semibold"
         >
           View Details
         </button>
@@ -83,11 +83,13 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
     }
   ];
 
+  const tableColumns = columns.length > 0 ? columns : defaultColumns;
+
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 px-0">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-urbanist font-semibold text-[#1E1E1E]">
+          <CardTitle className="text-lg font-urbanist leading-[145%] font-semibold text-[#1E1E1E]">
             {title}
           </CardTitle>
           <SearchFilterBar 
@@ -96,10 +98,10 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
           />
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-0">
         <DataGrid
           rows={data}
-          columns={columns}
+          columns={tableColumns}
           disableRowSelectionOnClick
           disableColumnMenu
           hideFooterSelectedRowCount
@@ -128,6 +130,7 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
             },
             '& .MuiDataGrid-columnHeader': {
               padding: '12px 16px',
+              backgroundColor: '#F9FAFB',
               '&:focus': {
                 outline: 'none',
               },
@@ -137,9 +140,9 @@ const RegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
             },
             '& .MuiDataGrid-columnHeaderTitle': {
               fontSize: '12px',
-              fontWeight: 500,
-              fontFamily: 'General Sans, sans-serif',
-              color: '#7C8D96',
+              fontWeight: 600,
+              fontFamily: 'Urbanist, sans-serif',
+              color: '#344054',
               textTransform: 'none',
             },
             '& .MuiDataGrid-row': {

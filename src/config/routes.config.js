@@ -73,11 +73,11 @@ export const ROUTES = {
     icon: 'agents',
     permission: 'agents:view',
   },
-  AGGREGATION: {
-    path: '/aggregation',
+  AGGREGATOR: {
+    path: '/aggregators',
     label: 'Aggregators',
-    icon: 'aggregation',
-    permission: 'aggregation:view',
+    icon: 'aggregator',
+    permission: 'aggregator:view',
   },
   AGGREGATOR_MANAGER: {
     path: '/aggregator-manager',
@@ -88,7 +88,7 @@ export const ROUTES = {
 
   // Approval routes
   ACCOUNTS_APPROVALS: {
-    path: '/accounts-approvals',
+    path: '/account-approvals',
     label: 'Account Approvals',
     icon: 'accountsApprovals',
     permission: 'approvals:view',
@@ -107,6 +107,22 @@ export const ROUTES = {
     path: '/agents/:id',
     label: 'Agent Details',
     parent: '/agents',
+    icon: null,
+    permission: 'accounts',
+    dynamic: true,
+  },
+  AGGREGATOR_DETAILS: {
+    path: '/aggregators/:id',
+    label: 'Aggregator Details',
+    parent: '/aggregators',
+    icon: null,
+    permission: 'accounts',
+    dynamic: true,
+  },
+  AGGREGATOR_MANAGER_DETAILS: {
+    path: '/aggregator-managers/:id',
+    label: 'Aggregator Manager Details',
+    parent: '/aggregator-manager',
     icon: null,
     permission: 'accounts',
     dynamic: true,
@@ -167,6 +183,15 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
+  ACCOUNTS_APPROVALS_DETAILS: {
+    path: '/account-approvals/:type/:id',
+    label: 'View Details',
+    parent: 'account-approvals',
+    icon: null,
+    permission: 'approvals',
+    dynamic: true,
+  }
+
 };
 
 // Helper function to get route config by path
@@ -236,7 +261,7 @@ export const MENU_STRUCTURE = [
     items: [
       { routeKey: 'USERS' },
       { routeKey: 'AGENTS' },
-      { routeKey: 'AGGREGATION' },
+      { routeKey: 'AGGREGATOR' },
       { routeKey: 'AGGREGATOR_MANAGER' },
     ],
   },

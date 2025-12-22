@@ -39,7 +39,7 @@ const TopTransactionValueCard = ({ data = [], title = "Top Transaction Value" })
                     className="w-6 h-6"
                     style={{
                       // CSS filter for #6EDAD0 color
-                      filter: 'invert(80%) sepia(23%) saturate(754%) hue-rotate(123deg) brightness(99%) contrast(81%)'
+                      //filter: 'invert(80%) sepia(23%) saturate(754%) hue-rotate(123deg) brightness(99%) contrast(81%)'
                     }}
                   />
                 </span>

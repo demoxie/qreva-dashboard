@@ -56,7 +56,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
 
     if (isTransfer) {
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-2 gap-6 text-sm font-general">
           <div>
             <p className="text-gray-400 text-xs mb-1">Recipient Details</p>
             <p className="font-medium text-gray-900">{transaction.recipient || 'Rejoice Regina Rose'}</p>
@@ -87,7 +87,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
 
     if (isCard) {
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-2 gap-6 text-sm font-general">
           <div>
             <p className="text-gray-400 text-xs mb-1">Agent Details</p>
             <p className="font-medium text-gray-900">{transaction.agent || 'Rejoice Regina Rose'}</p>
@@ -140,7 +140,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
 
     if (isNIN) {
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-2 gap-6 text-sm font-general">
           <div>
             <p className="text-gray-400 text-xs mb-1">Agent Details</p>
             <p className="font-medium text-gray-900">{transaction.agent || 'Rejoice Regina Rose'}</p>
@@ -175,7 +175,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
 
     if (isData) {
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm">
+        <div className="grid grid-cols-2 gap-6 text-sm font-general">
           <div>
             <p className="text-gray-400 text-xs mb-1">Recipient Mobile</p>
             <p className="font-medium text-gray-900">{transaction.mobile || '08012345678'}</p>
@@ -210,7 +210,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
 
     // Default layout for other transaction types (Airtime, GoTV, etc.)
     return (
-      <div className="grid grid-cols-2 gap-6 text-sm">
+      <div className="grid grid-cols-2 gap-6 text-sm font-general">
         <div>
           <p className="text-gray-400 text-xs mb-1">
             {category.includes('gotv') ? 'Recipient Details' : 'Recipient Mobile'}
@@ -249,7 +249,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-black/50 bg-opacity-50"
+        className="absolute inset-0 backdrop-blur-sm bg-black/50 bg-opacity-50"
         onClick={onClose}
       />
       
@@ -258,8 +258,8 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">View Details</h2>
-            <p className="text-sm text-gray-500 mt-1">Here are the details of this transaction</p>
+            <h2 className="text-2xl font-bold font-urbanist text-gray-900">View Details</h2>
+            <p className="text-sm text-gray-500 font-general mt-1">Here are the details of this transaction</p>
           </div>
           <button
             onClick={onClose}
@@ -270,23 +270,23 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
         </div>
 
         {/* Content */}
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 py-4">
           {/* Transaction Summary Card */}
-          <div className="bg-gray-50 rounded-xl p-6 mb-6 text-center">
-            <div className="flex justify-center mb-4">
+          <div className="relative bg-gray-50 rounded-xl p-6 mb-6 text-center border border-[#E9F1F3]">
+            <div className="-top-6 absolute left-0 right-0 flex justify-center mb-4">
               {getTransactionIcon()}
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2">{transaction.title || transaction.desc}</h3>
-            <div className="text-3xl font-bold text-gray-900 mb-3">
-              {amountPrefix}₦{transaction.amount?.toLocaleString()}
+            <h3 className="font-medium font-general text-gray-900 mb-2 mt-4">{transaction.title || transaction.desc}</h3>
+            <div className="text-3xl font-semibold font-general text-gray-900 mb-3">
+              {amountPrefix}N{transaction.amount?.toLocaleString()}
             </div>
-            <span className="inline-block px-4 py-1.5 bg-green-50 text-green-600 rounded-full text-sm font-medium">
+            <span className="inline-block px-4 py-1.5 border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E] rounded-md text-sm font-medium">
               {transaction.status || 'Successful'}
             </span>
           </div>
 
           {/* Transaction Details */}
-          <div className="bg-gray-50 rounded-xl p-6">
+          <div className="bg-gray-50 border border-[#E9F1F3] rounded-xl p-6">
             {renderDetailsContent()}
           </div>
         </div>
@@ -295,7 +295,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
         <div className="px-6 pb-6">
           <button
             onClick={onClose}
-            className="w-full py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors"
+            className="w-full py-3 bg-[#FF5B04] border border-[#B54103] text-white font-general font-medium rounded-lg hover:bg-orange-600 transition-colors"
           >
             Dismiss
           </button>

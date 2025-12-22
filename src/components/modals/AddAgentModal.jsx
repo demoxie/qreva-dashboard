@@ -23,57 +23,59 @@ const AddAgentModal = ({ isOpen, onClose, onSubmit }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+          className="absolute top-4 right-4 text-black cursor-pointer"
         >
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-semibold text-[#1E1E1E] mb-2">Add Agent</h2>
-        <p className="text-sm text-gray-600 mb-6">Fill out the info below to add an agent</p>
+        <h2 className="text-xl font-urbanist font-bold text-[#1E1E1E] mb-0">Add Agent</h2>
+        <p className="text-sm text-[#808C91] font-general font-medium mb-4">Fill out the info below to add an agent or copy referral link</p>
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 mb-6">
             <div>
-              <label className="block text-sm text-gray-600 mb-2">Full Name</label>
               <input
                 type="text"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                placeholder="Rejoice Regina Rose"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent"
+                placeholder="Full Name"
+                className="w-full px-4 py-3 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent font-general"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm text-gray-600 mb-2">Email Address</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="example@gmail.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent"
+                placeholder="Email Address"
+                className="w-full px-4 py-3 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent font-general"
                 required
               />
             </div>
           </div>
 
           <div className="text-center mb-6">
-            <span className="text-sm text-gray-500 font-medium">OR</span>
+            <span className="flex justify-between gap-3 items-center text-sm text-gray-500 font-medium">
+              <div className='w-full border h-[0.5px] border-[#B0B7C3]'></div>
+              OR
+              <div className='w-full border h-[0.5px] border-[#B0B7C3]'></div>
+              </span>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-sm text-gray-600 mb-2">Referral Link</label>
-            <div className="relative">
+          <div className="mb-6">   
+            <div className="relative border border-[#D9D9D9] rounded-lg px-4 py-3 bg-gray-50">
+              <label className="block text-[#B0B7C3] font-medium text-xs">Referral Link</label>
               <input
                 type="text"
                 value={referralLink}
                 readOnly
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+                className="w-full pr-12 text-[#808C91] font-general"
               />
               <button
                 type="button"
@@ -87,7 +89,8 @@ const AddAgentModal = ({ isOpen, onClose, onSubmit }) => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-[#FF5B04] text-white rounded-lg font-medium hover:bg-[#E54F03] transition-colors"
+            disabled={!formData.fullName || !formData.email}
+            className={`w-full py-3 text-white rounded-lg font-medium ${!formData.fullName || !formData.email ? 'opacity-50 cursor-not-allowed  bg-[#9A9A9A]/60' : 'bg-[#FF5B04] hover:bg-[#E54F03] transition-colors'}`}
           >
             Add Agent
           </button>
