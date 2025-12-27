@@ -12,16 +12,13 @@ import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import {
   dailyTransactionData,
-  topTransactionTypes,
   airtimePercentages,
   topCustomers,
   regionsData,
   transactionHistoryData,
   airtimeProviders
 } from '@/constants/mockData';
-import CustomEye from '@/components/icons/CustomEye';
-import CustomShare from '@/components/icons/CustomShare';
-import CustomHistory from '@/components/icons/CustomHistory';
+import { createTransactionActions } from './constants';
 
 const AirtimePurchase = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -32,11 +29,6 @@ const AirtimePurchase = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-  // Filter data for Airtime specific transactions
-  const airtimeTransactionTypes = topTransactionTypes.filter(item => 
-    ['Airtel', 'MTN', 'Glo', 'Etisalat', '9Mobile'].includes(item.name)
-  );
-
   const airtimeTransactions = transactionHistoryData.filter(tx => 
     tx.category === 'Airtime' || ['Airtel Nigeria', 'MTN', 'Glo', 'Etisalat'].includes(tx.desc)
   );
@@ -45,36 +37,18 @@ const AirtimePurchase = () => {
   const handleViewRegionDetails = (regionId) => {
     navigate(`/airtime/details/region/${regionId}`);
   };
-
-  // Transaction actions - defined in parent, passed to table
-  const transactionActions = [
-    {
-      label: 'View Transaction Details',
-      icon: CustomEye,
-      type: 'view',
-      onClick: (transaction) => {
-        setSelectedTransaction(transaction);
-        setShowDetailsModal(true);
-      }
-    },
-    {
-      label: 'Share Receipt',
-      type: 'share',
-      icon: CustomShare,
-      onClick: (transaction) => {
-        setSelectedTransaction(transaction);
-        setShowShareModal(true);
-      }
-    },
-    {
-      label: 'View Transaction History',
-      type: 'history',
-      icon: CustomHistory,
-      onClick: (transaction) => {
-        navigate(`/airtime/details/transaction/${transaction.id}`);
-      }
-    }
-  ];
+ 
+  const actions = createTransactionActions(
+  navigate,
+  (tx) => {
+    setSelectedTransaction(tx);
+    setShowDetailsModal(true);
+  },
+  (tx) => {
+    setSelectedTransaction(tx);
+    setShowShareModal(true);
+  }
+);
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -135,7 +109,7 @@ const AirtimePurchase = () => {
         <TransactionHistoryTable 
           data={airtimeTransactions}
           title="Transactions"
-          actions={transactionActions}
+          actions={actions}
         />
       </div>
 
