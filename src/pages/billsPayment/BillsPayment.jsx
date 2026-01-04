@@ -17,11 +17,8 @@ import {
   topCustomers,
   regionsData,
   transactionHistoryData,
-  airtimeProviders
 } from '@/constants/mockData';
-import CustomEye from '@/components/icons/CustomEye';
-import CustomShare from '@/components/icons/CustomShare';
-import CustomHistory from '@/components/icons/CustomHistory';
+import { createRegionTransactionActions } from './constants';
 
 const BillsPayment = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -36,40 +33,18 @@ const BillsPayment = () => {
     tx.category === 'Bill Payment' || ['Cable Tv', 'Electricity', 'Airtime', 'Data'].includes(tx.desc)
   );
 
+  // Generate transaction actions using factory function
+  const transactionActions = createRegionTransactionActions({
+    setSelectedTransaction,
+    setShowDetailsModal,
+    setShowShareModal,
+    navigate
+  });
+
   // Navigation handler for regions
   const handleViewRegionDetails = (regionId) => {
     navigate(`/bills/details/region/${regionId}`);
   };
-
-  // Transaction actions
-  const transactionActions = [
-    {
-      label: 'View Transaction Details',
-      type: 'view',
-      icon: CustomEye,
-      onClick: (transaction) => {
-        setSelectedTransaction(transaction);
-        setShowDetailsModal(true);
-      }
-    },
-    {
-      label: 'Share Receipt',
-      type: 'share',
-      icon: CustomShare,
-      onClick: (transaction) => {
-        setSelectedTransaction(transaction);
-        setShowShareModal(true);
-      }
-    },
-    {
-      label: 'View Transaction History',
-      type: 'history',
-      icon: CustomHistory,
-      onClick: (transaction) => {
-        navigate(`/bills/details/transaction/${transaction.id}`);
-      }
-    }
-  ];
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">

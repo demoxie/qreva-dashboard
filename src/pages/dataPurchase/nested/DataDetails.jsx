@@ -148,6 +148,7 @@ const DataDetails = () => {
               <TransactionPercentagePie 
                 data={transactionPercentages}
                 title="Top % Purchase from Customers"
+                wrapped={true}
               />
             </div>
           </div>
@@ -286,6 +287,7 @@ const DataDetails = () => {
               <TransactionPercentagePie 
                 data={transactionPercentages}
                 title="Top % Purchase"
+                wrapped={true}
               />
             </div>
           </div>
