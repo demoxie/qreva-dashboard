@@ -9,6 +9,8 @@ import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { topCustomers } from '@/constants/mockData';
 import TopCustomersCard from '@/components/cards/TopCustomersCard';
 import DashboardStats from '@/components/base/DashboardStats';
+import { multiLineData, chartSeries, createRegionTransactionActions, createAgentTransactionActions } from '../constants';
+import { SoftPOSRegionsDetailsData, allSoftPOSTransactions } from '../Data';
 
 const SoftPOSDetails = () => {
   const { type, id } = useParams();
@@ -20,41 +22,9 @@ const SoftPOSDetails = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-  const multiLineData = [
-    { day: 'Today', cardPayments: 14500, qrPayments: 14200 },
-    { day: 'Yesterday', cardPayments: 14200, qrPayments: 14800 },
-    { day: '2 Days Ago', cardPayments: 14800, qrPayments: 14600 },
-    { day: '3 Days Ago', cardPayments: 14600, qrPayments: 15200 },
-    { day: '4 Days Ago', cardPayments: 15200, qrPayments: 15800 },
-    { day: '5 Days Ago', cardPayments: 15800, qrPayments: 16200 },
-    { day: '6 Days Ago', cardPayments: 16200, qrPayments: 15600 },
-    { day: '7 Days Ago', cardPayments: 15600, qrPayments: 16800 }
-  ];
-
-  const chartSeries = [
-    { data: multiLineData.map(d => d.cardPayments), color: '#06b6d4', label: 'Card Payments' },
-    { data: multiLineData.map(d => d.qrPayments), color: '#F59E0B', label: 'QR Payments' }
-  ];
-
-  const SoftPOSRegionsData = [
-    { id: 1, location: 'Lagos', totalKYC: 500000, totalSum: 40000, revenue: 40000, commission: 40000 },
-    { id: 2, location: 'Abuja', totalKYC: 50000, totalSum: 50000, revenue: 20000, commission: 20000 },
-    { id: 3, location: 'Enugu', totalKYC: 20000, totalSum: 20000, revenue: 10000, commission: 10000 },
-    { id: 4, location: 'Rivers', totalKYC: 50000, totalSum: 4000, revenue: 10000, commission: 10000 },
-    { id: 5, location: 'Cross Rivers', totalKYC: 100000, totalSum: 20000, revenue: 40000, commission: 40000 }
-  ];
-
-  const allSoftPOSTransactions = [
-    { id: 1, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', status: 'First Time', category: 'SoftPOS', desc: 'QR Payment', location: 'Lagos', commission: 200, revenue: 100, amount: 4000, date: '10:00 AM | 25th March, 2025' },
-    { id: 2, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'cardPayments', status: 'Repeat Buyer', category: 'SoftPOS', desc: 'Card Payment', location: 'Lagos', commission: 200, revenue: 100, amount: 5000, date: '10:00 AM | 25th March, 2025' },
-    { id: 3, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', status: 'First Time', category: 'SoftPOS', desc: 'QR Payment', location: 'Abia', commission: 200, revenue: 100, amount: 200, date: '10:00 AM | 25th March, 2025' },
-    { id: 4, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'qrPayments', status: 'Repeat Buyer', category: 'SoftPOS', desc: 'QR Payment', location: 'Enugu', commission: 200, revenue: 100, amount: 400, date: '10:00 AM | 25th March, 2025' },
-    { id: 5, title: 'Rejoice Regina Rose', acc: '+234 801 234 5678', agentName: 'Rejoice Regina Rose', phoneNumber: '+234 801 234 5678', email: 'emailaddress@...om', type: 'cardPayments', status: 'First Time', category: 'SoftPOS', desc: 'Card Payment', location: 'Abuja', commission: 200, revenue: 100, amount: 20000, date: '10:00 AM | 25th March, 2025' }
-  ];
-
   // REGION DETAILS VIEW
   if (type === 'region') {
-    const region = SoftPOSRegionsData.find(r => r.id === parseInt(id));
+    const region = SoftPOSRegionsDetailsData.find(r => r.id === parseInt(id));
     
     if (!region) {
       return <div>Region not found</div>;
@@ -66,31 +36,12 @@ const SoftPOSDetails = () => {
     );
 
     // Actions for region transactions
-    const regionTransactionActions = [
-      {
-        label: 'View Transaction Details',
-        type: 'view',
-        onClick: (transaction) => {
-          setSelectedTransaction(transaction);
-          setShowDetailsModal(true);
-        }
-      },
-      {
-        label: 'Share Receipt',
-        type: 'share',
-        onClick: (transaction) => {
-          setSelectedTransaction(transaction);
-          setShowShareModal(true);
-        }
-      },
-      {
-        label: 'View Transaction History',
-        type: 'history',
-        onClick: (transaction) => {
-          navigate(`/softpos/details/transaction/${transaction.id}`);
-        }
-      }
-    ];
+    const regionTransactionActions = createRegionTransactionActions({
+      setSelectedTransaction,
+      setShowDetailsModal,
+      setShowShareModal,
+      navigate
+    })
 
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -111,6 +62,7 @@ const SoftPOSDetails = () => {
                 { id: 1, value: 70, label: 'QR Payments', color: '#06b6d4' }
               ]}
               title="Card Payments vs QR Payments %"
+              wrapped={true}
             />
             <TopCustomersCard 
               data={topCustomers}
@@ -161,24 +113,12 @@ const SoftPOSDetails = () => {
     );
 
     // Actions for agent transaction history
-    const agentTransactionActions = [
-      {
-        label: 'View Transaction Details',
-        type: 'view',
-        onClick: (tx) => {
-          setSelectedTransaction(tx);
-          setShowDetailsModal(true);
-        }
-      },
-      {
-        label: 'Share Receipt',
-        type: 'share',
-        onClick: (tx) => {
-          setSelectedTransaction(tx);
-          setShowShareModal(true);
-        }
-      }
-    ];
+    const agentTransactionActions = createAgentTransactionActions({
+      setSelectedTransaction,
+      setShowDetailsModal,
+      setShowShareModal,
+      navigate
+    })
 
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -220,6 +160,7 @@ const SoftPOSDetails = () => {
                 { id: 1, value: 70, label: 'QR Payments', color: '#06b6d4' }
               ]}
               title="Payment Distribution"
+              wrapped={true}
             />
             <TopCustomersCard 
               data={topCustomers}

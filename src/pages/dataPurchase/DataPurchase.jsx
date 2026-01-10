@@ -12,16 +12,12 @@ import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import {
   dailyTransactionData,
-  topTransactionTypes,
-  transactionPercentages,
   topCustomers,
   regionsData,
   transactionHistoryData,
   airtimePercentages
 } from '@/constants/mockData';
-import CustomEye from '@/components/icons/CustomEye';
-import CustomShare from '@/components/icons/CustomShare';
-import CustomHistory from '@/components/icons/CustomHistory';
+import { createCustomerTransactionActions, dataProviders } from './constants';
 
 const DataPurchase = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -32,21 +28,10 @@ const DataPurchase = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-  // Filter for Data providers
-  const dataProviders = [
-    { id: 1, name: 'Airtel', value: 2000000, color: '#E31E24', percentage: 85 },
-    { id: 2, name: 'MTN', value: 2000000, color: '#FFCB05', percentage: 75 },
-    { id: 3, name: 'Glo', value: 2000000, color: '#00A65A', percentage: 65 },
-    { id: 4, name: 'Etisalat', value: 2000000, color: '#006F3E', percentage: 70 },
-    { id: 5, name: '9Mobile', value: 2000000, color: '#00923F', percentage: 60 }
-  ];
-
-  const dataTransactions = transactionHistoryData.map(tx => ({
-    ...tx,
-    category: 'Data',
-    desc: tx.desc.includes('Transfer') ? `${tx.desc.split(' ')[2]} Data Bundle` : tx.desc,
-    dataPlan: '1.5GB Weekly Plan + Youtube Social Plan'
-  }));
+  
+  const dataTransactions = transactionHistoryData.filter(tx => 
+    tx.category === 'Data' || ['Data Bundle', 'Weekly Plan', 'Monthly Plan', 'GB'].includes(tx.desc),
+  );
 
   // Navigation handler for regions
   const handleViewRegionDetails = (regionId) => {
@@ -54,34 +39,12 @@ const DataPurchase = () => {
   };
 
   // Transaction actions
-  const transactionActions = [
-    {
-      label: 'View Transaction Details',
-      type: 'view',
-      icon: CustomEye,
-      onClick: (transaction) => {
-        setSelectedTransaction(transaction);
-        setShowDetailsModal(true);
-      }
-    },
-    {
-      label: 'Share Receipt',
-      type: 'share',
-      icon: CustomShare,
-      onClick: (transaction) => {
-        setSelectedTransaction(transaction);
-        setShowShareModal(true);
-      }
-    },
-    {
-      label: 'View Transaction History',
-      type: 'history',
-      icon: CustomHistory,
-      onClick: (transaction) => {
-        navigate(`/data/details/transaction/${transaction.id}`);
-      }
-    }
-  ];
+  const transactionActions = createCustomerTransactionActions({
+    setSelectedTransaction,
+    setShowDetailsModal,
+    setShowShareModal,
+    navigate
+  });
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">

@@ -66,9 +66,7 @@ const DashboardContent = () => {
           breadcrumb="Dashboard"
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
-        />
-
-                 
+        />           
 
         {/* Admin Layout */}
         {isAdmin && (
