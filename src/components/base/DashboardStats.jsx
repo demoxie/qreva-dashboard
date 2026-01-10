@@ -3,7 +3,7 @@ import StatGreen from "../../assets/icons/stats.svg";
 import StatRed from "../../assets/icons/stat-red.svg";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import BgImage from "../../assets/images/Vector.png"; // <-- your background image
+import BgImage from "../../assets/images/Vector.png";
 
 const DashboardStats = ({ stats, route }) => {
   // Default stats
@@ -16,10 +16,10 @@ const DashboardStats = ({ stats, route }) => {
 
   let statsToDisplay = stats || defaultStats;
 
-  const userRole = localStorage.getItem("userRole") || "admin";
+  const userRole = localStorage.getItem("userRole") || "SuperAdmin";
 
   // ---------------------------
-  // 1️⃣ GET DATA FOR CUSTOM CARD
+  //  GET DATA FOR CUSTOM CARD
   // ---------------------------
   const getCustomFirstCard = () => {
     if (route === "my-earnings") {
@@ -51,7 +51,7 @@ const DashboardStats = ({ stats, route }) => {
   statsToDisplay = [getCustomFirstCard(), ...statsToDisplay.slice(1)];
 
   // ---------------------------
-  // 2️⃣ RENDER CUSTOM CARD JSX
+  //  RENDER CUSTOM CARD JSX
   // ---------------------------
   const renderCustomFirstCard = (stat) => {
   const [show, setShow] = useState(false);
@@ -107,7 +107,7 @@ const DashboardStats = ({ stats, route }) => {
 
 
   // ---------------------------
-  // 3️⃣ SUPPORT FUNCTIONS
+  //  SUPPORT FUNCTIONS
   // ---------------------------
 
   const getChangeColor = (change) =>
@@ -124,13 +124,13 @@ const DashboardStats = ({ stats, route }) => {
     change?.startsWith("+") ? "bg-[#E9F9EF]" : "bg-[#FFECE5]";
 
   // ---------------------------
-  // 4️⃣ RENDER FINAL GRID
+  //  RENDER FINAL GRID
   // ---------------------------
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       {statsToDisplay.map((stat, idx) => {
         // First card gets custom layout
-        if (idx === 0 && (userRole !== "admin" || route === "my-earnings")) {
+        if (idx === 0 && (userRole !== "SuperAdmin" || route === "my-earnings")) {
           return <div key={idx}>{renderCustomFirstCard(stat)}</div>;
         }
 

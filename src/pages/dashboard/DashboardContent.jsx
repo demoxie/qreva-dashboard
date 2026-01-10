@@ -32,7 +32,7 @@ const DashboardContent = () => {
 
 
   // Role checks
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'SuperAdmin';
   const isAgent = user?.role === 'agent';
   const isAggregator = user?.role === 'aggregator';
   const isAggregatorManager = user?.role === 'aggregator_manager';
