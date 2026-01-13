@@ -1,41 +1,110 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useScanToPayMetrics } from '@/store/features/dashboard/useDashboard';
+import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
+import DashboardStats from '@/components/base/DashboardStats';
+import TopCustomersCard from '@/components/cards/TopCustomersCard';
+import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import MultiLineChart from '@/components/charts/MultiLineChart';
+import RegionsTable from '@/components/tables/RegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { topCustomers } from '@/constants/mockData';
-import TopCustomersCard from '@/components/cards/TopCustomersCard';
-import DashboardStats from '@/components/base/DashboardStats';
-import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
-import RegionsTable from '@/components/tables/RegionsTable';
 import { multiLineData, chartSeries, createTransactionActions, createRegioncolumns } from './constants';
-import { SoftPOSRegionsData, SoftPOSTransactions } from './Data';
 
 const SoftPOS = () => {
-  const [timeFilter, setTimeFilter] = useState('Today');
   const navigate = useNavigate();
+  const [timeFilter, setTimeFilter] = useState('today');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
 
-  // Modal states
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+  const { data, isLoading, isError, refetch } = useScanToPayMetrics({
+    range: timeFilter,
+    page,
+    limit,
+  });
+
+  const metrics = useMemo(() => {
+    if (!data?.data) return null;
+    return {
+      summary: data.data.summary || {},
+      topCustomers: data.data.topCustomers || [],
+      topRegions: data.data.topRegions || [],
+      transactions: data.data.transactions || [],
+      pagination: data.data.pagination || {},
+      // TODO: API doesn't provide card vs QR breakdown
+      paymentBreakdown: data.data.paymentBreakdown || [
+        { id: 0, value: 30, label: 'Card Payments', color: '#E85304' },
+        { id: 1, value: 70, label: 'QR Payments', color: '#26C8B9' }
+      ],
+    };
+  }, [data]);
+
+  const formattedStats = useMemo(() => {
+    if (!metrics?.summary) return null;
+    return formatDashboardStats(metrics.summary);
+  }, [metrics]);
+
+  const handleTimeFilterChange = (newFilter) => {
+    const filterMap = {
+      'Today': 'today',
+      'Last 12 Hours': 'last12hours',
+      'Weekly': 'weekly',
+      'Monthly': 'monthly',
+      'Yearly': 'yearly',
+    };
+    setTimeFilter(filterMap[newFilter] || 'today');
+    setPage(1);
+  };
+
+  const handlePageChange = (newPage) => setPage(newPage);
+
+  const handleViewRegionDetails = (regionId) => {
+    navigate(`/softpos/details/region/${regionId}`);
+  };
+
+  const regionColumns = createRegioncolumns(handleViewRegionDetails);
 
   const transactionActions = createTransactionActions({
     setSelectedTransaction,
     setShowDetailsModal,
     setShowShareModal,
     navigate
-  })
+  });
 
-  // Navigation handler for regions
-  const handleViewRegionDetails = (regionId) => {
-    navigate(`/softpos/details/region/${regionId}`);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+        <div className="p-6 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading Soft POS metrics...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const regionColumns = createRegioncolumns(handleViewRegionDetails);
- 
+  if (isError || !metrics) {
+    return (
+      <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+        <div className="p-6 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Failed to load Soft POS metrics</p>
+            <button onClick={() => refetch()} className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600">
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
       <div className="p-6">
@@ -43,29 +112,27 @@ const SoftPOS = () => {
           title="Soft POS"
           subtitle="Here is how this has been performing so far"
           timeFilter={timeFilter}
-          onTimeFilterChange={setTimeFilter}
+          onTimeFilterChange={handleTimeFilterChange}
         />
 
-        <DashboardStats />
+        <DashboardStats stats={formattedStats} route="softpos" />
 
         <div className="grid grid-cols-5 lg:grid-cols-5 gap-6 mb-6">
           <div className='col-span-2'>
             <PaymentComparisonPie
-            data={[
-              { id: 0, value: 30, label: 'Card Payments', color: '#E85304' },
-              { id: 1, value: 70, label: 'QR Payments', color: '#26C8B9' }
-            ]}
-            title="Card Payments vs QR Payments %"
-          />
+              data={metrics.paymentBreakdown}
+              title="Card Payments vs QR Payments %"
+            />
           </div>
           <div className='col-span-3'>
             <TopCustomersCard 
-            data={topCustomers}
-            title="Top Agents"
-          />
+              data={metrics.topCustomers}
+              title="Top Agents"
+            />
           </div> 
         </div>
 
+        {/* TODO: API doesn't provide multi-line chart data - using mock */}
         <MultiLineChart 
           data={multiLineData}
           series={chartSeries}
@@ -73,19 +140,19 @@ const SoftPOS = () => {
         />
 
         <RegionsTable 
-          data={SoftPOSRegionsData}
-          //onViewDetails={handleViewRegionDetails}
+          data={metrics.topRegions}
           columns={regionColumns}
         />
 
         <TransactionHistoryTable 
-          data={SoftPOSTransactions}
+          data={metrics.transactions}
           title="Transactions"
           actions={transactionActions}
+          pagination={metrics.pagination}
+          onPageChange={handlePageChange}
         />
       </div>
 
-      {/* External Modals */}
       <TransactionDetailsModal
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}

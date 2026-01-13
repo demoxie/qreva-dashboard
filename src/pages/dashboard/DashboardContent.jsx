@@ -1,35 +1,58 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import DashboardStats from '@/components/base/DashboardStats';
+import { useDashboardMetrics } from '@/store/features/dashboard/useDashboard';
+import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
-import TransactionVolumeChart from '@/components/charts/TransactionVolumeChart';
-import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
-import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
-import TopTransactionValueCard from '@/components/cards/TopTransactionValueCard';
-import TopCustomersCard from '@/components/cards/TopCustomersCard';
-import RegionsTable from '@/components/tables/RegionsTable';
-import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
-import {
-  dailyTransactionData,
-  topTransactionTypes,
-  transactionPercentages,
-  cardVsQRPayments,
-  topCustomers,
-  regionsData,
-  transactionHistoryData
-} from '@/constants/mockData';
-import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
+import AdminDashboard from '@/components/dashboard/AdminDashboard';
+import AgentDashboard from '@/components/dashboard/AgentDashboard';
+import AggregatorDashboard from '@/components/dashboard/AggregatorDashboard';
+
+// Mock data for Card vs QR Payments (TODO: Add to API)
+const cardVsQRPayments = [
+  { name: 'Card Payments', value: 70, amount: 4000000 },
+  { name: 'QR Payments', value: 30, amount: 170823 }
+];
 
 const DashboardContent = () => {
   const { user } = useAuth();
-  const [timeFilter, setTimeFilter] = useState('Today');
+  const [timeFilter, setTimeFilter] = useState('today');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
 
-    // Modal states
+  // Modal states
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  // Fetch dashboard metrics
+  const { data, isLoading, isError, refetch } = useDashboardMetrics({
+    category: 'all',
+    range: timeFilter,
+    page,
+    limit,
+  });
+
+  // Extract data from API response
+  const metrics = useMemo(() => {
+    if (!data?.data) return null;
+
+    return {
+      summary: data.data.summary || {},
+      topTransactionValues: data.data.topTransactionValues || [],
+      topCustomers: data.data.topCustomers || [],
+      dailyTransactionVolume: data.data.dailyTransactionVolume || [],
+      topPurchasePercentages: data.data.topPurchasePercentages || [],
+      topRegions: data.data.topRegions || [],
+      transactions: data.data.transactions || [],
+      pagination: data.data.pagination || {},
+    };
+  }, [data]);
+
+  // Format stats for DashboardStats component
+  const formattedStats = useMemo(() => {
+    if (!metrics?.summary) return null;
+    return formatDashboardStats(metrics.summary);
+  }, [metrics]);
 
   // Role checks
   const isAdmin = user?.role === 'SuperAdmin';
@@ -37,7 +60,7 @@ const DashboardContent = () => {
   const isAggregator = user?.role === 'aggregator';
   const isAggregatorManager = user?.role === 'aggregator_manager';
 
-    // Transaction actions - defined in parent, passed to table
+  // Transaction actions
   const transactionActions = [
     {
       label: 'View Transaction Details',
@@ -45,7 +68,7 @@ const DashboardContent = () => {
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowDetailsModal(true);
-      }
+      },
     },
     {
       label: 'Share Receipt',
@@ -53,9 +76,76 @@ const DashboardContent = () => {
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowShareModal(true);
-      }
+      },
     },
   ];
+
+  // Handle time filter change
+  const handleTimeFilterChange = (newFilter) => {
+    const filterMap = {
+      'Today': 'today',
+      'Last 12 Hours': 'last12hours',
+      'Weekly': 'weekly',
+      'Monthly': 'monthly',
+      'Yearly': 'yearly',
+    };
+    
+    setTimeFilter(filterMap[newFilter] || 'today');
+    setPage(1);
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex-1 overflow-auto bg-gray-50">
+        <div className="p-6 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-bold font-urbanist">Loading dashboard...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (isError || !metrics) {
+    return (
+      <div className="flex-1 overflow-auto bg-gray-50">
+        <div className="p-6 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">Failed to load dashboard data</p>
+            <button
+              onClick={() => refetch()}
+              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Common props for all dashboards
+  const dashboardProps = {
+    formattedStats,
+    metrics,
+    handlePageChange,
+  };
+
+  const modalProps = {
+    showDetailsModal,
+    setShowDetailsModal,
+    showShareModal,
+    setShowShareModal,
+    selectedTransaction,
+  };
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50">
@@ -65,144 +155,32 @@ const DashboardContent = () => {
           subtitle="Here is how this has been performing so far"
           breadcrumb="Dashboard"
           timeFilter={timeFilter}
-          onTimeFilterChange={setTimeFilter}
-        />           
+          onTimeFilterChange={handleTimeFilterChange}
+        />
 
-        {/* Admin Layout */}
+        {/* Render appropriate dashboard based on role */}
         {isAdmin && (
-          <>
-          <DashboardStats 
-            role="admin"
+          <AdminDashboard 
+            {...dashboardProps}
+            transactionActions={transactionActions}
+            {...modalProps}
           />
-            {/* Top Transaction Value + Top Customers - 40-60 Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
-              <div className="lg:col-span-2">
-                <TopTransactionValueCard data={topTransactionTypes} />
-              </div>
-              <div className="lg:col-span-3">
-                <TopCustomersCard 
-                  data={topCustomers} 
-                  title="Top Customers"
-                />
-              </div>
-            </div>
-
-            {/* Daily Transaction Volume */}
-            <TransactionVolumeChart data={dailyTransactionData} />
-
-            {/* Top Regions Table */}
-            <RegionsTable data={regionsData} />
-
-            {/* Transaction History */}
-             <TransactionHistoryTable 
-            data={transactionHistoryData} 
-            actions={transactionActions}
-            />
-            <TransactionDetailsModal
-              isOpen={showDetailsModal}
-              onClose={() => setShowDetailsModal(false)}
-              transaction={selectedTransaction}
-            />
-
-                  <ShareReceiptModal
-              isOpen={showShareModal}
-              onClose={() => setShowShareModal(false)}
-              transaction={selectedTransaction}
-            />
-          </>
         )}
 
-        {/* Agent Layout */}
         {isAgent && (
-          <>
-          <DashboardStats 
-            role="agent"
+          <AgentDashboard 
+            {...dashboardProps}
+            cardVsQRPayments={cardVsQRPayments}
           />
-            {/* Top Transaction Value + Top % Transactions - 40-60 Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
-              <div className="lg:col-span-2">
-                <TopTransactionValueCard data={topTransactionTypes} />
-              </div>
-              <div className="lg:col-span-3">
-                <TransactionPercentagePie data={transactionPercentages} />
-              </div>
-            </div>
-
-            {/* Daily Transaction Volume */}
-            <TransactionVolumeChart data={dailyTransactionData} />
-
-            {/* Card vs QR Payments - Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <PaymentComparisonPie
-                data={cardVsQRPayments}
-                title="Card Payments vs QR Payments %"
-                showPercentage={true}
-              />
-              <PaymentComparisonPie
-                data={cardVsQRPayments}
-                title="Card Payments vs QR Payments Commission"
-                showPercentage={false}
-                amountData={['₦4,000,000', '₦170,823']}
-              />
-            </div>
-
-            {/* Transaction History */}
-            <TransactionHistoryTable data={transactionHistoryData} />
-          </>
         )}
 
-        {/* Aggregator & Aggregator Manager Layout */}
         {(isAggregator || isAggregatorManager) && (
-          <>
-          <DashboardStats 
-            role="aggregator"
+          <AggregatorDashboard 
+            {...dashboardProps}
+            cardVsQRPayments={cardVsQRPayments}
+            transactionActions={transactionActions}
+            {...modalProps}
           />
-            {/* Top Transaction Value + Top % Transactions - 40-60 Split */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
-              <div className="lg:col-span-2">
-                <TopTransactionValueCard data={topTransactionTypes} />
-              </div>
-              <div className="lg:col-span-3">
-                <TransactionPercentagePie data={transactionPercentages} />
-              </div>
-            </div>
-
-            {/* Daily Transaction Volume */}
-            <TransactionVolumeChart data={dailyTransactionData} />
-
-            {/* Top Agents + Card vs QR Payments - Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <TopCustomersCard 
-                data={topCustomers} 
-                title="Top Agents"
-                showTabs={true}
-              />
-              <PaymentComparisonPie
-                data={cardVsQRPayments}
-                title="Card Payments vs QR Payments %"
-                showPercentage={true}
-              />
-            </div>
-
-            {/* Transaction History */}
-            <TransactionHistoryTable 
-            data={transactionHistoryData} 
-            actions={transactionActions}
-            />
-            <TransactionDetailsModal
-              isOpen={showDetailsModal}
-              onClose={() => setShowDetailsModal(false)}
-              transaction={selectedTransaction}
-            />
-
-                  <ShareReceiptModal
-              isOpen={showShareModal}
-              onClose={() => setShowShareModal(false)}
-              transaction={selectedTransaction}
-            />
-          </>
-
-          
         )}
       </div>
     </div>
