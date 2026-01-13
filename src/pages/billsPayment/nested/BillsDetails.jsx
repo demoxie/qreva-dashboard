@@ -17,6 +17,12 @@ import {
   regionsData,
   transactionHistoryData
 } from '@/constants/mockData';
+import { 
+  customerStats, 
+  createCustomerTransactionActions,
+  createRegionStats,
+  createRegionTransactionActions
+} from '../constants';
 
 const BillsDetails = () => {
   const { type, id } = useParams();
@@ -44,60 +50,14 @@ const BillsDetails = () => {
       category: 'Bills',
     }));
 
-    // Custom stats for region view
-    const regionStats = [
-      { 
-        label: 'Total Transactions', 
-        value: region.total?.toLocaleString() || '0', 
-        change: '+15%', 
-        subtext: '60,000 in last 24 hours' 
-      },
-      { 
-        label: 'Total Revenue (₦)', 
-        value: `₦${region.revenue?.toLocaleString() || '0'}`, 
-        change: '+20%', 
-        subtext: '₦30,000 in last 24 hours' 
-      },
-      { 
-        label: 'Transaction Volume (₦)', 
-        value: `₦${region.volume?.toLocaleString() || '0'}`, 
-        change: '+12%', 
-        subtext: '₦40,000 in last 24 hours' 
-      },
-      { 
-        label: 'Success Rate', 
-        value: `${region.rate}%`, 
-        change: '+4%', 
-        subtext: '99% in last 24 hours' 
-      }
-    ];
-
-    // Actions for region transactions
-    const regionTransactionActions = [
-      {
-        label: 'View Transaction Details',
-        type: 'view',
-        onClick: (transaction) => {
-          setSelectedTransaction(transaction);
-          setShowDetailsModal(true);
-        }
-      },
-      {
-        label: 'Share Receipt',
-        type: 'share',
-        onClick: (transaction) => {
-          setSelectedTransaction(transaction);
-          setShowShareModal(true);
-        }
-      },
-      {
-        label: 'View Transaction History',
-        type: 'history',
-        onClick: (transaction) => {
-          navigate(`/bills/details/transaction/${transaction.id}`);
-        }
-      }
-    ];
+    // Generate region-specific stats and actions
+    const regionStats = createRegionStats(region);
+    const regionTransactionActions = createRegionTransactionActions({
+      setSelectedTransaction,
+      setShowDetailsModal,
+      setShowShareModal,
+      navigate
+    });
 
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -139,6 +99,7 @@ const BillsDetails = () => {
               <TransactionPercentagePie 
                 data={transactionPercentages}
                 title="Top % Purchase from Customers"
+                wrapped={true}
               />
             </div>
           </div>
@@ -183,53 +144,12 @@ const BillsDetails = () => {
       category: 'Bills',
     }));
 
-    // Custom stats for transaction/customer view
-    const customerStats = [
-      { 
-        label: 'Total Transactions', 
-        value: '48,920', 
-        change: '+22%', 
-        subtext: '55,000 in last 24 hours' 
-      },
-      { 
-        label: 'Total Transaction Volume', 
-        value: '₦3,980,500', 
-        change: '-12%', 
-        subtext: '₦60,000 in last 24 hours' 
-      },
-      { 
-        label: 'Highest One Time Purchase', 
-        value: '₦6,200', 
-        change: '+15%', 
-        subtext: '620 in last 24 hours' 
-      },
-      { 
-        label: 'Success Rate', 
-        value: '91%', 
-        change: '+4%', 
-        subtext: '4% in last 24 hours' 
-      }
-    ];
-
-    // Actions for customer transaction history
-    const customerTransactionActions = [
-      {
-        label: 'View Transaction Details',
-        type: 'view',
-        onClick: (tx) => {
-          setSelectedTransaction(tx);
-          setShowDetailsModal(true);
-        }
-      },
-      {
-        label: 'Share Receipt',
-        type: 'share',
-        onClick: (tx) => {
-          setSelectedTransaction(tx);
-          setShowShareModal(true);
-        }
-      }
-    ];
+    // Generate customer transaction actions
+    const customerTransactionActions = createCustomerTransactionActions({
+      setSelectedTransaction,
+      setShowDetailsModal,
+      setShowShareModal
+    });
 
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -276,6 +196,7 @@ const BillsDetails = () => {
               <TransactionPercentagePie 
                 data={transactionPercentages}
                 title="Top % Purchase"
+                wrapped={true}
               />
             </div>
           </div>

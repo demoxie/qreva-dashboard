@@ -113,10 +113,11 @@ export const transactionHistoryData = [
   { id: 2, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Transfer to Victor...', category: 'Transfer', status: 'Successful', type: 'Debit', amount: 5000000, date: '10:00 AM | 20th March, 2025' },
   { id: 3, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'GoTv Subscription', category: 'Bill Payment', status: 'Successful', type: 'Debit', amount: 200000, date: '10:00 AM | 20th March, 2025' },
   { id: 4, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Airtime Purchase', category: 'Airtime', status: 'Successful', type: 'Debit', amount: 40000000, date: '10:00 AM | 20th March, 2025' },
-  { id: 5, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Data Purchase', category: 'Data', status: 'Successful', type: 'Debit', amount: 20000, date: '10:00 AM | 20th March, 2025' },
-  { id: 6, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Transfer from Vict...', category: 'Transfer', status: 'Successful', type: 'Credit', amount: 20000, date: '10:00 AM | 20th March, 2025' },
+  { id: 5, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'MTN 2.5GB for 900', category: 'Data', status: 'Successful', type: 'Debit', amount: 20000, date: '10:00 AM | 20th March, 2025' },
+  { id: 6, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'MTN 3.5GB for 1000', category: 'Data', status: 'Successful', type: 'Debit', amount: 30000, date: '10:00 AM | 20th March, 2025' },
   { id: 7, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Transfer from Vict...', category: 'Transfer', status: 'Successful', type: 'Credit', amount: 20000, date: '10:00 AM | 20th March, 2025' },
-  { id: 8, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Transfer from Vict...', category: 'Transfer', status: 'Successful', type: 'Credit', amount: 20000, date: '10:00 AM | 20th March, 2025' }
+  { id: 8, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Transfer from Vict...', category: 'Transfer', status: 'Successful', type: 'Credit', amount: 20000, date: '10:00 AM | 20th March, 2025' },
+  { id: 9, title: 'Rejoice Regina', acc: 'Acc. Number', desc: 'Transfer from Vict...', category: 'Transfer', status: 'Successful', type: 'Credit', amount: 20000, date: '10:00 AM | 20th March, 2025' }
 ];
 
 export const airtimeProviders = [

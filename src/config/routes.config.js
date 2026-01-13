@@ -93,8 +93,71 @@ export const ROUTES = {
     icon: 'accountsApprovals',
     permission: 'approvals:view',
   },
-  
-  // Nested/Dynamic routes
+
+  SETTINGS: {
+    path: '/settings',
+    label: 'Settings',
+    icon: 'settings',
+    permission: 'settings:view',
+  },
+  SETTINGS_PROFILE: {
+    path: '/settings/profile',
+    label: 'My Profile',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_RBAC: {
+    path: '/settings/rbac',
+    label: 'RBAC (Role Based Permissions)',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_CREATE_ROLE: {
+    path: '/settings/rbac/create',
+    label: 'Create Role',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: null
+  },
+  SETTINGS_AGENT_CATEGORY: {
+    path: '/settings/agent-category',
+    label: 'Agent Category',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_CREATE_AGENT_CATEGORY: {
+    path: '/settings/agent-category/create',
+    label: 'Create Agent Category',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: null
+  },
+  SETTINGS_ACTIVITY_LOGS: {
+    path: '/settings/activity-logs',
+    label: 'Activity Logs',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_TIER: {
+    path: '/settings/tier',
+    label: 'Tier Management',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_CREATE_TIER: {
+    path: '/settings/tier/create',
+    label: 'Create Tier',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: null
+  },
+
+
   USER_DETAILS: {
     path: '/users/:id',
     label: 'User Details',
@@ -135,7 +198,7 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
-   AIRTIME_DETAILS: {
+  AIRTIME_DETAILS: {
     path: '/airtime/details/:type/:id',
     label: 'View Details',
     parent: '/airtime',
@@ -143,7 +206,7 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
-    DATA_DETAILS: {
+  DATA_DETAILS: {
     path: '/data/details/:type/:id',
     label: 'View Details',
     parent: '/data',
@@ -151,7 +214,7 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
-    BILLS_DETAILS: {
+  BILLS_DETAILS: {
     path: '/bills/details/:type/:id',
     label: 'View Details',
     parent: '/bills',
@@ -159,7 +222,7 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
-    TRANSFER_DETAILS: {
+  TRANSFER_DETAILS: {
     path: '/transfers/details/:type/:id',
     label: 'View Details',
     parent: '/transfers',
@@ -167,7 +230,7 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
-    SOFTPOS_DETAILS: {
+  SOFTPOS_DETAILS: {
     path: '/softpos/details/:type/:id',
     label: 'View Details',
     parent: '/softpos',
@@ -175,7 +238,7 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
-    KYC_DETAILS: {
+  KYC_DETAILS: {
     path: '/kyc/details/:type/:id',
     label: 'View Details',
     parent: '/kyc',

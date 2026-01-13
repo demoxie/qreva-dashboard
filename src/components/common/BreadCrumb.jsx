@@ -13,7 +13,7 @@ const Breadcrumb = ({ user }) => {
   // Generate dynamic label based on route type and params
   const getDynamicLabel = () => {
     const { type, id } = params;
-    
+
     // If no dynamic params, use default label
     if (!type && !id) {
       return currentRoute.label;
@@ -23,7 +23,7 @@ const Breadcrumb = ({ user }) => {
     if (type === 'region') {
       return 'View Location Details';
     }
-    
+
     if (type === 'transaction') {
       return 'View Transaction History';
     }
@@ -69,6 +69,7 @@ const Breadcrumb = ({ user }) => {
         <button
           className="p-3 hover:bg-gray-100 transition-colors border border-[#D9D9D9] rounded-full"
           aria-label="Settings"
+          onClick={() => navigate('/settings')}
         >
           <Settings size={20} className="text-[#7C8D96]" />
         </button>

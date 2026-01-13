@@ -13,6 +13,17 @@ import AggregatorManagers from "@/pages/aggregatorManager/AggregatorManager";
 import MyEarnings from "@/pages/myearnings/MyEarnings";
 import AccountApprovals from "@/pages/accountApprovals/AccountApprovals";
 import Request from "@/pages/request/Request";
+import Settings from "@/pages/settings/Settings";
+
+// Settings
+import MyProfile from "@/pages/settings/nested/profile/MyProfile";
+import RBAC from "@/pages/settings/nested/rbac/RBAC";
+import CreateRole from "@/pages/settings/nested/rbac/CreateRole";
+import AgentCategory from "@/pages/settings/nested/agentCategory/AgentCategory";
+import CreateAgentCategory from "@/pages/settings/nested/agentCategory/CreateAgentCategory";
+import ActivityLogs from "@/pages/settings/nested/activityLogs/ActivityLogs";
+import TierManagement from "@/pages/settings/nested/tier/TierManagement";
+import CreateTier from "@/pages/settings/nested/tier/CreateTier";
 
 //Nested Details Pages
 import AirtimeDetails from "@/pages/airtimePurchase/nested/AirTimeDetails";
@@ -45,6 +56,7 @@ export const RouteComponentMap = {
   EARNINGS: MyEarnings,
   ACCOUNTS_APPROVALS: AccountApprovals,
   REQUEST: Request,
+  SETTINGS: Settings,
 
   // Nested Details Pages
   AIRTIME_DETAILS: AirtimeDetails,
@@ -59,5 +71,13 @@ export const RouteComponentMap = {
   AGGREGATOR_MANAGER_DETAILS: AggregatorManagerProfileDetails,
   ACCOUNTS_APPROVALS_DETAILS: AccountApprovalDetails,
 
-// Seetings
+  // Settings
+  SETTINGS_PROFILE: MyProfile,
+  SETTINGS_RBAC: RBAC,
+  SETTINGS_CREATE_ROLE: CreateRole,
+  SETTINGS_AGENT_CATEGORY: AgentCategory,
+  SETTINGS_CREATE_AGENT_CATEGORY: CreateAgentCategory,
+  SETTINGS_ACTIVITY_LOGS: ActivityLogs,
+  SETTINGS_TIER: TierManagement,
+  SETTINGS_CREATE_TIER: CreateTier,
 };
