@@ -94,6 +94,15 @@ export const ROUTES = {
     permission: 'approvals:view',
   },
 
+   DISPUTED_TRANSACTIONS: {
+    path: '/disputed-transactions',
+    label: 'Disputed Transactions',
+    parent: null,
+    icon: 'disputed',
+    permission: 'disputes:view',
+    dynamic: true,
+  },
+
   SETTINGS: {
     path: '/settings',
     label: 'Settings',
@@ -253,8 +262,15 @@ export const ROUTES = {
     icon: null,
     permission: 'approvals',
     dynamic: true,
+  },
+  DISPUTED_TRANSACTIONS_DETAILS: {
+    path: '/disputed-transactions/:id',
+    label: 'View Details',
+    parent: null,
+    icon: null,
+    permission: 'disputes',
+    dynamic: true,
   }
-
 };
 
 // Helper function to get route config by path
@@ -335,6 +351,7 @@ export const MENU_STRUCTURE = [
     permission: 'section:approvals',
     items: [
       { routeKey: 'ACCOUNTS_APPROVALS' },
+      { routeKey: 'DISPUTED_TRANSACTIONS' },
     ],
   },
 ];

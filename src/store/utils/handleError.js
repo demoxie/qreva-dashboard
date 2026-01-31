@@ -31,7 +31,7 @@ export const handleError = (error, customMessage) => {
         errorMessage = data?.message || 'Invalid request. Please check your input.';
         break;
       case 401:
-        errorMessage = 'You are not authorized. Please login again.';
+        errorMessage = 'Invalid credentials';
         break;
       case 403:
         errorMessage = 'You do not have permission to perform this action.';

@@ -36,6 +36,7 @@ export const PERMISSIONS = {
     'aggregator:view',
     'aggManager:view',
     'approvals:view',
+    'disputes:view',
   ],
   [ROLES.AGENT]: [
     'dashboard:view',
