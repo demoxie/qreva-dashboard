@@ -12,6 +12,7 @@ import Aggregators from "@/pages/aggregator/Aggregators";
 import AggregatorManagers from "@/pages/aggregatorManager/AggregatorManager";
 import MyEarnings from "@/pages/myearnings/MyEarnings";
 import AccountApprovals from "@/pages/accountApprovals/AccountApprovals";
+import DisputedTransactions from "@/pages/disputedTransactions/DisputedTransactions";
 import Request from "@/pages/request/Request";
 import Settings from "@/pages/settings/Settings";
 
@@ -37,6 +38,7 @@ import AgentProfileDetails from "@/pages/agents/nested/AgentProfileDetails";
 import AggregatorProfileDetails from "@/pages/aggregator/nested/AggregatorProfileDetails";
 import AggregatorManagerProfileDetails from "@/pages/aggregatorManager/nested/AggregatorManagerProfileDetails";
 import AccountApprovalDetails from "@/pages/accountApprovals/nested/AccountApprovalDetails";
+import DisputedTransactionDetails from "@/pages/disputedTransactions/DisputedTransactionDetails";
 
 // Disputed Transactions
 
@@ -55,6 +57,7 @@ export const RouteComponentMap = {
   AGGREGATOR_MANAGER: AggregatorManagers,
   EARNINGS: MyEarnings,
   ACCOUNTS_APPROVALS: AccountApprovals,
+  DISPUTED_TRANSACTIONS: DisputedTransactions,
   REQUEST: Request,
   SETTINGS: Settings,
 
@@ -70,6 +73,7 @@ export const RouteComponentMap = {
   AGGREGATOR_DETAILS: AggregatorProfileDetails,
   AGGREGATOR_MANAGER_DETAILS: AggregatorManagerProfileDetails,
   ACCOUNTS_APPROVALS_DETAILS: AccountApprovalDetails,
+  DISPUTED_TRANSACTIONS_DETAILS: DisputedTransactionDetails,
 
   // Settings
   SETTINGS_PROFILE: MyProfile,

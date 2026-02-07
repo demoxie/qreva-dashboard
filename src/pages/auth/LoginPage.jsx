@@ -8,7 +8,7 @@ import logo from '../../assets/images/logo.png';
 import { useLogin } from '../../store/features/auth/useAuth';
 import { handleError } from '@/store/utils/handleError';
 import { loginSchema } from './schema';
-import { getInputBorderColor, getFloatingLabelClasses } from './utils/inputHelpers';  
+import { getInputBorderColor, getFloatingLabelClasses } from './utils/inputHelpers';
 import { inputStyles, buttonStyles, iconButtonStyles } from './utils/inputStyles';
 
 const LoginPage = ({ onLogin }) => {
@@ -36,7 +36,7 @@ const LoginPage = ({ onLogin }) => {
       });
 
       // Extract admin data from response
-      const { token, admin, mustChangePassword } = response.data;
+      const { token, admin, mustChangePassword } = response?.data;
 
       // Pass formatted user data to parent component
       onLogin({
@@ -51,6 +51,7 @@ const LoginPage = ({ onLogin }) => {
 
     } catch (error) {
       handleError(error);
+      console.log(error);
     }
   };
 

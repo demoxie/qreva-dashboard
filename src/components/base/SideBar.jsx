@@ -19,6 +19,7 @@ import UsersIcon from '../../assets/icons/aggregatormanager.svg';
 import AggregatorIcon from '../../assets/icons/aggregators.svg';
 import AggregatorManagerIcon from '../../assets/icons/userswitch.svg';
 import AccountsApprovalsIcon from '../../assets/icons/documentvalidation.svg';
+import DisputedIcon from '../../assets/icons/disputed.svg';
 
 // Icon mapping
 const ICON_MAP = {
@@ -36,6 +37,7 @@ const ICON_MAP = {
   aggregator: AggregatorIcon,
   aggregatorManager: AggregatorManagerIcon,
   accountsApprovals: AccountsApprovalsIcon,
+  disputed: DisputedIcon,
 };
 
 const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS }) => {

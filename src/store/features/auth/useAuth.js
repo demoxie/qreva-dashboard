@@ -7,11 +7,20 @@ export const useLogin = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: authApi.login,
+    mutationFn: async (credentials) => {
+      const response = await authApi.login(credentials);
+      if (response?.statusCode === 401 || response?.message === 'Invalid credentials') {
+        const error = new Error('Invalid credentials');
+        error.response = { data: response, status: 401 };
+        throw error;
+      }
+      return response;
+    },
     onSuccess: (response) => {
+
       // Extract data from response structure
-      const { token, admin, mustChangePassword } = response.data;
-      
+      const { token, admin, mustChangePassword } = response?.data;
+
       // Store token and user data
       localStorage.setItem('adminToken', token);
       localStorage.setItem('userRole', admin.role);
@@ -19,7 +28,7 @@ export const useLogin = () => {
       localStorage.setItem('userEmail', admin.emailAddress);
       localStorage.setItem('userName', `${admin.firstName} ${admin.lastName}`);
       localStorage.setItem('mustChangePassword', mustChangePassword);
-      
+
       queryClient.invalidateQueries({ queryKey: ['admin'] });
       handleSuccess(response.message || successMessages.LOGIN_SUCCESS);
     },
