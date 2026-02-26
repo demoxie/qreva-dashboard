@@ -60,7 +60,7 @@ export const TIER_COLUMNS = [
         flex: 0.8,
         renderCell: (params) => (
             <div className="flex items-center h-full">
-                <Switch checked={params.value} />
+                <Switch checked={params.value} className="data-[state=checked]:bg-green-500" />
             </div>
         )
     }

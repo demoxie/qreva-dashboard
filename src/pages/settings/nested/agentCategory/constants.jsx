@@ -2,10 +2,10 @@ import { Eye, Edit } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 export const AGENT_CATEGORIES_DATA = [
-    { id: 1, name: "Starter", volume: "New Sign Up", count: "New Sign up", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true },
-    { id: 2, name: "Bronze", volume: "5,000,000", count: "10", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true },
-    { id: 3, name: "Silver", volume: "7,000,000", count: "15", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true },
-    { id: 4, name: "Gold", volume: "10,000,000", count: "20", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true },
+    { id: 1, name: "Starter", volume: "New Sign Up", count: "New Sign up", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true, commissionType: "Flat Commission", agentCommission: "0%", aggregatorCommission: "0%", aggManagerCommission: "0%", adminCommission: "0%", userAccount: "Agents/Merchants", description: "", appliesToAll: true, appliesToAggregators: true, appliesToAggManager: true },
+    { id: 2, name: "Bronze", volume: "5,000,000", count: "10", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true, commissionType: "Percentage Commission", agentCommission: "0.6%", aggregatorCommission: "10%", aggManagerCommission: "10%", adminCommission: "10%", userAccount: "Agents/Merchants", description: "", appliesToAll: true, appliesToAggregators: true, appliesToAggManager: true },
+    { id: 3, name: "Silver", volume: "7,000,000", count: "15", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true, commissionType: "Percentage Commission", agentCommission: "0.6%", aggregatorCommission: "10%", aggManagerCommission: "10%", adminCommission: "10%", userAccount: "Agents/Merchants", description: "", appliesToAll: true, appliesToAggregators: true, appliesToAggManager: true },
+    { id: 4, name: "Gold", volume: "10,000,000", count: "20", appliesTo: "Agents, Aggregat... etc", updated: "10:00 AM | 25th March, 2025", active: true, commissionType: "Percentage Commission", agentCommission: "0.6%", aggregatorCommission: "10%", aggManagerCommission: "10%", adminCommission: "10%", userAccount: "Agents/Merchants", description: "", appliesToAll: true, appliesToAggregators: true, appliesToAggManager: true },
 ];
 
 export const AGENT_CATEGORY_COLUMNS = [
@@ -61,7 +61,7 @@ export const AGENT_CATEGORY_COLUMNS = [
         flex: 1,
         renderCell: (params) => (
             <div className="flex items-center h-full">
-                <Switch checked={params.value} />
+                <Switch checked={params.value} className="data-[state=checked]:bg-green-500" />
             </div>
         )
     }

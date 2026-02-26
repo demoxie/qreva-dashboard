@@ -3,6 +3,8 @@ import { LogOut } from "lucide-react";
 import SettingsCard from '@/components/settings/SettingsCard';
 import ChangePinModal from '@/components/settings/ChangePinModal';
 import OtpModal from '@/components/settings/OtpModal';
+import ChangePasswordModal from '@/components/settings/ChangePasswordModal';
+import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
 import { Button } from '@/components/ui/button';
 import { settingsData } from './data';
 import { SETTINGS_VISUALS } from './constants';
@@ -11,8 +13,16 @@ import { useNavigate } from 'react-router-dom';
 
 const Settings = () => {
     const navigate = useNavigate();
+    
+    // Change Password Flow States
+    const [isPasswordOtpOpen, setIsPasswordOtpOpen] = useState(false);
+    const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
+    const [isPasswordSuccessOpen, setIsPasswordSuccessOpen] = useState(false);
+
+    // Change PIN Flow States
+    const [isPinOtpOpen, setIsPinOtpOpen] = useState(false);
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-    const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
+    const [isPinSuccessOpen, setIsPinSuccessOpen] = useState(false);
 
     // Map IDs to specific actions
     const handleItemClick = (id) => {
@@ -21,10 +31,10 @@ const Settings = () => {
                 navigate('/settings/profile');
                 break;
             case 'password':
-                console.log("Navigate to Change Password");
+                setIsPasswordOtpOpen(true);
                 break;
             case 'pin':
-                setIsPinModalOpen(true);
+                setIsPinOtpOpen(true);
                 break;
             case 'tier':
                 navigate('/settings/tier');
@@ -44,6 +54,32 @@ const Settings = () => {
             default:
                 break;
         }
+    };
+
+    // Password Flow Handlers
+    const handlePasswordOtpSubmit = (otp) => {
+        // Here you would typically verify the OTP with the backend
+        setIsPasswordOtpOpen(false);
+        setIsChangePasswordOpen(true);
+    };
+
+    const handleChangePasswordSubmit = (passwords) => {
+        // Here you would typically submit the new password to the backend
+        setIsChangePasswordOpen(false);
+        setIsPasswordSuccessOpen(true);
+    };
+
+    // PIN Flow Handlers
+    const handlePinOtpSubmit = (otp) => {
+        // Verification with backend here
+        setIsPinOtpOpen(false);
+        setIsPinModalOpen(true);
+    };
+
+    const handleChangePinSubmit = (newPin) => {
+        // Submit new PIN to backend here
+        setIsPinModalOpen(false);
+        setIsPinSuccessOpen(true);
     };
 
     return (
@@ -82,15 +118,44 @@ const Settings = () => {
                 })}
             </div>
 
-            {/* Modals */}
+            {/* Change Password Flow Modals */}
+            <OtpModal
+                isOpen={isPasswordOtpOpen}
+                onClose={() => setIsPasswordOtpOpen(false)}
+                onSubmit={handlePasswordOtpSubmit}
+            />
+
+            <ChangePasswordModal
+                isOpen={isChangePasswordOpen}
+                onClose={() => setIsChangePasswordOpen(false)}
+                onSubmit={handleChangePasswordSubmit}
+            />
+
+            <ActionSuccessModal
+                isOpen={isPasswordSuccessOpen}
+                onClose={() => setIsPasswordSuccessOpen(false)}
+                title="Password Changed"
+                message="You have successfully changed your password and can now use it to login subsequently"
+            />
+
+            {/* Change PIN Flow Modals */}
+            <OtpModal
+                isOpen={isPinOtpOpen}
+                onClose={() => setIsPinOtpOpen(false)}
+                onSubmit={handlePinOtpSubmit}
+            />
+
             <ChangePinModal
                 isOpen={isPinModalOpen}
                 onClose={() => setIsPinModalOpen(false)}
+                onSubmit={handleChangePinSubmit}
             />
 
-            <OtpModal
-                isOpen={isOtpModalOpen}
-                onClose={() => setIsOtpModalOpen(false)}
+            <ActionSuccessModal
+                isOpen={isPinSuccessOpen}
+                onClose={() => setIsPinSuccessOpen(false)}
+                title="PIN Changed"
+                message="You have successfully changed your transaction PIN and can now use it continuously"
             />
         </div>
     );

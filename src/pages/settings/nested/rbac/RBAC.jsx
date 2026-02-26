@@ -7,6 +7,19 @@ import { ROLES_DATA, RBAC_COLUMNS, RBAC_ACTIONS } from './constants';
 const RBAC = () => {
     const navigate = useNavigate();
 
+    const handleAction = (action, row) => {
+        if (action.label === 'View Details') {
+            navigate(`/settings/rbac/view/${row.id}`);
+        } else if (action.label === 'Edit Details') {
+            navigate(`/settings/rbac/edit/${row.id}`);
+        }
+    };
+
+    const actionsWithHandler = RBAC_ACTIONS.map(action => ({
+        ...action,
+        onClick: (row) => handleAction(action, row),
+    }));
+
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -26,7 +39,7 @@ const RBAC = () => {
                 data={ROLES_DATA}
                 columns={RBAC_COLUMNS}
                 title="Permissions"
-                actions={RBAC_ACTIONS}
+                actions={actionsWithHandler}
                 showSearch={true}
                 showCheckbox={true}
             />

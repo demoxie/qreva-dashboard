@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
 import { TIERS_DATA, TIER_COLUMNS, TIER_ACTIONS } from './constants';
+import TierViewDetailsModal from './TierViewDetailsModal';
 
 const TierManagement = () => {
     const navigate = useNavigate();
+    const [viewTier, setViewTier] = useState(null);
 
     const handleAction = (action, row) => {
         if (action.label === 'Edit Details') {
-            navigate('/settings/tier/create'); // Reuse create page or specific edit route
+            navigate(`/settings/tier/edit/${row.id}`);
+        } else if (action.label === 'View Details') {
+            setViewTier(row);
         } else {
             console.log(action.label, row);
         }
@@ -43,6 +47,13 @@ const TierManagement = () => {
                 actions={actionsWithHandler}
                 showSearch={true}
                 showCheckbox={true}
+            />
+
+            {/* View Details Modal */}
+            <TierViewDetailsModal
+                isOpen={!!viewTier}
+                tier={viewTier}
+                onClose={() => setViewTier(null)}
             />
         </div>
     );

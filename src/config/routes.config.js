@@ -130,6 +130,22 @@ export const ROUTES = {
     permission: 'settings:create',
     parent: null
   },
+  SETTINGS_EDIT_ROLE: {
+    path: '/settings/rbac/edit/:id',
+    label: 'Edit Details',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: '/settings/rbac',
+    dynamic: true,
+  },
+  SETTINGS_VIEW_ROLE: {
+    path: '/settings/rbac/view/:id',
+    label: 'View Details',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: '/settings/rbac',
+    dynamic: true,
+  },
   SETTINGS_AGENT_CATEGORY: {
     path: '/settings/agent-category',
     label: 'Agent Category',
@@ -143,6 +159,22 @@ export const ROUTES = {
     icon: 'settings',
     permission: 'settings:create',
     parent: null
+  },
+  SETTINGS_EDIT_AGENT_CATEGORY: {
+    path: '/settings/agent-category/edit/:id',
+    label: 'Edit Details',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: '/settings/agent-category',
+    dynamic: true,
+  },
+  SETTINGS_VIEW_AGENT_CATEGORY: {
+    path: '/settings/agent-category/view/:id',
+    label: 'View Details',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: '/settings/agent-category',
+    dynamic: true,
   },
   SETTINGS_ACTIVITY_LOGS: {
     path: '/settings/activity-logs',
@@ -164,6 +196,14 @@ export const ROUTES = {
     icon: 'settings',
     permission: 'settings:create',
     parent: null
+  },
+  SETTINGS_EDIT_TIER: {
+    path: '/settings/tier/edit/:id',
+    label: 'Edit Details',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: '/settings/tier',
+    dynamic: true,
   },
 
 

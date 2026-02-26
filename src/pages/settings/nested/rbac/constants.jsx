@@ -55,7 +55,7 @@ export const RBAC_COLUMNS = [
         flex: 1,
         renderCell: (params) => (
             <div className="flex items-center h-full">
-                <Switch checked={params.value} />
+                <Switch checked={params.value} className="data-[state=checked]:bg-green-500" />
             </div>
         )
     }

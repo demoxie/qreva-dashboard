@@ -1,30 +1,34 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import RoleForm from './RoleForm';
 import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
+import { ROLES_DATA } from './constants';
 
-const CreateRole = () => {
+const EditRole = () => {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const role = ROLES_DATA.find(r => String(r.id) === String(id)) || ROLES_DATA[0];
 
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[#1E1E1E]">Create New Role</h1>
-                    <p className="text-[#808C91] mt-1">Kindly input the info about this new role</p>
+                    <h1 className="text-2xl font-bold text-[#1E1E1E]">Edit Details</h1>
+                    <p className="text-[#808C91] mt-1">Kindly edit the info about this permission</p>
                 </div>
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
                     onClick={() => setShowSuccess(true)}
                 >
-                    Create Role
+                    Save Changes
                 </Button>
             </div>
 
-            <RoleForm />
+            <RoleForm initialData={role} />
 
             <ActionSuccessModal
                 isOpen={showSuccess}
@@ -32,12 +36,12 @@ const CreateRole = () => {
                     setShowSuccess(false);
                     navigate('/settings/rbac');
                 }}
-                title="New Role Permission Created"
-                message="You have successfully created a new role permission for your platform"
+                title="Role Permission Edited"
+                message="You have successfully edited this role permission for your platform"
                 buttonText="Dismiss"
             />
         </div>
     );
 };
 
-export default CreateRole;
+export default EditRole;

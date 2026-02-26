@@ -1,6 +1,6 @@
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ChevronLeft, Bell, Settings } from 'lucide-react';
-import { getRouteConfig } from '@/config/routes.config';
+import { getRouteConfig, ROUTES } from '@/config/routes.config';
 
 const Breadcrumb = ({ user }) => {
   const navigate = useNavigate();
@@ -8,7 +8,17 @@ const Breadcrumb = ({ user }) => {
   const params = useParams();
 
   const currentRoute = getRouteConfig(location.pathname);
-  const canGoBack = currentRoute.parent !== null;
+  const path = location.pathname;
+
+  // Show back button if the route has an explicit parent, OR if we're on a settings sub-page
+  const isSettingsSubPage = path.startsWith('/settings/') && path !== '/settings';
+  const canGoBack = currentRoute.parent !== null || isSettingsSubPage;
+
+  const getBackPath = () => {
+    if (currentRoute.parent) return currentRoute.parent;
+    if (isSettingsSubPage) return '/settings';
+    return null;
+  };
 
   // Generate dynamic label based on route type and params
   const getDynamicLabel = () => {
@@ -33,14 +43,73 @@ const Breadcrumb = ({ user }) => {
   };
 
   const handleBack = () => {
-    if (canGoBack) {
-      navigate(currentRoute.parent);
-    }
+    const backPath = getBackPath();
+    if (backPath) navigate(backPath);
   };
+
+  // Build breadcrumb segments for routes with known parents
+  const getBreadcrumbSegments = () => {
+    // Tier Management sub-routes
+    if (path.startsWith('/settings/tier/create')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Tier Management', path: '/settings/tier' },
+        { label: 'Create New Tier', path: null },
+      ];
+    }
+    if (path.startsWith('/settings/tier/edit')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Tier Management', path: '/settings/tier' },
+        { label: 'Edit Details', path: null },
+      ];
+    }
+    // Agent Category sub-routes
+    if (path.startsWith('/settings/agent-category/create')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Agent Category', path: '/settings/agent-category' },
+        { label: 'Create New Category', path: null },
+      ];
+    }
+    if (path.startsWith('/settings/agent-category/edit')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Agent Category', path: '/settings/agent-category' },
+        { label: 'Edit Details', path: null },
+      ];
+    }
+    if (path.startsWith('/settings/agent-category/view')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Agent Category', path: '/settings/agent-category' },
+        { label: 'View Details', path: null },
+      ];
+    }
+    // Settings sub-pages (first level under /settings)
+    const settingsPages = {
+      '/settings/tier': 'Tier Management',
+      '/settings/rbac': 'RBAC (Role Based Permissions)',
+      '/settings/rbac/create': 'Create Role',
+      '/settings/agent-category': 'Agent Category',
+      '/settings/agent-category/create': 'Create Agent Category',
+      '/settings/activity-logs': 'Activity Logs',
+      '/settings/profile': 'My Profile',
+    };
+    if (settingsPages[path]) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: settingsPages[path], path: null },
+      ];
+    }
+    return null;
+  };
+
+  const segments = getBreadcrumbSegments();
 
   return (
     <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#E8EBED]">
-      {/* Left side - Back button and title */}
+      {/* Left side - Back button and breadcrumb/title */}
       <div className="flex items-center gap-3">
         {canGoBack && (
           <button
@@ -51,9 +120,29 @@ const Breadcrumb = ({ user }) => {
             <ChevronLeft size={20} className="text-[#084059]" />
           </button>
         )}
-        <h1 className="text-sm font-general font-medium text-[#FF5B04]">
-          {getDynamicLabel()}
-        </h1>
+        {segments ? (
+          <nav className="flex items-center gap-1 text-sm">
+            {segments.map((seg, idx) => (
+              <span key={idx} className="flex items-center gap-1">
+                {idx > 0 && <span className="text-[#808C91]">/</span>}
+                {seg.path ? (
+                  <button
+                    onClick={() => navigate(seg.path)}
+                    className="text-[#808C91] hover:text-[#505C61] font-medium transition-colors"
+                  >
+                    {seg.label}
+                  </button>
+                ) : (
+                  <span className="text-[#FF5B04] font-medium">{seg.label}</span>
+                )}
+              </span>
+            ))}
+          </nav>
+        ) : (
+          <h1 className="text-sm font-general font-medium text-[#FF5B04]">
+            {getDynamicLabel()}
+          </h1>
+        )}
       </div>
 
       {/* Right side - Notifications, Settings, User Badge */}

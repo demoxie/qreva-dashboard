@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from 'react-router-dom';
-import { REQUIRED_DOCUMENTS } from './constants';
+import { useNavigate, useParams } from 'react-router-dom';
+import { REQUIRED_DOCUMENTS, TIERS_DATA } from './constants';
 import ActionSuccessModal from "@/components/modals/ActionSuccessModal";
 
-// Format number with commas as user types
+// Format number with commas
 const formatWithCommas = (value) => {
-    const raw = value.replace(/[^0-9]/g, '');
+    const raw = String(value).replace(/[^0-9]/g, '');
     if (!raw) return '';
     return parseInt(raw, 10).toLocaleString();
 };
@@ -60,22 +60,29 @@ const LimitInput = ({ labelStart, labelEnd, value, onChange, isUnlimited, onUnli
     </div>
 );
 
-const CreateTier = () => {
+const EditTier = () => {
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('personal');
+    const { id } = useParams();
     const [showSuccess, setShowSuccess] = useState(false);
+    const [activeTab, setActiveTab] = useState('personal');
+
+    // Find the tier being edited (fallback to first if no id)
+    const tier = TIERS_DATA.find(t => String(t.id) === String(id)) || TIERS_DATA[0];
+
+    const [tierName, setTierName] = useState(tier?.name || '');
+    const [tierDesc, setTierDesc] = useState('');
 
     const [limits, setLimits] = useState({
-        daily: { value: '', unlimited: false },
-        single: { value: '', unlimited: false },
-        wallet: { value: '', unlimited: false },
+        daily: { value: tier?.dailyLimit || '', unlimited: tier?.balanceLimit === 'Unlimited' },
+        single: { value: tier?.singleLimit || '', unlimited: false },
+        wallet: { value: tier?.balanceLimit === 'Unlimited' ? '' : tier?.balanceLimit || '', unlimited: tier?.balanceLimit === 'Unlimited' },
     });
 
     const updateLimit = (key, field, val) => {
         setLimits(prev => ({ ...prev, [key]: { ...prev[key], [field]: val } }));
     };
 
-    const handleCreate = () => {
+    const handleSave = () => {
         setShowSuccess(true);
     };
 
@@ -84,14 +91,14 @@ const CreateTier = () => {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[#1E1E1E]">Create New Tier</h1>
-                    <p className="text-[#808C91] mt-1">Kindly input the info about this new tier</p>
+                    <h1 className="text-2xl font-bold text-[#1E1E1E]">Edit Details</h1>
+                    <p className="text-[#808C91] mt-1">Kindly edit the info about this tier</p>
                 </div>
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
-                    onClick={handleCreate}
+                    onClick={handleSave}
                 >
-                    Create Tier
+                    Save Changes
                 </Button>
             </div>
 
@@ -125,15 +132,21 @@ const CreateTier = () => {
                     <h3 className="font-bold text-[#1E1E1E] mb-6">General Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
+                            <label className="text-xs text-[#808C91] mb-1 block">Tier Name</label>
                             <input
                                 type="text"
+                                value={tierName}
+                                onChange={(e) => setTierName(e.target.value)}
                                 placeholder="Tier Name"
                                 className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#FF5B04]"
                             />
                         </div>
                         <div>
+                            <label className="text-xs text-[#808C91] mb-1 block">Tier Description (Optional)</label>
                             <input
                                 type="text"
+                                value={tierDesc}
+                                onChange={(e) => setTierDesc(e.target.value)}
                                 placeholder="Tier Description (Optional)"
                                 className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#FF5B04]"
                             />
@@ -151,10 +164,10 @@ const CreateTier = () => {
                             <div key={doc.id} className="flex items-center gap-2">
                                 <input
                                     type="checkbox"
-                                    id={doc.id}
+                                    id={`edit-${doc.id}`}
                                     className="w-4 h-4 accent-green-500 rounded border-gray-300 cursor-pointer"
                                 />
-                                <label htmlFor={doc.id} className="text-xs font-semibold text-[#1E1E1E] cursor-pointer">
+                                <label htmlFor={`edit-${doc.id}`} className="text-xs font-semibold text-[#1E1E1E] cursor-pointer">
                                     {doc.label}
                                 </label>
                             </div>
@@ -202,12 +215,12 @@ const CreateTier = () => {
                     setShowSuccess(false);
                     navigate('/settings/tier');
                 }}
-                title="New Tier Created"
-                message="You have successfully created a new tier for your platform"
+                title="Tier Info Edited"
+                message="You have successfully edited this tier information"
                 buttonText="Dismiss"
             />
         </div>
     );
 };
 
-export default CreateTier;
+export default EditTier;
