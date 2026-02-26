@@ -27,7 +27,7 @@ const LimitInput = ({ labelStart, labelEnd, title }) => (
                         placeholder="100"
                         className="w-full text-2xl font-bold text-[#1E1E1E] placeholder:text-[#E2E8F0] focus:outline-none"
                     />
-                    <div className="absolute right-0 top-1 w-[1px] h-6 bg-[#0FB5C9] animate-pulse"></div>
+                    <div className="absolute right-0 top-1 w-px h-6 bg-[#0FB5C9] animate-pulse"></div>
                 </div>
                 <div className="flex items-center justify-between">
                     <label className="text-xs text-[#808C91]">{labelEnd}</label>

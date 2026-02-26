@@ -129,7 +129,7 @@ const MyProfile = () => {
                                 <div className="mt-4">
                                     <label className="text-xs text-[#808C91] block mb-2">Uploaded Photo</label>
                                     <div className="bg-[#F8FAFC] border border-[#E8EBED] rounded-lg p-2 max-w-sm">
-                                        <div className="aspect-[3/2] bg-[#E2E8F0] rounded flex items-center justify-center text-[#94A3B8] text-sm">
+                                        <div className="aspect-3/2  bg-[#E2E8F0] rounded flex items-center justify-center text-[#94A3B8] text-sm">
                                             [ID Card Image Placeholder]
                                         </div>
                                     </div>

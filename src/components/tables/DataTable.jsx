@@ -15,7 +15,8 @@ const DataTable = ({
   showSearch = true,
   showCheckbox = true,
   pageSize = 5,
-  pageSizeOptions = [5, 10, 25]
+  pageSizeOptions = [5, 10, 25],
+  ...rest
 }) => {
   const [dropdown, setDropdown] = useState({ open: false, anchor: null, row: null, x: 0, y: 0 });
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,7 +95,7 @@ const DataTable = ({
         </CardHeader>
         <CardContent className="px-0 h-full">
           <DataGrid
-          className='w-full'
+            className='w-full'
             rows={data}
             columns={gridColumns}
             checkboxSelection={showCheckbox}
@@ -105,6 +106,7 @@ const DataTable = ({
             initialState={{
               pagination: { paginationModel: { pageSize } },
             }}
+            {...rest}
             sx={{
               border: 0,
               width: '%100',

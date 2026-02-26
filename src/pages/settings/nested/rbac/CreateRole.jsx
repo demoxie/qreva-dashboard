@@ -42,7 +42,7 @@ const CreateRole = () => {
                     <h3 className="font-bold text-[#1E1E1E] mb-6">Basic Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="text-xs text-[#808C91] block mb-2 hidden">Role Name</label>
+                            <label className="text-xs text-[#808C91] mb-2 hidden">Role Name</label>
                             <input
                                 type="text"
                                 placeholder="Role Name"
@@ -51,7 +51,7 @@ const CreateRole = () => {
                             <p className="text-xs font-semibold mt-1 ml-1 text-[#1E1E1E]">Internal Staff</p>
                         </div>
                         <div>
-                            <label className="text-xs text-[#808C91] block mb-2 hidden">Description</label>
+                            <label className="text-xs text-[#808C91] mb-2 hidden">Description</label>
                             <input
                                 type="text"
                                 placeholder="Description (Optional)"
