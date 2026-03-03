@@ -205,6 +205,36 @@ export const ROUTES = {
     parent: '/settings/tier',
     dynamic: true,
   },
+  SETTINGS_COMMISSION: {
+    path: '/settings/commission-management',
+    label: 'Commission Management',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_CREATE_COMMISSION: {
+    path: '/settings/commission-management/create',
+    label: 'Create Commission',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: null
+  },
+  SETTINGS_EDIT_COMMISSION: {
+    path: '/settings/commission-management/edit/:id',
+    label: 'Edit Details',
+    icon: 'settings',
+    permission: 'settings:create',
+    parent: '/settings/commission-management',
+    dynamic: true,
+  },
+  SETTINGS_VIEW_COMMISSION: {
+    path: '/settings/commission-management/view/:id',
+    label: 'View Details',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: '/settings/commission-management',
+    dynamic: true,
+  },
 
 
   USER_DETAILS: {

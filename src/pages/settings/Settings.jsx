@@ -5,6 +5,7 @@ import ChangePinModal from '@/components/settings/ChangePinModal';
 import OtpModal from '@/components/settings/OtpModal';
 import ChangePasswordModal from '@/components/settings/ChangePasswordModal';
 import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
+import LogoutConfirmationModal from '@/components/modals/LogoutConfirmationModal';
 import { Button } from '@/components/ui/button';
 import { settingsData } from './data';
 import { SETTINGS_VISUALS } from './constants';
@@ -23,6 +24,9 @@ const Settings = () => {
     const [isPinOtpOpen, setIsPinOtpOpen] = useState(false);
     const [isPinModalOpen, setIsPinModalOpen] = useState(false);
     const [isPinSuccessOpen, setIsPinSuccessOpen] = useState(false);
+
+    // Logout Modal State
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     // Map IDs to specific actions
     const handleItemClick = (id) => {
@@ -46,7 +50,7 @@ const Settings = () => {
                 navigate('/settings/rbac');
                 break;
             case 'commission':
-                console.log("Navigate to Commission Management");
+                navigate('/settings/commission-management');
                 break;
             case 'logs':
                 navigate('/settings/activity-logs');
@@ -82,6 +86,11 @@ const Settings = () => {
         setIsPinSuccessOpen(true);
     };
 
+    const handleLogoutConfirm = () => {
+        setIsLogoutModalOpen(false);
+        console.log("User logged out");
+    };
+
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
             {/* Header */}
@@ -94,6 +103,7 @@ const Settings = () => {
                 <Button
                     variant="outline"
                     className="bg-[#FFF5F2] border-[#FFE6DE] text-[#FF5B04] hover:bg-[#FFE6DE] gap-2 w-full md:w-auto"
+                    onClick={() => setIsLogoutModalOpen(true)}
                 >
                     Log Out
                     <LogOut className="w-4 h-4" />
@@ -156,6 +166,12 @@ const Settings = () => {
                 onClose={() => setIsPinSuccessOpen(false)}
                 title="PIN Changed"
                 message="You have successfully changed your transaction PIN and can now use it continuously"
+            />
+
+            <LogoutConfirmationModal 
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={handleLogoutConfirm}
             />
         </div>
     );

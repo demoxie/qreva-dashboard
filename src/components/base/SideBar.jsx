@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, LogOut } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
 import { ROUTES, MENU_STRUCTURE } from '@/config/routes.config';
+import LogoutConfirmationModal from '@/components/modals/LogoutConfirmationModal';
 
 // Import icons
 import DashboardIcon from '../../assets/icons/home.svg';
@@ -49,6 +50,8 @@ const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS 
     accounts: true,
     approvals: true,
   });
+
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleMenuClick = (route) => {
     setActiveSection(route.path.split('/')[1]); // Extract base path
@@ -166,7 +169,7 @@ const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS 
             </div>
           </div>
           <button 
-            onClick={onLogout}
+            onClick={() => setIsLogoutModalOpen(true)}
             className="text-[#B0B7C3] hover:text-[#FF6B2C] transition-colors"
             title="Logout"
           >
@@ -174,6 +177,12 @@ const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS 
           </button>
         </div>
       </div>
+
+      <LogoutConfirmationModal 
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={onLogout}
+      />
     </div>
   );
 };
