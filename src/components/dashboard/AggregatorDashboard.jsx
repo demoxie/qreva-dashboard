@@ -11,14 +11,18 @@ import DashboardStats from '@/components/base/DashboardStats';
 const AggregatorDashboard = ({ 
   formattedStats, 
   metrics, 
-  cardVsQRPayments,
+  transactions,
+  pagination,
   transactionActions,
   handlePageChange,
+  handleSearch,
+  handleFilter,
   showDetailsModal,
   setShowDetailsModal,
   showShareModal,
   setShowShareModal,
-  selectedTransaction
+  selectedTransaction,
+  isTransactionsLoading
 }) => {
   return (
     <>
@@ -45,7 +49,7 @@ const AggregatorDashboard = ({
           showTabs={true}
         />
         <PaymentComparisonPie
-          data={cardVsQRPayments}
+          data={metrics.softPosPaymentBreakdown}
           title="Card Payments vs QR Payments %"
           showPercentage={true}
         />
@@ -53,10 +57,13 @@ const AggregatorDashboard = ({
 
       {/* Transaction History */}
       <TransactionHistoryTable
-        data={metrics.transactions}
+        data={transactions}
         actions={transactionActions}
-        pagination={metrics.pagination}
+        pagination={pagination}
         onPageChange={handlePageChange}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        isLoading={isTransactionsLoading}
       />
 
       <TransactionDetailsModal

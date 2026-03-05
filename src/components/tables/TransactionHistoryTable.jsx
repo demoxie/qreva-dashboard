@@ -6,7 +6,8 @@ import DataTable from './DataTable';
 const TransactionHistoryTable = ({ 
   data, 
   title = "Transaction History",
-  actions = []
+  actions = [],
+  ...rest
 }) => {
   // Define default columns for transaction history
   const columns = [
@@ -52,10 +53,13 @@ const TransactionHistoryTable = ({
       renderCell: (params) => {
         const statusColors = {
           Pending: 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]',
-          Successful: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]'
+          Successful: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]',
+          Completed: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]',
+          Failed: 'border border-[#E85304] bg-[#FCECE8] text-[#E85304]'
         };
+        const statusClass = statusColors[params.value] || 'border border-gray-300 bg-gray-50 text-gray-500';
         return(
-        <span className={`px-2 py-1.5 text-center ${statusColors[params.value]} font-general font-medium  text-xs rounded-md flex items-center justify-center h-full`}>
+        <span className={`px-2 py-1.5 text-center ${statusClass} font-general font-medium  text-xs rounded-md flex items-center justify-center h-full`}>
           {params.value}
         </span>
         );
@@ -119,6 +123,7 @@ const TransactionHistoryTable = ({
       columns={columns}
       title={title}
       actions={actions.length > 0 ? actions : defaultActions}
+      {...rest}
     />
   );
 };

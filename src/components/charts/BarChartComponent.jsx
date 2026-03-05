@@ -39,7 +39,7 @@ const BarChartComponent = ({
       <CardContent>
         <BarChart
           xAxis={[{ 
-            data: data.map((_, idx) => getXAxisLabel(idx)),
+            data: data.map((d, idx) => d.label || getXAxisLabel(idx)),
             scaleType: 'band',
             tickLabelStyle: { 
               fontSize: 12,

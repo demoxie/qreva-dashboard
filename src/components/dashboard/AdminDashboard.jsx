@@ -10,13 +10,18 @@ import DashboardStats from '@/components/base/DashboardStats';
 const AdminDashboard = ({ 
   formattedStats, 
   metrics, 
+  transactions,
+  pagination,
   transactionActions,
   handlePageChange,
+  handleSearch,
+  handleFilter,
   showDetailsModal,
   setShowDetailsModal,
   showShareModal,
   setShowShareModal,
-  selectedTransaction
+  selectedTransaction,
+  isTransactionsLoading
 }) => {
   return (
     <>
@@ -40,10 +45,13 @@ const AdminDashboard = ({
 
       {/* Transaction History */}
       <TransactionHistoryTable
-        data={metrics.transactions}
+        data={transactions}
         actions={transactionActions}
-        pagination={metrics.pagination}
+        pagination={pagination}
         onPageChange={handlePageChange}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        isLoading={isTransactionsLoading}
       />
 
       <TransactionDetailsModal

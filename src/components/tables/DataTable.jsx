@@ -4,6 +4,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import { MoreVertical } from 'lucide-react';
 import SearchFilterBar from '../common/SearchFilterBar';
 import CustomPagination from '../common/Pagination';
+import { Skeleton, Box } from '@mui/material';
+import { GridOverlay } from '@mui/x-data-grid';
 
 const DataTable = ({ 
   data = [],
@@ -79,6 +81,23 @@ const DataTable = ({
       ]
     : columns;
 
+  const CustomLoadingOverlay = () => (
+    <GridOverlay>
+      <Box sx={{ width: '100%', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {[...Array(5)].map((_, i) => (
+          <Box key={i} sx={{ display: 'flex', gap: 2, width: '100%' }}>
+            <Skeleton variant="rectangular" width="30%" height={20} />
+            <Skeleton variant="rectangular" width="40%" height={20} />
+            <Skeleton variant="rectangular" width="15%" height={20} />
+            <Skeleton variant="rectangular" width="15%" height={20} />
+          </Box>
+        ))}
+      </Box>
+    </GridOverlay>
+  );
+
+  const isLoading = rest.loading || rest.isLoading;
+
   return (
     <>
       <Card>
@@ -102,9 +121,17 @@ const DataTable = ({
             disableRowSelectionOnClick
             disableColumnResize
             columnBufferPx={0}
-            pageSizeOptions={pageSizeOptions}
-            initialState={{
-              pagination: { paginationModel: { pageSize } },
+            paginationMode={rest.pagination ? "server" : "client"}
+            rowCount={rest.pagination?.total || data.length}
+            loading={isLoading}
+            paginationModel={{ 
+              page: (rest.pagination?.page || 1) - 1, 
+              pageSize: rest.pagination?.limit || pageSize 
+            }}
+            onPaginationModelChange={(model) => {
+              if (rest.onPageChange) {
+                rest.onPageChange(model.page + 1);
+              }
             }}
             {...rest}
             sx={{
@@ -166,6 +193,16 @@ const DataTable = ({
             }}
             slots={{
               pagination: CustomPagination,
+              loadingOverlay: CustomLoadingOverlay,
+            }}
+            slotProps={{
+              pagination: {
+                currentPage: rest.pagination?.page || 1,
+                totalPages: rest.pagination?.totalPages || Math.ceil((rest.pagination?.total || data.length) / (rest.pagination?.limit || pageSize)),
+                onPageChange: rest.onPageChange,
+                totalItems: rest.pagination?.total || data.length,
+                itemsPerPage: rest.pagination?.limit || pageSize
+              }
             }}
           />
         </CardContent>

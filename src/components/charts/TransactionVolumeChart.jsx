@@ -38,7 +38,7 @@ const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Volume" 
       <CardContent>
         <LineChart
           xAxis={[{ 
-            data: data.map((_, idx) => getXAxisLabel(idx)),
+            data: data.map((d, idx) => d.label || getXAxisLabel(idx)),
             scaleType: 'point',
             tickLabelStyle: { 
               fontSize: 12,

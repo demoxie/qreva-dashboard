@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
@@ -10,8 +11,10 @@ import DashboardStats from '@/components/base/DashboardStats';
 import TopCustomersCard from '@/components/cards/TopCustomersCard';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import RegionsTable from '@/components/tables/RegionsTable';
-import { multiLineData, bvnVsNinData, chartSeries, kycRegionsData, kycTransactions } from './Data';
-import { createRegioncolumns, createTransactionActions, stats } from './constants';
+import { useCategoryMetrics } from '@/store/features/dashboard/useDashboard';
+import { formatDashboardStats } from '@/utils/formatDashboardStats';
+import { createRegioncolumns, createTransactionActions } from './constants';
+import { useMemo } from 'react';
 
 const KYCVerification = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
@@ -29,6 +32,49 @@ const KYCVerification = () => {
   };
 
   const regionColumns = createRegioncolumns(handleViewRegionDetails);
+
+  const { 
+    data: kycMetricsData, 
+    isLoading: isMetricsLoading,
+    isError: isMetricsError
+  } = useCategoryMetrics('kyc', { range: timeFilter.toLowerCase() });
+
+  const metrics = useMemo(() => {
+    if (!kycMetricsData?.data) return null;
+    return {
+      summary: kycMetricsData.data.summary || {},
+      changePercentages: kycMetricsData.data.changePercentages || {},
+      topTransactionValues: kycMetricsData.data.topTransactionValues || [],
+      topCustomers: kycMetricsData.data.topCustomers || [],
+      dailyTransactionVolume: (kycMetricsData.data.dailyTransactionVolume || []).map(d => ({
+        label: d.label,
+        value: d.amount
+      })),
+      topRegions: kycMetricsData.data.topRegions || [],
+      bvnVsNin: [
+        { id: 'BVN', value: kycMetricsData.data.summary?.bvnPercentage || 60, label: 'BVN', color: '#26C8B9' },
+        { id: 'NIN', value: kycMetricsData.data.summary?.ninPercentage || 40, label: 'NIN', color: '#E85304' }
+      ]
+    };
+  }, [kycMetricsData]);
+
+  // Fetch transactions using the new API
+  const { 
+    data: transactionData, 
+    isLoading: isTransactionsLoading 
+  } = useTransactions({
+    typeCategory: 'KYC',
+    page: 1,
+    limit: 10
+  });
+
+  const transactions = transactionData?.data || [];
+  const pagination = transactionData?.pagination || {};
+
+  const formattedStats = useMemo(() => {
+    if (!metrics?.summary) return null;
+    return formatDashboardStats(metrics.summary, metrics.changePercentages);
+  }, [metrics]);
 
 
 
@@ -52,42 +98,43 @@ const KYCVerification = () => {
         />
 
         <DashboardStats 
-         stats={stats}
+         stats={formattedStats}
         />
 
         {/* BVN vs NIN and Top Agents */}
         <div className="grid grid-cols-5 lg:grid-cols-5 gap-6 mb-6">
           <div className='col-span-2'>
             <PaymentComparisonPie 
-            data={bvnVsNinData}
-            title="BVN VS NIN %"
-          />
+              data={metrics?.bvnVsNin || []}
+              title="BVN VS NIN %"
+            />
           </div>
           <div className='col-span-3'>
             <TopCustomersCard 
-            data={topCustomers}
-            title="Top Agents"
-          />
+              data={metrics?.topCustomers || []}
+              title="Top Agents"
+            />
           </div>
-          
         </div>
 
         <MultiLineChart 
-          data={multiLineData}
-          series={chartSeries}
+          data={metrics?.dailyTransactionVolume || []}
+          series={[{ data: (metrics?.dailyTransactionVolume || []).map(d => d.value), color: '#26C8B9', label: 'Volume' }]}
           title="Daily Transaction Volume"
         />
 
         <RegionsTable 
-          data={kycRegionsData}
+          data={metrics?.topRegions || []}
           onViewDetails={handleViewRegionDetails}
           columns={regionColumns}
         />
 
         <TransactionHistoryTable 
-          data={kycTransactions}
+          data={transactions}
           title="Transactions"
           actions={transactionActions}
+          pagination={pagination}
+          isLoading={isTransactionsLoading}
         />
       </div>
 

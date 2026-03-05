@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDataPurchaseMetrics } from '@/store/features/dashboard/useDashboard';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
@@ -19,6 +20,8 @@ const DataPurchase = () => {
   const [timeFilter, setTimeFilter] = useState('today');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({});
 
   // Modal states
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -28,30 +31,44 @@ const DataPurchase = () => {
   // Fetch data purchase metrics
   const { data, isLoading, isError, refetch } = useDataPurchaseMetrics({
     range: timeFilter,
-    page,
-    limit,
   });
 
-  // Extract and format data
+  // Fetch transactions using the new API
+  const { 
+    data: transactionData, 
+    isLoading: isTransactionsLoading 
+  } = useTransactions({
+    typeCategory: 'Data',
+    page,
+    limit,
+    search,
+    ...filters
+  });
+
   const metrics = useMemo(() => {
     if (!data?.data) return null;
 
     return {
       summary: data.data.summary || {},
+      changePercentages: data.data.changePercentages || {},
       topTransactionValues: data.data.topTransactionValues || [],
       topCustomers: data.data.topCustomers || [],
-      dailyTransactionVolume: data.data.dailyTransactionVolume || [],
+      dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
+        label: d.label,
+        value: d.amount
+      })),
       topPurchasePercentages: data.data.topPurchasePercentages || [],
       topRegions: data.data.topRegions || [],
-      transactions: data.data.transactions || [],
-      pagination: data.data.pagination || {},
     };
   }, [data]);
+
+  const transactions = useMemo(() => transactionData?.data || [], [transactionData]);
+  const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
 
   // Format stats for DashboardStats component
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages);
   }, [metrics]);
 
   // Handle time filter change
@@ -68,9 +85,17 @@ const DataPurchase = () => {
     setPage(1);
   };
 
-  // Handle pagination
   const handlePageChange = (newPage) => {
     setPage(newPage);
+  };
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleFilter = () => {
+    console.log('Filter clicked');
   };
 
   // Navigation handler for regions
@@ -172,11 +197,14 @@ const DataPurchase = () => {
         />
 
         <TransactionHistoryTable 
-          data={metrics.transactions}
+          data={transactions}
           title="Transactions"
           actions={transactionActions}
-          pagination={metrics.pagination}
+          pagination={pagination}
           onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          isLoading={isTransactionsLoading}
         />
       </div>
 
