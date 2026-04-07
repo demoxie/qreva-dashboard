@@ -2,20 +2,31 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { AGENT_CATEGORIES_DATA } from './constants';
+import { useAgencyCategory } from '@/store/features/settings/useAgencyCategories';
 
 const ViewAgentCategoryDetails = () => {
     const navigate = useNavigate();
     const { id } = useParams();
 
-    const category = AGENT_CATEGORIES_DATA.find(c => String(c.id) === String(id)) || AGENT_CATEGORIES_DATA[0];
+    const { data: categoryResponse, isLoading } = useAgencyCategory(id);
+    const category = categoryResponse?.data || {};
 
-    const commissions = [
-        { role: 'Agent', value: category.agentCommission || '0.6%' },
-        { role: 'Aggregator', value: category.aggregatorCommission || '10%' },
-        { role: 'Aggregator Manager', value: category.aggManagerCommission || '10%' },
-        { role: 'Admin', value: category.adminCommission || '10%' },
-    ];
+    const commissions = (category.commissionSplits || []).map((split) => ({
+        role: split.role,
+        value: category.commissionType === 'Percentage'
+            ? `${split.value}%`
+            : `₦${split.value}`,
+    }));
+
+    if (isLoading) {
+        return (
+            <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-[#808C91]">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -28,7 +39,7 @@ const ViewAgentCategoryDetails = () => {
                 <Button
                     variant="outline"
                     className="border-[#FF5B04] text-[#FF5B04] hover:bg-[#FFF5F0]"
-                    onClick={() => navigate(`/settings/agent-category/edit/${category.id}`)}
+                    onClick={() => navigate(`/settings/agent-category/edit/${id}`)}
                 >
                     Edit Category
                 </Button>
@@ -40,15 +51,15 @@ const ViewAgentCategoryDetails = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                         <div>
                             <p className="text-xs text-[#808C91] mb-1">User Account</p>
-                            <p className="font-semibold text-[#1E1E1E]">{category.userAccount || 'Agent/Merchants'}</p>
+                            <p className="font-semibold text-[#1E1E1E]">{category.userAccountType || '-'}</p>
                         </div>
                         <div>
                             <p className="text-xs text-[#808C91] mb-1">Category Name</p>
-                            <p className="font-semibold text-[#1E1E1E]">{category.name}</p>
+                            <p className="font-semibold text-[#1E1E1E]">{category.name || '-'}</p>
                         </div>
                         <div>
                             <p className="text-xs text-[#808C91] mb-1">Commission Type</p>
-                            <p className="font-semibold text-[#1E1E1E]">{category.commissionType || 'Percentage Commission'}</p>
+                            <p className="font-semibold text-[#1E1E1E]">{category.commissionType || '-'}</p>
                         </div>
                     </div>
                     <div>
@@ -59,21 +70,23 @@ const ViewAgentCategoryDetails = () => {
             </Card>
 
             {/* Commission Breakdown */}
-            <div className="mb-2">
-                <h3 className="text-base font-semibold text-[#1E1E1E] mb-4">Commission Breakdown</h3>
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                            {commissions.map((item) => (
-                                <div key={item.role}>
-                                    <p className="text-xs text-[#808C91] mb-1">{item.role}</p>
-                                    <p className="text-lg font-bold text-[#1E1E1E]">{item.value}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+            {commissions.length > 0 && (
+                <div className="mb-2">
+                    <h3 className="text-base font-semibold text-[#1E1E1E] mb-4">Commission Breakdown</h3>
+                    <Card>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                {commissions.map((item, index) => (
+                                    <div key={index}>
+                                        <p className="text-xs text-[#808C91] mb-1">{item.role}</p>
+                                        <p className="text-lg font-bold text-[#1E1E1E]">{item.value}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 };

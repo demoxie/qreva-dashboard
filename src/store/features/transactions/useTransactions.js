@@ -49,8 +49,5 @@ export const useTransactions = (params = {}) => {
       };
     },
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load transactions.');
-    },
   });
 };

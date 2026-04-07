@@ -10,11 +10,24 @@ import { Button } from '@/components/ui/button';
 import { settingsData } from './data';
 import { SETTINGS_VISUALS } from './constants';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useSendOtp, useVerifyOtp, useChangePassword, useChangePin, useLogout } from '@/store/features/auth/useAuth';
 
 
 const Settings = () => {
     const navigate = useNavigate();
-    
+    const { logout } = useAuth();
+
+    // API hooks
+    const sendOtp = useSendOtp();
+    const verifyOtp = useVerifyOtp();
+    const changePassword = useChangePassword();
+    const changePin = useChangePin();
+    const logoutMutation = useLogout();
+
+    // Track which flow triggered OTP (password or pin)
+    const [otpFlow, setOtpFlow] = useState(null);
+
     // Change Password Flow States
     const [isPasswordOtpOpen, setIsPasswordOtpOpen] = useState(false);
     const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
@@ -35,10 +48,16 @@ const Settings = () => {
                 navigate('/settings/profile');
                 break;
             case 'password':
-                setIsPasswordOtpOpen(true);
+                setOtpFlow('password');
+                sendOtp.mutate(undefined, {
+                    onSuccess: () => setIsPasswordOtpOpen(true),
+                });
                 break;
             case 'pin':
-                setIsPinOtpOpen(true);
+                setOtpFlow('pin');
+                sendOtp.mutate(undefined, {
+                    onSuccess: () => setIsPinOtpOpen(true),
+                });
                 break;
             case 'tier':
                 navigate('/settings/tier');
@@ -62,33 +81,49 @@ const Settings = () => {
 
     // Password Flow Handlers
     const handlePasswordOtpSubmit = (otp) => {
-        // Here you would typically verify the OTP with the backend
-        setIsPasswordOtpOpen(false);
-        setIsChangePasswordOpen(true);
+        verifyOtp.mutate({ otp }, {
+            onSuccess: () => {
+                setIsPasswordOtpOpen(false);
+                setIsChangePasswordOpen(true);
+            },
+        });
     };
 
     const handleChangePasswordSubmit = (passwords) => {
-        // Here you would typically submit the new password to the backend
-        setIsChangePasswordOpen(false);
-        setIsPasswordSuccessOpen(true);
+        changePassword.mutate(passwords, {
+            onSuccess: () => {
+                setIsChangePasswordOpen(false);
+                setIsPasswordSuccessOpen(true);
+            },
+        });
     };
 
     // PIN Flow Handlers
     const handlePinOtpSubmit = (otp) => {
-        // Verification with backend here
-        setIsPinOtpOpen(false);
-        setIsPinModalOpen(true);
+        verifyOtp.mutate({ otp }, {
+            onSuccess: () => {
+                setIsPinOtpOpen(false);
+                setIsPinModalOpen(true);
+            },
+        });
     };
 
     const handleChangePinSubmit = (newPin) => {
-        // Submit new PIN to backend here
-        setIsPinModalOpen(false);
-        setIsPinSuccessOpen(true);
+        changePin.mutate({ newPin }, {
+            onSuccess: () => {
+                setIsPinModalOpen(false);
+                setIsPinSuccessOpen(true);
+            },
+        });
     };
 
     const handleLogoutConfirm = () => {
-        setIsLogoutModalOpen(false);
-        console.log("User logged out");
+        logoutMutation.mutate(undefined, {
+            onSettled: () => {
+                setIsLogoutModalOpen(false);
+                logout();
+            },
+        });
     };
 
     return (

@@ -7,7 +7,7 @@ import CustomPagination from '../common/Pagination';
 import { Skeleton, Box } from '@mui/material';
 import { GridOverlay } from '@mui/x-data-grid';
 
-const DataTable = ({ 
+const DataTable = ({
   data = [],
   columns = [],
   title = "Data Table",
@@ -18,6 +18,7 @@ const DataTable = ({
   showCheckbox = true,
   pageSize = 5,
   pageSizeOptions = [5, 10, 25],
+  getRowId,
   ...rest
 }) => {
   const [dropdown, setDropdown] = useState({ open: false, anchor: null, row: null, x: 0, y: 0 });
@@ -117,6 +118,7 @@ const DataTable = ({
             className='w-full'
             rows={data}
             columns={gridColumns}
+            getRowId={getRowId || ((row) => row._id || row.id)}
             checkboxSelection={showCheckbox}
             disableRowSelectionOnClick
             disableColumnResize

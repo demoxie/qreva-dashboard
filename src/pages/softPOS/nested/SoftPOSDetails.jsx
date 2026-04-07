@@ -66,7 +66,7 @@ const SoftPOSDetails = () => {
             />
             <TopCustomersCard 
               data={topCustomers}
-              title="Top Agents"
+              title="Top Customers"
             />
           </div>
 

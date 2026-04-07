@@ -156,7 +156,7 @@ const SoftPOS = () => {
           <div className='col-span-3'>
             <TopCustomersCard 
               data={metrics.topCustomers}
-              title="Top Agents"
+              title="Top Customers"
             />
           </div> 
         </div>

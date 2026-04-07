@@ -101,7 +101,7 @@ const KYCVerification = () => {
          stats={formattedStats}
         />
 
-        {/* BVN vs NIN and Top Agents */}
+        {/* BVN vs NIN and Top Customers */}
         <div className="grid grid-cols-5 lg:grid-cols-5 gap-6 mb-6">
           <div className='col-span-2'>
             <PaymentComparisonPie 
@@ -112,7 +112,7 @@ const KYCVerification = () => {
           <div className='col-span-3'>
             <TopCustomersCard 
               data={metrics?.topCustomers || []}
-              title="Top Agents"
+              title="Top Customers"
             />
           </div>
         </div>

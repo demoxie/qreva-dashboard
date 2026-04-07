@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { contractsApi } from '../../api/contracts.api';
+import { contractsApi } from '../../api/contracts-api';
 
 export const useContracts = (params) => {
   return useQuery({

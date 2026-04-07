@@ -1,12 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import RoleForm from './RoleForm';
 import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
+import { useCreateRole } from '@/store/features/settings/useRbac';
+import { handleError } from '@/store/utils/handleError';
 
 const CreateRole = () => {
     const navigate = useNavigate();
     const [showSuccess, setShowSuccess] = useState(false);
+    const createRole = useCreateRole();
+    const collectDataRef = useRef(null);
+
+    const handleCreate = () => {
+        if (collectDataRef.current) {
+            const payload = collectDataRef.current();
+            createRole.mutate(payload, {
+                onSuccess: () => setShowSuccess(true),
+                onError: (error) => handleError(error),
+            });
+        }
+    };
 
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -18,13 +32,14 @@ const CreateRole = () => {
                 </div>
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
-                    onClick={() => setShowSuccess(true)}
+                    onClick={handleCreate}
+                    disabled={createRole.isPending}
                 >
-                    Create Role
+                    {createRole.isPending ? 'Creating...' : 'Create Role'}
                 </Button>
             </div>
 
-            <RoleForm />
+            <RoleForm onCollectData={(fn) => { collectDataRef.current = fn; }} />
 
             <ActionSuccessModal
                 isOpen={showSuccess}

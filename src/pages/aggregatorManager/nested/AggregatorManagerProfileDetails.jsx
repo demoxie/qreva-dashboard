@@ -12,6 +12,7 @@ import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import ConfirmDialog from '@/components/modals/ConfirmDialogComponent';
+import { useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 
 const AggregatorManagerProfileDetails = () => {
   const { id } = useParams();
@@ -28,6 +29,20 @@ const AggregatorManagerProfileDetails = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
+
+  const handleConfirmSuspend = () => {
+    if (!managerData?._id) {
+      setShowSuspendModal(false);
+      return;
+    }
+    const isActive = managerData.status === 'Active' || managerData.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(managerData._id, {
+      onSettled: () => setShowSuspendModal(false),
+    });
+  };
 
   // Sync URL with Tab State
   useEffect(() => {
@@ -304,13 +319,13 @@ const AggregatorManagerProfileDetails = () => {
           style={{ top: aggregatorDropdown.y, left: aggregatorDropdown.x }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row.id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+          <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row._id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
             <span className="text-gray-400">👁️</span> View Profile Details
           </button>
           <button onClick={() => { /* Suspend Logic */ }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
             <span className="text-gray-400">🚫</span> Suspend Aggregator
           </button>
-          <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row.id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+          <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row._id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
             <span className="text-gray-400">📄</span> View Transaction History
           </button>
         </div>
@@ -323,13 +338,13 @@ const AggregatorManagerProfileDetails = () => {
           style={{ top: agentDropdown.y, left: agentDropdown.x }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button onClick={() => navigate(`/agents/${agentDropdown.row.id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+          <button onClick={() => navigate(`/agents/${agentDropdown.row._id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
             <span className="text-gray-400">👁️</span> View Profile Details
           </button>
           <button onClick={() => { /* Suspend Logic */ }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
             <span className="text-gray-400">🚫</span> Suspend Agent
           </button>
-          <button onClick={() => navigate(`/agents/${agentDropdown.row.id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
+          <button onClick={() => navigate(`/agents/${agentDropdown.row._id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
             <span className="text-gray-400">📄</span> View Transaction History
           </button>
         </div>
@@ -339,7 +354,7 @@ const AggregatorManagerProfileDetails = () => {
       <ConfirmDialog
         isOpen={showSuspendModal}
         onClose={() => setShowSuspendModal(false)}
-        onConfirm={() => { console.log('Suspended'); setShowSuspendModal(false); }}
+        onConfirm={handleConfirmSuspend}
         title="Suspend Manager"
         message="Are you sure you want to suspend this Aggregator Manager account?"
         confirmText="Yes, Suspend"

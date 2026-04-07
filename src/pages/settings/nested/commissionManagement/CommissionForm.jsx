@@ -1,25 +1,86 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { 
-    USER_ACCOUNT_OPTIONS, 
-    TRANSACTION_TYPE_OPTIONS, 
-    FEE_TYPE_OPTIONS, 
-    ROLES_OPTIONS, 
-    APPLIES_TO_OPTIONS 
+import {
+    USER_ACCOUNT_OPTIONS,
+    TRANSACTION_TYPE_OPTIONS,
+    FEE_TYPE_OPTIONS,
+    ROLES_OPTIONS,
+    APPLIES_TO_OPTIONS
 } from './constants';
 
-const CommissionForm = ({ 
-    initialData = {}, 
-    onSubmit, 
+const CommissionForm = ({
+    initialData = {},
+    onSubmit,
     submitLabel = "Create Commission",
     title = "Create New Commission",
-    subtitle = "Kindly input the info about this new commission"
+    subtitle = "Kindly input the info about this new commission",
+    isSubmitting = false,
 }) => {
-    
+    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentAccount');
+    const [transactionType, setTransactionType] = useState(initialData.transactionType || 'SoftPOS');
+    const [feeType, setFeeType] = useState(initialData.feeType || 'Percentage');
+    const [percentageFee, setPercentageFee] = useState(
+        initialData.percentageFee != null ? String(initialData.percentageFee) : ''
+    );
+    const [flatFee, setFlatFee] = useState(
+        initialData.flatFee != null ? String(initialData.flatFee) : ''
+    );
+
+    // Commission splits
+    const buildInitialSplits = () => {
+        const splits = {};
+        ROLES_OPTIONS.forEach(role => {
+            const existing = (initialData.commissionSplits || []).find(s => s.role === role.id);
+            splits[role.id] = {
+                enabled: existing ? existing.active : true,
+                value: existing ? String(existing.value) : '',
+            };
+        });
+        return splits;
+    };
+    const [commissionSplits, setCommissionSplits] = useState(buildInitialSplits);
+
+    // Applies to
+    const buildInitialAppliesTo = () => {
+        const result = {};
+        APPLIES_TO_OPTIONS.forEach(opt => {
+            result[opt.id] = (initialData.appliesTo || []).includes(opt.id);
+        });
+        return result;
+    };
+    const [appliesTo, setAppliesTo] = useState(buildInitialAppliesTo);
+
+    const handleSubmit = () => {
+        const payload = {
+            transactionType,
+            feeType,
+            percentageFee: Number(percentageFee) || 0,
+            flatFee: Number(flatFee) || 0,
+            userAccountType: userAccountType === 'AgentAccount' ? 'AgentAccount' : 'PersonalAccount',
+            appliesTo: Object.entries(appliesTo)
+                .filter(([, checked]) => checked)
+                .map(([key]) => key),
+            commissionSplits: ROLES_OPTIONS.map(role => ({
+                role: role.id,
+                value: Number(commissionSplits[role.id].value) || 0,
+                active: commissionSplits[role.id].enabled,
+            })),
+            active: true,
+        };
+        onSubmit && onSubmit(payload);
+    };
+
+    // Map backend values to option IDs for radio selection
+    const userAccountOptionId = userAccountType === 'PersonalAccount' ? 'personal' : 'agent';
+    const transactionOptionId = TRANSACTION_TYPE_OPTIONS.find(
+        o => o.label === transactionType || o.id === transactionType.toLowerCase().replace(/\s+&\s+/g, '_')
+    )?.id || 'softpos';
+    const feeTypeOptionId = feeType === 'Flat' ? 'flat' : 'percentage';
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
@@ -29,9 +90,10 @@ const CommissionForm = ({
                 </div>
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white h-12 px-8 rounded-lg font-semibold"
-                    onClick={onSubmit}
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
                 >
-                    {submitLabel}
+                    {isSubmitting ? 'Saving...' : submitLabel}
                 </Button>
             </div>
 
@@ -40,9 +102,9 @@ const CommissionForm = ({
                 <h3 className="text-sm font-semibold text-[#1E1E1E] mb-6">User Account</h3>
                 <div className="flex flex-wrap gap-8">
                     {USER_ACCOUNT_OPTIONS.map((option) => (
-                        <div key={option.id} className="flex items-center space-x-3">
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${option.id === 'agent' ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
-                                {option.id === 'agent' && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
+                        <div key={option.id} className="flex items-center space-x-3 cursor-pointer" onClick={() => setUserAccountType(option.id === 'personal' ? 'PersonalAccount' : 'AgentAccount')}>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${userAccountOptionId === option.id ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
+                                {userAccountOptionId === option.id && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
                             </div>
                             <Label className="text-sm font-medium text-[#505C61] cursor-pointer">
                                 {option.label}
@@ -57,9 +119,9 @@ const CommissionForm = ({
                 <h3 className="text-sm font-semibold text-[#1E1E1E] mb-6">Select Transaction Type</h3>
                 <div className="flex flex-wrap gap-8">
                     {TRANSACTION_TYPE_OPTIONS.map((option) => (
-                        <div key={option.id} className="flex items-center space-x-3">
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${option.id === 'softpos' ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
-                                {option.id === 'softpos' && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
+                        <div key={option.id} className="flex items-center space-x-3 cursor-pointer" onClick={() => setTransactionType(option.label)}>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${transactionOptionId === option.id ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
+                                {transactionOptionId === option.id && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
                             </div>
                             <Label className="text-sm font-medium text-[#505C61] cursor-pointer">
                                 {option.label}
@@ -74,9 +136,9 @@ const CommissionForm = ({
                 <h3 className="text-sm font-semibold text-[#1E1E1E] mb-6">Select Fee Type ( Customer Pays)</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
                     {FEE_TYPE_OPTIONS.map((option) => (
-                        <div key={option.id} className="flex items-center space-x-3">
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${option.id === 'percentage' ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
-                                {option.id === 'percentage' && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
+                        <div key={option.id} className="flex items-center space-x-3 cursor-pointer" onClick={() => setFeeType(option.id === 'flat' ? 'Flat' : 'Percentage')}>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${feeTypeOptionId === option.id ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
+                                {feeTypeOptionId === option.id && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
                             </div>
                             <Label className="text-sm font-medium text-[#505C61] cursor-pointer">
                                 {option.label}
@@ -87,18 +149,20 @@ const CommissionForm = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <Label className="text-xs text-[#808C91]">Percentage Fee</Label>
-                        <Input 
-                            placeholder="Percentage Fee" 
+                        <Input
+                            placeholder="Percentage Fee"
                             className="bg-[#F8FAFB] border-[#EFF2F3] h-12"
-                            defaultValue={initialData.percentageFee || ""}
+                            value={percentageFee}
+                            onChange={(e) => setPercentageFee(e.target.value)}
                         />
                     </div>
                     <div className="space-y-2">
                         <Label className="text-xs text-[#808C91]">Flat Fee</Label>
-                        <Input 
-                            placeholder="Flat Fee" 
+                        <Input
+                            placeholder="Flat Fee"
                             className="bg-[#F8FAFB] border-[#EFF2F3] h-12"
-                            defaultValue={initialData.flatFee || ""}
+                            value={flatFee}
+                            onChange={(e) => setFlatFee(e.target.value)}
                         />
                     </div>
                 </div>
@@ -123,7 +187,14 @@ const CommissionForm = ({
                     {ROLES_OPTIONS.map((role) => (
                         <div key={role.id} className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                             <div className="flex items-center space-x-4">
-                                <Switch className="data-[state=checked]:bg-green-500" />
+                                <Switch
+                                    checked={commissionSplits[role.id]?.enabled}
+                                    onCheckedChange={() => setCommissionSplits(prev => ({
+                                        ...prev,
+                                        [role.id]: { ...prev[role.id], enabled: !prev[role.id].enabled }
+                                    }))}
+                                    className="data-[state=checked]:bg-green-500"
+                                />
                                 <div className="bg-[#F8FAFB] border border-[#EFF2F3] rounded-lg p-3 flex-1">
                                     <p className="text-[10px] text-[#808C91]">User Account</p>
                                     <p className="text-sm font-medium text-[#1E1E1E]">{role.label}</p>
@@ -131,10 +202,15 @@ const CommissionForm = ({
                             </div>
                             <div className="bg-[#F8FAFB] border border-[#EFF2F3] rounded-lg p-3">
                                 <p className="text-[10px] text-[#808C91]">Commission</p>
-                                <Input 
-                                    placeholder="Commission" 
+                                <Input
+                                    placeholder="Commission"
                                     className="bg-transparent border-none p-0 h-auto focus-visible:ring-0 text-sm font-medium"
-                                    defaultValue={initialData.splits?.[role.id] || ""}
+                                    value={commissionSplits[role.id]?.value || ''}
+                                    onChange={(e) => setCommissionSplits(prev => ({
+                                        ...prev,
+                                        [role.id]: { ...prev[role.id], value: e.target.value }
+                                    }))}
+                                    disabled={!commissionSplits[role.id]?.enabled}
                                 />
                             </div>
                         </div>
@@ -148,11 +224,13 @@ const CommissionForm = ({
                 <div className="flex flex-wrap gap-x-8 gap-y-6">
                     {APPLIES_TO_OPTIONS.map((option) => (
                         <div key={option.id} className="flex items-center space-x-3">
-                            <Checkbox 
-                                id={option.id} 
-                                className="w-5 h-5 border-[#D1D5DB] data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500" 
+                            <Checkbox
+                                id={option.id}
+                                checked={appliesTo[option.id] || false}
+                                onCheckedChange={() => setAppliesTo(prev => ({ ...prev, [option.id]: !prev[option.id] }))}
+                                className="w-5 h-5 border-[#D1D5DB] data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                             />
-                            <Label 
+                            <Label
                                 htmlFor={option.id}
                                 className="text-sm font-medium text-[#505C61] cursor-pointer"
                             >

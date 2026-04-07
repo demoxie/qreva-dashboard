@@ -4,16 +4,25 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { PERMISSIONS_CATEGORIES } from './constants';
 
-const RoleForm = ({ initialData = {}, readOnly = false }) => {
-    const [roleName, setRoleName] = useState(initialData.name || '');
+const RoleForm = ({ initialData = {}, readOnly = false, onCollectData }) => {
+    const [roleName, setRoleName] = useState(initialData.roleName || initialData.name || '');
     const [description, setDescription] = useState(initialData.description || '');
+
+    // Build initial permissions from API data (object of permission keys -> booleans)
+    const apiPermissions = initialData.permissions || {};
 
     // Permission state: { [categoryIdx]: { master: bool, items: [bool, bool, ...] } }
     const [permissions, setPermissions] = useState(() =>
-        PERMISSIONS_CATEGORIES.map((cat) => ({
-            master: initialData.active ?? true,
-            items: cat.items.map(() => initialData.active ?? true),
-        }))
+        PERMISSIONS_CATEGORIES.map((cat) => {
+            const itemStates = cat.items.map((item) => {
+                const permKey = `${cat.title}:${item.label}`;
+                return apiPermissions[permKey] ?? (initialData.active ?? true);
+            });
+            return {
+                master: itemStates.every(Boolean),
+                items: itemStates,
+            };
+        })
     );
 
     // Collapsed state per category
@@ -56,6 +65,28 @@ const RoleForm = ({ initialData = {}, readOnly = false }) => {
             return next;
         });
     };
+
+    // Build permissions object for API payload
+    const buildPermissionsPayload = () => {
+        const result = {};
+        PERMISSIONS_CATEGORIES.forEach((cat, catIdx) => {
+            cat.items.forEach((item, itemIdx) => {
+                const permKey = `${cat.title}:${item.label}`;
+                result[permKey] = permissions[catIdx].items[itemIdx];
+            });
+        });
+        return result;
+    };
+
+    // Expose data collection to parent via ref-like callback
+    if (onCollectData) {
+        onCollectData(() => ({
+            roleName,
+            description,
+            permissions: buildPermissionsPayload(),
+            active: true,
+        }));
+    }
 
     return (
         <div className="space-y-6">

@@ -3,22 +3,26 @@ import { Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import DisputedTransactionCard from '@/components/disputedTransactions/DisputedTransactionCard';
-
-import { DISPUTED_TRANSACTIONS_DATA } from './data';
 import { DISPUTED_TRANSACTIONS_TABS } from './constants';
+import { useDisputes } from '@/store/features/approvals/useDisputes';
 
 const DisputedTransactions = () => {
   const [activeTab, setActiveTab] = useState(DISPUTED_TRANSACTIONS_TABS[0]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const transactions = DISPUTED_TRANSACTIONS_DATA;
+  const { data: disputesResponse, isLoading } = useDisputes({
+    status: activeTab.toLowerCase(),
+    search: searchTerm || undefined,
+  });
+
+  const transactions = disputesResponse?.data || [];
   const tabs = DISPUTED_TRANSACTIONS_TABS;
 
   return (
     <div className="p-6 space-y-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-bold text-gray-900">Disputed Transactions</h1>
-        <p className="text-gray-500">Here is the full list of KYC approvals on the platform</p>
+        <p className="text-gray-500">Here is the full list of disputed transactions on the platform</p>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-0">
@@ -34,7 +38,6 @@ const DisputedTransactions = () => {
               }`}
             >
               {tab}
-              {tab === 'Pending' && <span className="ml-2 px-1.5 py-0.5 text-xs bg-orange-500 text-white rounded-full">5</span>}
             </button>
           ))}
         </div>
@@ -42,8 +45,8 @@ const DisputedTransactions = () => {
         <div className="flex gap-2 w-full sm:w-auto pb-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input 
-              placeholder="Search here..." 
+            <Input
+              placeholder="Search here..."
               className="pl-9 w-full sm:w-[300px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -56,11 +59,22 @@ const DisputedTransactions = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {transactions.map((transaction) => (
-          <DisputedTransactionCard key={transaction.id} transaction={transaction} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex items-center justify-center h-48">
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {transactions.map((transaction) => (
+            <DisputedTransactionCard key={transaction.id} transaction={transaction} />
+          ))}
+          {transactions.length === 0 && (
+            <div className="col-span-full text-center py-12 text-gray-500">
+              No {activeTab.toLowerCase()} disputes found
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

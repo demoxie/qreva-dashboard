@@ -13,11 +13,11 @@ import LoadingState from '@/components/common/LoadingState';
 import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
-import { useProfileData } from '@/hooks/useProfileData';
+import { useUserById, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import { useAggregatorProfileModals } from '@/hooks/useAggregatorProfileModals';
 import { useAgentDropdown } from '@/hooks/useAgentDropdown';
 import { createTransactionActions } from '@/utils/profileUtils';
-import { getAggregatorById, aggregatorTransactions } from '../data';
+import { aggregatorTransactions } from '../data';
 import { aggregatorProfileTabs, createChartSeries } from '../constants';
 
 const AggregatorProfileDetails = () => {
@@ -26,8 +26,11 @@ const AggregatorProfileDetails = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   
-  const { data: aggregatorData, loading } = useProfileData(id, getAggregatorById);
+  const { data: aggregatorResponse, isLoading: loading } = useUserById(id);
+  const aggregatorData = aggregatorResponse?.data;
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
   const { agentDropdown, openDropdown, closeDropdown } = useAgentDropdown();
 
   // Sync tab with URL
@@ -64,9 +67,13 @@ const AggregatorProfileDetails = () => {
   ];
 
   const handleSuspend = useCallback(() => {
-    console.log('Suspend aggregator:', id);
-    setters.setShowSuspendModal(false);
-  }, [id, setters]);
+    if (!aggregatorData?._id) return;
+    const isActive = aggregatorData.status === 'Active' || aggregatorData.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(aggregatorData._id, {
+      onSettled: () => setters.setShowSuspendModal(false),
+    });
+  }, [aggregatorData, setters, suspendUserMutation, activateUserMutation]);
 
   if (loading) return <LoadingState />;
   if (!aggregatorData) return <LoadingState message="Aggregator not found" />;

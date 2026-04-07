@@ -1,8 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useProfileData } from '@/hooks/useProfileData';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import { useTransactionSearch } from '@/hooks/useTransactionSearch';
-import { usersData } from '../data';
+import { useUserById, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -20,13 +19,13 @@ const UserProfileDetails = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'profile';
   const currentTab = tabConfig[activeTab] || tabConfig.transactions;
-  const data = userData[currentTab.dataKey] || [];
 
-  const fetchUserById = async (userId) => {
-    return usersData.find(user => String(user.id) === String(userId));
-  };
+  const { data: userResponse, isLoading: loading } = useUserById(id);
+  const userData = userResponse?.data;
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
 
-  const { data: userData, loading } = useProfileData(id, fetchUserById);
+  const data = userData?.[currentTab.dataKey] || [];
 
   const { searchQuery, setSearchQuery, filteredTransactions } =
     useTransactionSearch(userTransactions);
@@ -38,6 +37,15 @@ const UserProfileDetails = () => {
     promotionType,
     setPromotionType
   } = useProfileModals();
+
+  const handleSuspend = () => {
+    if (!userData?._id) return;
+    const isActive = userData.status === 'Active' || userData.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(userData._id, {
+      onSettled: () => setters.setShowSuspendModal(false),
+    });
+  };
 
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
@@ -82,6 +90,7 @@ const UserProfileDetails = () => {
         setters={setters}
         selectedTransaction={selectedTransaction}
         promotionType={promotionType}
+        onSuspend={handleSuspend}
       />
     </ProfileLayout>
   );

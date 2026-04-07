@@ -11,22 +11,24 @@ export const aggregatorManagerStats = [
 
 export const aggregatorManagerColumns = [
   {
-    field: 'name',
+    field: 'firstName',
     headerName: 'Agg. Manager Name',
     width: 250,
     flex: 1,
     renderCell: (params) => (
       <div className="flex flex-col justify-center h-full">
-        <div className="text-sm font-general font-medium">{params.row.name}</div>
-        <div className="text-xs text-gray-500">{params.row.email}</div>
+        <div className="text-sm font-general font-medium">
+          {params.row.firstName} {params.row.lastName}
+        </div>
+        <div className="text-xs text-gray-500">{params.row.emailAddress}</div>
       </div>
     )
   },
-  { 
-    field: 'totalTransactions', 
-    headerName: 'Total Transactions', 
-    width: 150,
-    flex: 1, 
+  {
+    field: 'phoneNumber',
+    headerName: 'Phone Number',
+    width: 160,
+    flex: 1,
     renderCell: (params) => (
       <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
         {params.value}
@@ -34,44 +36,40 @@ export const aggregatorManagerColumns = [
     )
   },
   {
-    field: 'totalVolume',
-    headerName: 'Total Volume (₦)',
-    width: 150,
-    valueFormatter: (params) => params?.toLocaleString(),
+    field: 'type',
+    headerName: 'Account Type',
+    width: 130,
     flex: 1,
     renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-        {params.value?.toLocaleString()}
+      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+        {params.value}
       </span>
     )
   },
   {
-    field: 'totalRevenue',
-    headerName: 'Total Revenue (₦)',
-    width: 150,
+    field: 'status',
+    headerName: 'Status',
+    width: 130,
     flex: 1,
-    renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-        {params.value?.toLocaleString()}
-      </span>
-    )
+    renderCell: (params) => {
+      const statusColors = {
+        Active: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#1B7D3C]',
+        Inactive: 'border border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]',
+        Suspended: 'border border-[#F87171] bg-[#FEE2E2] text-[#B91C1C]',
+        Pending: 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]',
+      };
+      return (
+        <span className={`px-2 py-1.5 text-center ${statusColors[params.value] || statusColors.Inactive} font-general font-medium text-xs rounded-md flex items-center justify-center h-full`}>
+          {params.value || '-'}
+        </span>
+      );
+    }
   },
   {
-    field: 'totalCommission',
-    headerName: 'Total Commission (₦)',
+    field: 'clientId',
+    headerName: 'Client ID',
     width: 180,
-    valueFormatter: (params) => params?.toLocaleString(),
     flex: 1,
-    renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-        {params.value?.toLocaleString()}
-      </span>
-    )
-  },
-  { 
-    field: 'joinedDate', 
-    headerName: 'Joined Date', 
-    width: 180,
     renderCell: (params) => (
       <span className="text-sm font-general text-gray-500 flex items-center h-full">{params.value}</span>
     )
@@ -82,16 +80,16 @@ export const createAggregatorManagerActions = (navigate, onSuspend) => [
   {
     label: 'View Profile Details',
     icon: CustomEye,
-    onClick: (row) => navigate(`/aggregator-managers/${row.id}`)
+    onClick: (row) => navigate(`/aggregator-managers/${row._id}`)
+  },
+  {
+    label: 'View Transaction History',
+    icon: CustomHistory,
+    onClick: (row) => navigate(`/aggregator-managers/${row._id}?tab=transactions`)
   },
   {
     label: 'Suspend Aggregator Manager',
     icon: CustomUser,
     onClick: (row) => onSuspend(row)
   },
-  {
-    label: 'View Transaction History',
-    icon: CustomHistory,
-    onClick: (row) => navigate(`/aggregator-managers/${row.id}?tab=transactions`)
-  }
 ];

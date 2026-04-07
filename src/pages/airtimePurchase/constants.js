@@ -3,7 +3,6 @@ import CustomShare from '@/components/icons/CustomShare';
 import CustomHistory from '@/components/icons/CustomHistory';
 
 export const createTransactionActions = (
-  navigate,
   onView,
   onShare
 ) => [
@@ -19,13 +18,6 @@ export const createTransactionActions = (
     type: 'share',
     onClick: (transaction) => onShare(transaction)
   },
-  {
-    label: 'View Transaction History',
-    icon: CustomHistory,
-    type: 'history',
-    onClick: (transaction) =>
-      navigate(`/airtime/details/transaction/${transaction.id}`)
-  }
 ];
 
  // Custom stats for region view
@@ -75,13 +67,6 @@ export const regionTransactionActions = [
         setShowShareModal(true);
     }
     },
-    {
-    label: 'View Transaction History',
-    type: 'history',
-    onClick: (transaction) => {
-        navigate(`/airtime/details/transaction/${transaction.id}`);
-    }
-    }
 ];
 
 

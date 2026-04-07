@@ -76,7 +76,7 @@ const KYCDetails = () => {
           <div className="mb-6">
             <TopCustomersCard
               data={topCustomers}
-              title="Top Agents"
+              title="Top Customers"
             />
           </div>
 

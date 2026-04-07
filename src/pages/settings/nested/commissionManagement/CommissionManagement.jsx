@@ -2,10 +2,17 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
-import { COMMISSION_DATA, COMMISSION_COLUMNS, COMMISSION_ACTIONS } from './constants';
+import { COMMISSION_COLUMNS, COMMISSION_ACTIONS } from './constants';
+import { useCommissions, useDuplicateCommission } from '@/store/features/settings/useCommissions';
+import { handleError } from '@/store/utils/handleError';
+import { handleSuccess } from '@/store/utils/handleSuccess';
 
 const CommissionManagement = () => {
     const navigate = useNavigate();
+    const { data: commissionsResponse, isLoading } = useCommissions();
+    const duplicateCommission = useDuplicateCommission();
+
+    const commissions = commissionsResponse?.data || [];
 
     const handleAction = (action, row) => {
         if (action.label === 'View Details') {
@@ -13,7 +20,10 @@ const CommissionManagement = () => {
         } else if (action.label === 'Edit Details') {
             navigate(`/settings/commission-management/edit/${row.id}`);
         } else if (action.label === 'Duplicate') {
-            console.log('Duplicate:', row);
+            duplicateCommission.mutate(row.id, {
+                onSuccess: () => handleSuccess('Commission duplicated successfully'),
+                onError: (error) => handleError(error),
+            });
         }
     };
 
@@ -38,12 +48,13 @@ const CommissionManagement = () => {
             </div>
 
             <DataTable
-                data={COMMISSION_DATA}
+                data={commissions}
                 columns={COMMISSION_COLUMNS}
                 title="Commissions"
                 actions={actionsWithHandler}
                 showSearch={true}
                 showCheckbox={true}
+                loading={isLoading}
             />
         </div>
     );

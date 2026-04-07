@@ -15,7 +15,6 @@ export const createCustomerTransactionActions = ({
     setSelectedTransaction,
     setShowDetailsModal,
     setShowShareModal,
-    navigate
 }) => [
     {
       label: 'View Transaction Details',
@@ -35,14 +34,6 @@ export const createCustomerTransactionActions = ({
         setShowShareModal(true);
       }
     },
-    {
-      label: 'View Transaction History',
-      type: 'history',
-      icon: CustomHistory,
-      onClick: (tx) => {
-        navigate(`/data/details/transaction/${tx.id}`);
-      }
-    }
   ];
 
 
@@ -79,7 +70,6 @@ export const createRegionTransactionActions = ({
     setSelectedTransaction,
     setShowDetailsModal,
     setShowShareModal,
-    navigate
 }) => [
     {
     label: 'View Transaction Details',
@@ -97,13 +87,6 @@ export const createRegionTransactionActions = ({
         setShowShareModal(true);
     }
     },
-    {
-    label: 'View Transaction History',
-    type: 'history',
-    onClick: (transaction) => {
-        navigate(`/data/details/transaction/${transaction.id}`);
-    }
-    }
 ];
 
 

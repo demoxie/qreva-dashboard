@@ -5,31 +5,46 @@ import DashboardStats from '@/components/base/DashboardStats';
 import DataTable from '@/components/tables/DataTable';
 import AggregatorManagerModals from '@/components/aggregatorManager/AggregatorManagerModals';
 import { useAggregatorManagerModals } from '@/hooks/useAggregatorManagerModals';
-import { useAggregatorManagerSearch } from '@/hooks/useAggregatorManagerSearch';
-import { aggregatorManagersData } from './data';
-import { 
-  aggregatorManagerStats, 
-  aggregatorManagerColumns, 
-  createAggregatorManagerActions 
+import {
+  aggregatorManagerStats,
+  aggregatorManagerColumns,
+  createAggregatorManagerActions
 } from './constants';
+import { useUsers, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 
 const AggregatorManagers = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  
+
+  const { data: usersResponse, isLoading } = useUsers({
+    type: 'AggregatorManager',
+    search: searchQuery || undefined,
+  });
+
+  const managers = usersResponse?.data || [];
+
   const { modals, setters, selectedManager, setSelectedManager } = useAggregatorManagerModals();
-  const { searchQuery, setSearchQuery, filteredManagers } = useAggregatorManagerSearch(aggregatorManagersData);
 
   const handleSuspendClick = useCallback((manager) => {
     setSelectedManager(manager);
     setters.setShowSuspendModal(true);
   }, [setSelectedManager, setters]);
 
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
+
   const handleConfirmSuspend = useCallback(() => {
-    console.log('Suspend aggregator manager:', selectedManager);
-    setters.setShowSuspendModal(false);
-    setSelectedManager(null);
-  }, [selectedManager, setters, setSelectedManager]);
+    if (!selectedManager?._id) return;
+    const isActive = selectedManager.status === 'Active' || selectedManager.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(selectedManager._id, {
+      onSettled: () => {
+        setters.setShowSuspendModal(false);
+        setSelectedManager(null);
+      },
+    });
+  }, [selectedManager, setters, setSelectedManager, suspendUserMutation, activateUserMutation]);
 
   const handleAddAggregator = useCallback((aggregatorData) => {
     console.log('Add aggregator:', aggregatorData);
@@ -64,12 +79,13 @@ const AggregatorManagers = () => {
 
         <DataTable
           className="font-general"
-          data={filteredManagers}
+          data={managers}
           columns={aggregatorManagerColumns}
           title="Aggregator Managers"
           actions={tableActions}
           onSearch={setSearchQuery}
           onFilter={() => console.log('Filter clicked')}
+          loading={isLoading}
         />
       </div>
 

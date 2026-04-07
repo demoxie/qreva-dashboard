@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
 // A reusable Radio component with green styling
@@ -24,30 +25,55 @@ const GreenCheckbox = ({ checked, onChange, label }) => (
 );
 
 const COMMISSION_ROLES = [
-    { key: 'agent', label: 'Agent' },
-    { key: 'aggregator', label: 'Aggregators' },
-    { key: 'aggManager', label: 'Aggregator Manager' },
-    { key: 'admin', label: 'Admin' },
+    { key: 'Agent', label: 'Agent' },
+    { key: 'Aggregator', label: 'Aggregators' },
+    { key: 'Aggregator Manager', label: 'Aggregator Manager' },
+    { key: 'Admin', label: 'Admin' },
 ];
 
-const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create Category' }) => {
-    const [userAccount, setUserAccount] = useState(initialData.userAccount || 'Agents/Merchants');
+const APPLIES_TO_OPTIONS = [
+    { key: 'All Agents', label: 'All Agents' },
+    { key: 'Aggregators', label: 'Aggregators' },
+    { key: 'Aggregator Manager', label: 'Aggregator Manager' },
+];
+
+const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create Category', isSubmitting = false }) => {
+    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentAccount');
     const [categoryName, setCategoryName] = useState(initialData.name || '');
     const [description, setDescription] = useState(initialData.description || '');
-    const [monthlyVolume, setMonthlyVolume] = useState(initialData.volume || '');
-    const [dailyCount, setDailyCount] = useState(initialData.count || '');
-    const [commissionType, setCommissionType] = useState(initialData.commissionType || 'Percentage Commission');
-    const [commissionRoles, setCommissionRoles] = useState({
-        agent: { enabled: true, value: initialData.agentCommission || '0.6%' },
-        aggregator: { enabled: true, value: initialData.aggregatorCommission || '10%' },
-        aggManager: { enabled: true, value: initialData.aggManagerCommission || '10%' },
-        admin: { enabled: true, value: initialData.adminCommission || '10%' },
-    });
-    const [appliesTo, setAppliesTo] = useState({
-        allAgents: initialData.appliesToAll ?? true,
-        aggregators: initialData.appliesToAggregators ?? true,
-        aggregatorManager: initialData.appliesToAggManager ?? true,
-    });
+    const [monthlyVolume, setMonthlyVolume] = useState(
+        initialData.monthlyTransactionVolume != null ? String(initialData.monthlyTransactionVolume) : ''
+    );
+    const [dailyCount, setDailyCount] = useState(
+        initialData.dailyTransactionCount != null ? String(initialData.dailyTransactionCount) : ''
+    );
+    const [commissionType, setCommissionType] = useState(initialData.commissionType || 'Percentage');
+
+    // Build initial commission splits state from API data
+    const buildInitialSplits = () => {
+        const splits = {};
+        COMMISSION_ROLES.forEach(role => {
+            const existing = (initialData.commissionSplits || []).find(s => s.role === role.key);
+            splits[role.key] = {
+                enabled: existing ? existing.active : true,
+                value: existing ? String(existing.value) : '',
+            };
+        });
+        return splits;
+    };
+
+    const [commissionRoles, setCommissionRoles] = useState(buildInitialSplits);
+
+    // Build initial appliesTo state from API data
+    const buildInitialAppliesTo = () => {
+        const result = {};
+        APPLIES_TO_OPTIONS.forEach(opt => {
+            result[opt.key] = (initialData.appliesTo || []).includes(opt.key);
+        });
+        return result;
+    };
+
+    const [appliesTo, setAppliesTo] = useState(buildInitialAppliesTo);
 
     const toggleRole = (key) => {
         setCommissionRoles(prev => ({
@@ -64,28 +90,52 @@ const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create C
     };
 
     const handleSubmit = () => {
-        onSubmit && onSubmit({
-            userAccount, categoryName, description,
-            monthlyVolume, dailyCount, commissionType,
-            commissionRoles, appliesTo,
-        });
+        const payload = {
+            name: categoryName,
+            description,
+            active: true,
+            userAccountType: userAccountType === 'AgentAccount' ? 'AgentAccount' : 'PersonalAccount',
+            monthlyTransactionVolume: Number(monthlyVolume.replace(/[^0-9]/g, '')) || 0,
+            dailyTransactionCount: Number(dailyCount.replace(/[^0-9]/g, '')) || 0,
+            commissionType,
+            appliesTo: Object.entries(appliesTo)
+                .filter(([, checked]) => checked)
+                .map(([key]) => key),
+            commissionSplits: COMMISSION_ROLES.map(role => ({
+                role: role.key,
+                value: Number(commissionRoles[role.key].value.replace(/[^0-9.]/g, '')) || 0,
+                active: commissionRoles[role.key].enabled,
+            })),
+        };
+        onSubmit && onSubmit(payload);
     };
 
     return (
         <div className="space-y-6">
+            {/* Submit button at top */}
+            <div className="flex justify-end">
+                <Button
+                    className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? 'Saving...' : submitLabel}
+                </Button>
+            </div>
+
             {/* User Account */}
             <Card>
                 <CardContent className="p-6">
                     <h3 className="font-bold text-[#1E1E1E] mb-6">User Account</h3>
                     <div className="flex gap-8">
                         <GreenRadio
-                            checked={userAccount === 'Personal Account'}
-                            onChange={() => setUserAccount('Personal Account')}
+                            checked={userAccountType === 'PersonalAccount'}
+                            onChange={() => setUserAccountType('PersonalAccount')}
                             label="Personal Account"
                         />
                         <GreenRadio
-                            checked={userAccount === 'Agents/Merchants'}
-                            onChange={() => setUserAccount('Agents/Merchants')}
+                            checked={userAccountType === 'AgentAccount'}
+                            onChange={() => setUserAccountType('AgentAccount')}
                             label="Agents/Merchants"
                         />
                     </div>
@@ -157,13 +207,13 @@ const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create C
                         <h3 className="font-bold text-[#1E1E1E]">Set Commission Split</h3>
                         <div className="flex gap-6">
                             <GreenRadio
-                                checked={commissionType === 'Flat Commission'}
-                                onChange={() => setCommissionType('Flat Commission')}
+                                checked={commissionType === 'Flat'}
+                                onChange={() => setCommissionType('Flat')}
                                 label="Flat Commission"
                             />
                             <GreenRadio
-                                checked={commissionType === 'Percentage Commission'}
-                                onChange={() => setCommissionType('Percentage Commission')}
+                                checked={commissionType === 'Percentage'}
+                                onChange={() => setCommissionType('Percentage')}
                                 label="Percentage Commission"
                             />
                         </div>
@@ -215,21 +265,14 @@ const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create C
                 <CardContent className="p-6">
                     <h3 className="font-bold text-[#1E1E1E] mb-6">Applies To</h3>
                     <div className="flex gap-8 flex-wrap">
-                        <GreenCheckbox
-                            checked={appliesTo.allAgents}
-                            onChange={() => setAppliesTo(p => ({ ...p, allAgents: !p.allAgents }))}
-                            label="All Agents"
-                        />
-                        <GreenCheckbox
-                            checked={appliesTo.aggregators}
-                            onChange={() => setAppliesTo(p => ({ ...p, aggregators: !p.aggregators }))}
-                            label="Aggregators"
-                        />
-                        <GreenCheckbox
-                            checked={appliesTo.aggregatorManager}
-                            onChange={() => setAppliesTo(p => ({ ...p, aggregatorManager: !p.aggregatorManager }))}
-                            label="Aggregator Manager"
-                        />
+                        {APPLIES_TO_OPTIONS.map((opt) => (
+                            <GreenCheckbox
+                                key={opt.key}
+                                checked={appliesTo[opt.key] || false}
+                                onChange={() => setAppliesTo(p => ({ ...p, [opt.key]: !p[opt.key] }))}
+                                label={opt.label}
+                            />
+                        ))}
                     </div>
                 </CardContent>
             </Card>

@@ -2,10 +2,14 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
-import { AGENT_CATEGORIES_DATA, AGENT_CATEGORY_COLUMNS, AGENT_CATEGORY_ACTIONS } from './constants';
+import { AGENT_CATEGORY_COLUMNS, AGENT_CATEGORY_ACTIONS } from './constants';
+import { useAgencyCategories } from '@/store/features/settings/useAgencyCategories';
 
 const AgentCategory = () => {
     const navigate = useNavigate();
+    const { data: categoriesResponse, isLoading } = useAgencyCategories();
+
+    const categories = categoriesResponse?.data || [];
 
     const handleAction = (action, row) => {
         if (action.label === 'View Details') {
@@ -36,12 +40,13 @@ const AgentCategory = () => {
             </div>
 
             <DataTable
-                data={AGENT_CATEGORIES_DATA}
+                data={categories}
                 columns={AGENT_CATEGORY_COLUMNS}
                 title="Commissions"
                 actions={actionsWithHandler}
                 showSearch={true}
                 showCheckbox={true}
+                loading={isLoading}
             />
         </div>
     );

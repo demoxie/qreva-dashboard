@@ -1,16 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from 'react-router-dom';
 import RoleForm from './RoleForm';
 import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
-import { ROLES_DATA } from './constants';
+import { useRole, useUpdateRole } from '@/store/features/settings/useRbac';
+import { handleError } from '@/store/utils/handleError';
 
 const EditRole = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [showSuccess, setShowSuccess] = useState(false);
+    const updateRole = useUpdateRole();
+    const collectDataRef = useRef(null);
 
-    const role = ROLES_DATA.find(r => String(r.id) === String(id)) || ROLES_DATA[0];
+    const { data: roleResponse, isLoading } = useRole(id);
+    const role = roleResponse?.data || {};
+
+    const handleSave = () => {
+        if (collectDataRef.current) {
+            const payload = collectDataRef.current();
+            updateRole.mutate({ rolePermissionId: id, ...payload }, {
+                onSuccess: () => setShowSuccess(true),
+                onError: (error) => handleError(error),
+            });
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-[#808C91]">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -22,13 +46,17 @@ const EditRole = () => {
                 </div>
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
-                    onClick={() => setShowSuccess(true)}
+                    onClick={handleSave}
+                    disabled={updateRole.isPending}
                 >
-                    Save Changes
+                    {updateRole.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
             </div>
 
-            <RoleForm initialData={role} />
+            <RoleForm
+                initialData={role}
+                onCollectData={(fn) => { collectDataRef.current = fn; }}
+            />
 
             <ActionSuccessModal
                 isOpen={showSuccess}

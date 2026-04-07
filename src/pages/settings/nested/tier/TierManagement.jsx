@@ -2,20 +2,30 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
-import { TIERS_DATA, TIER_COLUMNS, TIER_ACTIONS } from './constants';
+import { TIER_COLUMNS, TIER_ACTIONS } from './constants';
 import TierViewDetailsModal from './TierViewDetailsModal';
+import { useTiers, useDeleteTier } from '@/store/features/settings/useTiers';
+import { handleError } from '@/store/utils/handleError';
+import { handleSuccess } from '@/store/utils/handleSuccess';
 
 const TierManagement = () => {
     const navigate = useNavigate();
     const [viewTier, setViewTier] = useState(null);
+    const { data: tiersResponse, isLoading } = useTiers();
+    const deleteTier = useDeleteTier();
+
+    const tiers = tiersResponse?.data || [];
 
     const handleAction = (action, row) => {
         if (action.label === 'Edit Details') {
             navigate(`/settings/tier/edit/${row.id}`);
         } else if (action.label === 'View Details') {
             setViewTier(row);
-        } else {
-            console.log(action.label, row);
+        } else if (action.label === 'Delete Tier') {
+            deleteTier.mutate(row.id, {
+                onSuccess: () => handleSuccess('Tier deleted successfully'),
+                onError: (error) => handleError(error),
+            });
         }
     };
 
@@ -41,12 +51,13 @@ const TierManagement = () => {
             </div>
 
             <DataTable
-                data={TIERS_DATA}
+                data={tiers}
                 columns={TIER_COLUMNS}
                 title="KYC Tiers"
                 actions={actionsWithHandler}
                 showSearch={true}
                 showCheckbox={true}
+                loading={isLoading}
             />
 
             {/* View Details Modal */}

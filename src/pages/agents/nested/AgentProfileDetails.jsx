@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useProfileData } from '@/hooks/useProfileData';
 import { useProfileModals } from '@/hooks/useProfileModals';
+import { useUserById, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -11,7 +10,7 @@ import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import { createTransactionActions } from '@/utils/profileUtils';
 import { cardVsQRPayments } from '@/constants/mockData';
-import { mockAgent, agentTransactions, multiLineData } from '../data';
+import { agentTransactions, multiLineData } from '../data';
 import { availableTabs, chartSeries } from '../constants'
 
 const AgentProfileDetails = () => {
@@ -21,8 +20,11 @@ const AgentProfileDetails = () => {
 
   
   
-  const { data: agentData, loading } = useProfileData(id, async () => mockAgent);
+  const { data: agentResponse, isLoading: loading } = useUserById(id);
+  const agentData = agentResponse?.data;
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useProfileModals();
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
 
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
@@ -36,8 +38,12 @@ const AgentProfileDetails = () => {
 
 
   const handleSuspend = () => {
-    console.log('Suspend agent:', id);
-    setters.setShowSuspendModal(false);
+    if (!agentData?._id) return;
+    const isActive = agentData.status === 'Active' || agentData.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(agentData._id, {
+      onSettled: () => setters.setShowSuspendModal(false),
+    });
   };
 
   if (loading) return <LoadingState />;

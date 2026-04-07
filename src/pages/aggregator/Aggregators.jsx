@@ -4,28 +4,44 @@ import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/tables/DataTable';
 import AggregatorModals from '@/components/aggregators/AggregatorModals';
 import { useAggregatorModals } from '@/hooks/useAggregatorModals';
-import { useAggregatorSearch } from '@/hooks/useAggregatorSearch';
-import { aggregatorsData,aggregatorStats } from './data';
+import { aggregatorStats } from './data';
 import { aggregatorColumns, createAggregatorActions } from './constants';
 import DashboardStats from '@/components/base/DashboardStats';
+import { useUsers, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  
+
+  const { data: usersResponse, isLoading } = useUsers({
+    type: 'Aggregator',
+    search: searchQuery || undefined,
+  });
+
+  const aggregators = usersResponse?.data || [];
+
   const { modals, setters, selectedAggregator, setSelectedAggregator } = useAggregatorModals();
-  const { searchQuery, setSearchQuery, filteredAggregators } = useAggregatorSearch(aggregatorsData);
 
   const handleSuspendClick = useCallback((aggregator) => {
     setSelectedAggregator(aggregator);
     setters.setShowSuspendModal(true);
   }, [setSelectedAggregator, setters]);
 
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
+
   const handleConfirmSuspend = useCallback(() => {
-    console.log('Suspend aggregator:', selectedAggregator);
-    setters.setShowSuspendModal(false);
-    setSelectedAggregator(null);
-  }, [selectedAggregator, setters, setSelectedAggregator]);
+    if (!selectedAggregator?._id) return;
+    const isActive = selectedAggregator.status === 'Active' || selectedAggregator.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(selectedAggregator._id, {
+      onSettled: () => {
+        setters.setShowSuspendModal(false);
+        setSelectedAggregator(null);
+      },
+    });
+  }, [selectedAggregator, setters, setSelectedAggregator, suspendUserMutation, activateUserMutation]);
 
   const handleAddAggregator = useCallback((aggregatorData) => {
     console.log('Add aggregator:', aggregatorData);
@@ -59,12 +75,13 @@ const Aggregators = () => {
         <DashboardStats stats={aggregatorStats} />
 
         <DataTable
-          data={filteredAggregators}
+          data={aggregators}
           columns={aggregatorColumns}
           title="Aggregators"
           actions={tableActions}
           onSearch={setSearchQuery}
           onFilter={() => console.log('Filter clicked')}
+          loading={isLoading}
         />
       </div>
 

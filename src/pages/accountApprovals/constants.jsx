@@ -72,7 +72,7 @@ export const createApprovalActions = (
     label: 'View Details',
     icon: CustomEye,
     onClick: (row) =>
-      navigate(`/account-approvals/${activeTab}/${row.id}`)
+      navigate(`/account-approvals/${activeTab}/${row._id}`)
   },
   {
     label: 'Accept Approval',

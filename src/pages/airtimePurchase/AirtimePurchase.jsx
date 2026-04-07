@@ -99,7 +99,6 @@ const AirtimePurchase = () => {
   };
 
   const actions = createTransactionActions(
-    navigate,
     (tx) => {
       setSelectedTransaction(tx);
       setShowDetailsModal(true);

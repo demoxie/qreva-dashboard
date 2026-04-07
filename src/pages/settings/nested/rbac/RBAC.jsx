@@ -2,10 +2,14 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
-import { ROLES_DATA, RBAC_COLUMNS, RBAC_ACTIONS } from './constants';
+import { RBAC_COLUMNS, RBAC_ACTIONS } from './constants';
+import { useRoles } from '@/store/features/settings/useRbac';
 
 const RBAC = () => {
     const navigate = useNavigate();
+    const { data: rolesResponse, isLoading } = useRoles();
+
+    const roles = rolesResponse?.data || [];
 
     const handleAction = (action, row) => {
         if (action.label === 'View Details') {
@@ -36,12 +40,13 @@ const RBAC = () => {
             </div>
 
             <DataTable
-                data={ROLES_DATA}
+                data={roles}
                 columns={RBAC_COLUMNS}
                 title="Permissions"
                 actions={actionsWithHandler}
                 showSearch={true}
                 showCheckbox={true}
+                loading={isLoading}
             />
         </div>
     );

@@ -12,21 +12,23 @@ export const agentStats = [
 
 export const agentColumns = [
   {
-    field: 'name',
+    field: 'firstName',
     headerName: 'Agent Name',
     width: 250,
     flex: 1,
     renderCell: (params) => (
       <div>
-        <div className="text-sm font-general text-[#1E1E1E] font-medium">{params.row.name}</div>
-        <div className="text-sm font-general text-[#475367]">{params.row.email}</div>
+        <div className="text-sm font-general text-[#1E1E1E] font-medium">
+          {params.row.firstName} {params.row.lastName}
+        </div>
+        <div className="text-sm font-general text-[#475367]">{params.row.emailAddress}</div>
       </div>
     )
   },
-  { 
-    field: 'totalTransactions', 
-    headerName: 'Total Transactions', 
-    width: 150,
+  {
+    field: 'phoneNumber',
+    headerName: 'Phone Number',
+    width: 160,
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
@@ -35,46 +37,40 @@ export const agentColumns = [
     )
   },
   {
-    field: 'totalVolume',
-    headerName: 'Total Volume (₦)',
-    width: 150,
+    field: 'type',
+    headerName: 'Account Type',
+    width: 130,
     flex: 1,
-    valueFormatter: (params) => params?.toLocaleString(),
     renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-        {params.value?.toLocaleString()}
+      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+        {params.value}
       </span>
     )
   },
   {
-    field: 'totalRevenue',
-    headerName: 'Total Revenue (₦)',
-    width: 150,
+    field: 'status',
+    headerName: 'Status',
+    width: 130,
     flex: 1,
-    valueFormatter: (params) => params?.toLocaleString(),
-    renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-        {params.value?.toLocaleString()}
-      </span>
-    )  
+    renderCell: (params) => {
+      const statusColors = {
+        Active: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#1B7D3C]',
+        Inactive: 'border border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]',
+        Suspended: 'border border-[#F87171] bg-[#FEE2E2] text-[#B91C1C]',
+        Pending: 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]',
+      };
+      return (
+        <span className={`px-2 py-1.5 text-center ${statusColors[params.value] || statusColors.Inactive} font-general font-medium text-xs rounded-md flex items-center justify-center h-full`}>
+          {params.value || '-'}
+        </span>
+      );
+    }
   },
   {
-    field: 'totalCommission',
-    headerName: 'Total Commission (₦)',
+    field: 'clientId',
+    headerName: 'Client ID',
     width: 180,
     flex: 1,
-    valueFormatter: (params) => params?.toLocaleString(),
-    renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-        {params.value?.toLocaleString()}
-      </span>
-    )
-  },
-  { 
-    field: 'joinedDate', 
-    headerName: 'Joined Date', 
-    width: 180,
-    flex: 1, 
     renderCell: (params) => (
       <span className="text-sm text-[#1E1E1E] font-general flex flex-wrap items-center h-full">
         {params.value}
@@ -87,18 +83,18 @@ export const createAgentActions = (navigate, onSuspend) => [
   {
     label: 'View Profile Details',
     icon: CustomEye,
-    onClick: (row) => navigate(`/agents/${row.id}`)
+    onClick: (row) => navigate(`/agents/${row._id}`)
+  },
+  {
+    label: 'View Transaction History',
+    icon: CustomHistory,
+    onClick: (row) => navigate(`/agents/${row._id}?tab=transactions`)
   },
   {
     label: 'Suspend Agent',
     icon: CustomUser,
     onClick: (row) => onSuspend(row)
   },
-  {
-    label: 'View Transaction History',
-    icon: CustomHistory,
-    onClick: (row) => navigate(`/agents/${row.id}?tab=transactions`)
-  }
 ];
 
 const availableTabs = [

@@ -5,27 +5,42 @@ import DashboardStats from '@/components/base/DashboardStats';
 import DataTable from '@/components/tables/DataTable';
 import AgentModals from '@/components/agents/AgentsModals';
 import { useAgentModals } from '@/hooks/useAgentModals';
-import { useAgentSearch } from '@/hooks/useAgentSearch';
-import { agentsData } from './data';
 import { agentStats, agentColumns, createAgentActions } from './constants';
+import { useUsers, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 
 const Agents = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
-  
+
+  const { data: usersResponse, isLoading } = useUsers({
+    type: 'Agent',
+    search: searchQuery || undefined,
+  });
+
+  const agents = usersResponse?.data || [];
+
   const { modals, setters, selectedAgent, setSelectedAgent } = useAgentModals();
-  const { searchQuery, setSearchQuery, filteredAgents } = useAgentSearch(agentsData);
 
   const handleSuspendClick = useCallback((agent) => {
     setSelectedAgent(agent);
     setters.setShowSuspendModal(true);
   }, [setSelectedAgent, setters]);
 
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
+
   const handleConfirmSuspend = useCallback(() => {
-    console.log('Suspend agent:', selectedAgent);
-    setters.setShowSuspendModal(false);
-    setSelectedAgent(null);
-  }, [selectedAgent, setters, setSelectedAgent]);
+    if (!selectedAgent?._id) return;
+    const isActive = selectedAgent.status === 'Active' || selectedAgent.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(selectedAgent._id, {
+      onSettled: () => {
+        setters.setShowSuspendModal(false);
+        setSelectedAgent(null);
+      },
+    });
+  }, [selectedAgent, setters, setSelectedAgent, suspendUserMutation, activateUserMutation]);
 
   const handleAddAgent = useCallback((agentData) => {
     console.log('Add agent:', agentData);
@@ -60,12 +75,13 @@ const Agents = () => {
 
         <DataTable
           className="font-general"
-          data={filteredAgents}
+          data={agents}
           columns={agentColumns}
           title="Agents"
           actions={tableActions}
           onSearch={setSearchQuery}
           onFilter={() => console.log('Filter clicked')}
+          loading={isLoading}
         />
       </div>
 

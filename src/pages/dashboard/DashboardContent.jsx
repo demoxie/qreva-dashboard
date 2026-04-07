@@ -7,6 +7,8 @@ import PageHeader from '@/components/common/PageHeader';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
 import AgentDashboard from '@/components/dashboard/AgentDashboard';
 import AggregatorDashboard from '@/components/dashboard/AggregatorDashboard';
+import CustomEye from '@/components/icons/CustomEye';
+import CustomShare from '@/components/icons/CustomShare';
 
 // Mock data for Card vs QR Payments (TODO: Add to API)
 const cardVsQRPayments = [
@@ -102,6 +104,7 @@ const DashboardContent = () => {
     {
       label: 'View Transaction Details',
       type: 'view',
+      icon: CustomEye,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowDetailsModal(true);
@@ -110,6 +113,7 @@ const DashboardContent = () => {
     {
       label: 'Share Receipt',
       type: 'share',
+      icon: CustomShare,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowShareModal(true);

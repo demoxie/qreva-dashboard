@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import CommissionForm from './CommissionForm';
 import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
 import { useNavigate } from 'react-router-dom';
+import { useCreateCommission } from '@/store/features/settings/useCommissions';
+import { handleError } from '@/store/utils/handleError';
 
 const CreateCommission = () => {
     const navigate = useNavigate();
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+    const createCommission = useCreateCommission();
 
-    const handleSubmit = () => {
-        // Logic to create commission would go here
-        setIsSuccessModalOpen(true);
+    const handleSubmit = (payload) => {
+        createCommission.mutate(payload, {
+            onSuccess: () => setIsSuccessModalOpen(true),
+            onError: (error) => handleError(error),
+        });
     };
 
     const handleCloseSuccess = () => {
@@ -19,8 +24,9 @@ const CreateCommission = () => {
 
     return (
         <div className="p-6 md:p-8 max-w-[1200px] mx-auto">
-            <CommissionForm 
+            <CommissionForm
                 onSubmit={handleSubmit}
+                isSubmitting={createCommission.isPending}
             />
 
             <ActionSuccessModal

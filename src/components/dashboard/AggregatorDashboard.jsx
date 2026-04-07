@@ -41,11 +41,11 @@ const AggregatorDashboard = ({
       {/* Daily Transaction Volume */}
       <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
 
-      {/* Top Agents + Card vs QR Payments - Side by Side */}
+      {/* Top Customers + Card vs QR Payments - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <TopCustomersCard 
           data={metrics.topCustomers} 
-          title="Top Agents"
+          title="Top Customers"
           showTabs={true}
         />
         <PaymentComparisonPie

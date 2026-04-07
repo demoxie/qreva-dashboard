@@ -8,9 +8,6 @@ export const useDashboardMetrics = (params = {}) => {
     queryKey: ['dashboard-metrics', params],
     queryFn: () => dashboardApi.getMetrics(params),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load dashboard metrics.');
-    },
   });
 };
 
@@ -20,9 +17,6 @@ export const useAirtimePurchaseMetrics = (params = {}) => {
     queryKey: ['airtime-purchase-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'airtime' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load airtime purchase metrics.');
-    },
   });
 };
 
@@ -32,9 +26,6 @@ export const useDataPurchaseMetrics = (params = {}) => {
     queryKey: ['data-purchase-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'data' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load data purchase metrics.');
-    },
   });
 };
 
@@ -44,9 +35,6 @@ export const useElectricityMetrics = (params = {}) => {
     queryKey: ['electricity-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'electricity' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load electricity metrics.');
-    },
   });
 };
 
@@ -56,9 +44,6 @@ export const useCableTVMetrics = (params = {}) => {
     queryKey: ['cabletv-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'cabletv' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load cable TV metrics.');
-    },
   });
 };
 
@@ -68,9 +53,6 @@ export const useTransferMetrics = (params = {}) => {
     queryKey: ['transfer-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'transfer' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load transfer metrics.');
-    },
   });
 };
 
@@ -80,9 +62,6 @@ export const useScanToPayMetrics = (params = {}) => {
     queryKey: ['scantopay-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'scantopay' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load scan to pay metrics.');
-    },
   });
 };
 
@@ -92,9 +71,6 @@ export const useFundingMetrics = (params = {}) => {
     queryKey: ['funding-metrics', params],
     queryFn: () => dashboardApi.getMetrics({ ...params, category: 'funding' }),
     staleTime: 2 * 60 * 1000,
-    onError: (error) => {
-      handleError(error, 'Failed to load funding metrics.');
-    },
   });
 };
 
@@ -105,8 +81,5 @@ export const useCategoryMetrics = (category, params = {}) => {
     queryFn: () => dashboardApi.getMetrics({ ...params, category }),
     staleTime: 2 * 60 * 1000,
     enabled: !!category,
-    onError: (error) => {
-      handleError(error, `Failed to load ${category} metrics.`);
-    },
   });
 };

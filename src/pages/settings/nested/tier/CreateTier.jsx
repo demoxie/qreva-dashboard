@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { REQUIRED_DOCUMENTS } from './constants';
 import ActionSuccessModal from "@/components/modals/ActionSuccessModal";
+import { useCreateTier } from '@/store/features/settings/useTiers';
+import { handleError } from '@/store/utils/handleError';
 
 // Format number with commas as user types
 const formatWithCommas = (value) => {
@@ -64,6 +66,11 @@ const CreateTier = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('personal');
     const [showSuccess, setShowSuccess] = useState(false);
+    const createTier = useCreateTier();
+
+    const [tierName, setTierName] = useState('');
+    const [tierDesc, setTierDesc] = useState('');
+    const [selectedDocs, setSelectedDocs] = useState([]);
 
     const [limits, setLimits] = useState({
         daily: { value: '', unlimited: false },
@@ -75,8 +82,38 @@ const CreateTier = () => {
         setLimits(prev => ({ ...prev, [key]: { ...prev[key], [field]: val } }));
     };
 
+    const toggleDoc = (docId) => {
+        setSelectedDocs(prev =>
+            prev.includes(docId) ? prev.filter(d => d !== docId) : [...prev, docId]
+        );
+    };
+
+    const parseLimit = (value) => {
+        const num = Number(String(value).replace(/[^0-9]/g, ''));
+        return num || 0;
+    };
+
     const handleCreate = () => {
-        setShowSuccess(true);
+        const payload = {
+            level: tierName,
+            accountType: activeTab === 'personal' ? 'PersonalAccount' : 'AgentAccount',
+            tierDescription: tierDesc,
+            rank: 0,
+            dailyTransactionLimit: parseLimit(limits.daily.value),
+            singleTransactionLimit: parseLimit(limits.single.value),
+            balanceLimit: parseLimit(limits.wallet.value),
+            requirements: selectedDocs,
+            requiredDocuments: selectedDocs,
+            dailyTransactionUnlimited: limits.daily.unlimited,
+            singleTransactionUnlimited: limits.single.unlimited,
+            balanceUnlimited: limits.wallet.unlimited,
+            active: true,
+        };
+
+        createTier.mutate(payload, {
+            onSuccess: () => setShowSuccess(true),
+            onError: (error) => handleError(error),
+        });
     };
 
     return (
@@ -90,8 +127,9 @@ const CreateTier = () => {
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
                     onClick={handleCreate}
+                    disabled={createTier.isPending}
                 >
-                    Create Tier
+                    {createTier.isPending ? 'Creating...' : 'Create Tier'}
                 </Button>
             </div>
 
@@ -128,6 +166,8 @@ const CreateTier = () => {
                             <input
                                 type="text"
                                 placeholder="Tier Name"
+                                value={tierName}
+                                onChange={(e) => setTierName(e.target.value)}
                                 className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#FF5B04]"
                             />
                         </div>
@@ -135,6 +175,8 @@ const CreateTier = () => {
                             <input
                                 type="text"
                                 placeholder="Tier Description (Optional)"
+                                value={tierDesc}
+                                onChange={(e) => setTierDesc(e.target.value)}
                                 className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#FF5B04]"
                             />
                         </div>
@@ -152,6 +194,8 @@ const CreateTier = () => {
                                 <input
                                     type="checkbox"
                                     id={doc.id}
+                                    checked={selectedDocs.includes(doc.id)}
+                                    onChange={() => toggleDoc(doc.id)}
                                     className="w-4 h-4 accent-green-500 rounded border-gray-300 cursor-pointer"
                                 />
                                 <label htmlFor={doc.id} className="text-xs font-semibold text-[#1E1E1E] cursor-pointer">

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useParams } from 'react-router-dom';
-import { REQUIRED_DOCUMENTS, TIERS_DATA } from './constants';
+import { REQUIRED_DOCUMENTS } from './constants';
 import ActionSuccessModal from "@/components/modals/ActionSuccessModal";
+import { useTier, useUpdateTier } from '@/store/features/settings/useTiers';
+import { handleError } from '@/store/utils/handleError';
 
 // Format number with commas
 const formatWithCommas = (value) => {
@@ -64,27 +66,92 @@ const EditTier = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const { data: tierResponse, isLoading } = useTier(id);
+    const updateTier = useUpdateTier();
+    const tier = tierResponse?.data || {};
+
     const [activeTab, setActiveTab] = useState('personal');
-
-    // Find the tier being edited (fallback to first if no id)
-    const tier = TIERS_DATA.find(t => String(t.id) === String(id)) || TIERS_DATA[0];
-
-    const [tierName, setTierName] = useState(tier?.name || '');
+    const [tierName, setTierName] = useState('');
     const [tierDesc, setTierDesc] = useState('');
-
+    const [selectedDocs, setSelectedDocs] = useState([]);
     const [limits, setLimits] = useState({
-        daily: { value: tier?.dailyLimit || '', unlimited: tier?.balanceLimit === 'Unlimited' },
-        single: { value: tier?.singleLimit || '', unlimited: false },
-        wallet: { value: tier?.balanceLimit === 'Unlimited' ? '' : tier?.balanceLimit || '', unlimited: tier?.balanceLimit === 'Unlimited' },
+        daily: { value: '', unlimited: false },
+        single: { value: '', unlimited: false },
+        wallet: { value: '', unlimited: false },
     });
+
+    // Populate form when tier data loads
+    useEffect(() => {
+        if (tier && tier.level) {
+            setTierName(tier.level || '');
+            setTierDesc(tier.tierDescription || '');
+            setActiveTab(tier.accountType === 'AgentAccount' ? 'agent' : 'personal');
+            setSelectedDocs(tier.requiredDocuments || tier.requirements || []);
+            setLimits({
+                daily: {
+                    value: tier.dailyTransactionLimit ? formatWithCommas(String(tier.dailyTransactionLimit)) : '',
+                    unlimited: tier.dailyTransactionUnlimited || false,
+                },
+                single: {
+                    value: tier.singleTransactionLimit ? formatWithCommas(String(tier.singleTransactionLimit)) : '',
+                    unlimited: tier.singleTransactionUnlimited || false,
+                },
+                wallet: {
+                    value: tier.balanceLimit ? formatWithCommas(String(tier.balanceLimit)) : '',
+                    unlimited: tier.balanceUnlimited || false,
+                },
+            });
+        }
+    }, [tier]);
 
     const updateLimit = (key, field, val) => {
         setLimits(prev => ({ ...prev, [key]: { ...prev[key], [field]: val } }));
     };
 
-    const handleSave = () => {
-        setShowSuccess(true);
+    const toggleDoc = (docId) => {
+        setSelectedDocs(prev =>
+            prev.includes(docId) ? prev.filter(d => d !== docId) : [...prev, docId]
+        );
     };
+
+    const parseLimit = (value) => {
+        const num = Number(String(value).replace(/[^0-9]/g, ''));
+        return num || 0;
+    };
+
+    const handleSave = () => {
+        const payload = {
+            tierId: id,
+            level: tierName,
+            accountType: activeTab === 'personal' ? 'PersonalAccount' : 'AgentAccount',
+            tierDescription: tierDesc,
+            dailyTransactionLimit: parseLimit(limits.daily.value),
+            singleTransactionLimit: parseLimit(limits.single.value),
+            balanceLimit: parseLimit(limits.wallet.value),
+            requirements: selectedDocs,
+            requiredDocuments: selectedDocs,
+            dailyTransactionUnlimited: limits.daily.unlimited,
+            singleTransactionUnlimited: limits.single.unlimited,
+            balanceUnlimited: limits.wallet.unlimited,
+            active: true,
+        };
+
+        updateTier.mutate(payload, {
+            onSuccess: () => setShowSuccess(true),
+            onError: (error) => handleError(error),
+        });
+    };
+
+    if (isLoading) {
+        return (
+            <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
+                <div className="flex items-center justify-center h-64">
+                    <p className="text-[#808C91]">Loading...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -97,8 +164,9 @@ const EditTier = () => {
                 <Button
                     className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
                     onClick={handleSave}
+                    disabled={updateTier.isPending}
                 >
-                    Save Changes
+                    {updateTier.isPending ? 'Saving...' : 'Save Changes'}
                 </Button>
             </div>
 
@@ -165,6 +233,8 @@ const EditTier = () => {
                                 <input
                                     type="checkbox"
                                     id={`edit-${doc.id}`}
+                                    checked={selectedDocs.includes(doc.id)}
+                                    onChange={() => toggleDoc(doc.id)}
                                     className="w-4 h-4 accent-green-500 rounded border-gray-300 cursor-pointer"
                                 />
                                 <label htmlFor={`edit-${doc.id}`} className="text-xs font-semibold text-[#1E1E1E] cursor-pointer">
