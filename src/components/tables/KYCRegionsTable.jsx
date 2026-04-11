@@ -12,9 +12,9 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
   };
 
   const columns = [
-    { 
-      field: 'location', 
-      headerName: 'Location', 
+    {
+      field: 'location',
+      headerName: 'Location',
       flex: 1,
       minWidth: 150,
       renderCell: (params) => (
@@ -23,9 +23,9 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
         </span>
       )
     },
-    { 
-      field: 'totalKYC', 
-      headerName: 'Total Transactions', 
+    {
+      field: 'totalKYC',
+      headerName: 'Total Transactions',
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
@@ -34,9 +34,9 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
         </span>
       )
     },
-    { 
-      field: 'totalSum', 
-      headerName: 'Total Sum (₦)', 
+    {
+      field: 'totalSum',
+      headerName: 'Total Sum (₦)',
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
@@ -45,9 +45,9 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
         </span>
       )
     },
-    { 
-      field: 'revenue', 
-      headerName: 'Revenue (₦)', 
+    {
+      field: 'revenue',
+      headerName: 'Revenue (₦)',
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
@@ -56,9 +56,9 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
         </span>
       )
     },
-    { 
-      field: 'commission', 
-      headerName: 'Commission (₦)', 
+    {
+      field: 'commission',
+      headerName: 'Commission (₦)',
       flex: 0.8,
       minWidth: 150,
       renderCell: (params) => (
@@ -73,7 +73,7 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
       width: 130,
       sortable: false,
       renderCell: (params) => (
-        <button 
+        <button
           onClick={() => handleViewDetails(params.row)}
           className="font-general text-sm text-[#06b6d4] hover:text-[#0891b2] font-medium transition-colors"
         >
@@ -100,6 +100,7 @@ const KYCRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) =>
         <DataGrid
           rows={data}
           columns={columns}
+          getRowId={(row) => row._id || row.id || row.location || row.name || Math.random()}
           disableRowSelectionOnClick
           disableColumnMenu
           hideFooterSelectedRowCount

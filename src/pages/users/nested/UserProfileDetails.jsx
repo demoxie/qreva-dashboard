@@ -1,7 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import { useTransactionSearch } from '@/hooks/useTransactionSearch';
-import { useUserById, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -12,7 +12,6 @@ import {
   getAvailableTabs,
   tabConfig
 } from '@/utils/profileUtils';
-import { userTransactions } from '../data';
 
 const UserProfileDetails = () => {
   const { id } = useParams();
@@ -20,12 +19,14 @@ const UserProfileDetails = () => {
   const activeTab = searchParams.get('tab') || 'profile';
   const currentTab = tabConfig[activeTab] || tabConfig.transactions;
 
-  const { data: userResponse, isLoading: loading } = useUserById(id);
+  const { data: userResponse, isLoading: loading } = useUserById(id, 'users');
   const userData = userResponse?.data;
+  const { data: txResponse } = useUserTransactions(id, 'users');
+  const userTransactions = txResponse?.data || [];
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
 
-  const data = userData?.[currentTab.dataKey] || [];
+  const data = userData?.[currentTab.dataKey] || userTransactions;
 
   const { searchQuery, setSearchQuery, filteredTransactions } =
     useTransactionSearch(userTransactions);
@@ -68,13 +69,13 @@ const UserProfileDetails = () => {
       userData={userData}
       activeTab={activeTab}
       onTabChange={handleTabChange}
-      availableTabs={getAvailableTabs(userData.accountType)}
+      availableTabs={getAvailableTabs(userData.type || userData.accountType)}
       actions={userActions}
     >
       {activeTab === 'profile' ? (
         <ProfileDetailsView
           userData={userData}
-          showBusinessDetails={userData.accountType !== 'Personal Account'}
+          showBusinessDetails={userData.type !== 'Individual' && userData.accountType !== 'Personal Account'}
         />
       ) : (
         <TransactionView

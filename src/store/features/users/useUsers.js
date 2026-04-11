@@ -19,12 +19,21 @@ export const useUserMetrics = (params = {}) => {
   });
 };
 
-export const useUserById = (userId) => {
+export const useUserById = (userId, userType = 'users') => {
   return useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => usersApi.getUserById(userId),
+    queryKey: ['user', userType, userId],
+    queryFn: () => usersApi.getUserById(userId, userType),
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useUserTransactions = (userId, userType = 'users', params = {}) => {
+  return useQuery({
+    queryKey: ['user-transactions', userType, userId, params],
+    queryFn: () => usersApi.getUserTransactions(userId, userType, params),
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
   });
 };
 

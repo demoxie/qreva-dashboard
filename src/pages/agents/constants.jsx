@@ -1,4 +1,3 @@
-import { multiLineData } from "./data";
 import CustomEye from '@/components/icons/CustomEye';
 import CustomUser from '@/components/icons/CustomUser';
 import CustomHistory from '@/components/icons/CustomHistory';
@@ -103,10 +102,10 @@ const availableTabs = [
 ];
 
 
-const chartSeries = [
-    { data: multiLineData.map(d => d.bvn), color: '#06b6d4', label: 'BVN' },
-    { data: multiLineData.map(d => d.nin), color: '#F59E0B', label: 'NIN' }
+const createChartSeries = (chartData) => [
+    { data: (chartData || []).map(d => d.cardPayments || d.bvn || 0), color: '#06b6d4', label: 'Card Payments' },
+    { data: (chartData || []).map(d => d.qrPayments || d.nin || 0), color: '#F59E0B', label: 'QR Payments' }
 ];
 
 
-export {availableTabs, chartSeries}
+export {availableTabs, createChartSeries}

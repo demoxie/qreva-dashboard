@@ -10,12 +10,6 @@ import AggregatorDashboard from '@/components/dashboard/AggregatorDashboard';
 import CustomEye from '@/components/icons/CustomEye';
 import CustomShare from '@/components/icons/CustomShare';
 
-// Mock data for Card vs QR Payments (TODO: Add to API)
-const cardVsQRPayments = [
-  { name: 'Card Payments', value: 70, amount: 4000000 },
-  { name: 'QR Payments', value: 30, amount: 170823 }
-];
-
 const DashboardContent = () => {
   const { user } = useAuth();
   const [timeFilter, setTimeFilter] = useState('today');
@@ -223,16 +217,14 @@ const DashboardContent = () => {
         )}
 
         {isAgent && (
-          <AgentDashboard 
+          <AgentDashboard
             {...dashboardProps}
-            cardVsQRPayments={cardVsQRPayments}
           />
         )}
 
         {(isAggregator || isAggregatorManager) && (
-          <AggregatorDashboard 
+          <AggregatorDashboard
             {...dashboardProps}
-            cardVsQRPayments={cardVsQRPayments}
             transactionActions={transactionActions}
             {...modalProps}
           />

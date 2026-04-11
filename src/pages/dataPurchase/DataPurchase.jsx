@@ -98,7 +98,6 @@ const DataPurchase = () => {
     console.log('Filter clicked');
   };
 
-  // Navigation handler for regions
   const handleViewRegionDetails = (regionId) => {
     navigate(`/data/details/region/${regionId}`);
   };
@@ -190,8 +189,8 @@ const DataPurchase = () => {
           </div>
         </div>
 
-        <RegionsTable 
-          data={metrics.topRegions} 
+        <RegionsTable
+          data={metrics.topRegions}
           title="Top Regions"
           onViewDetails={handleViewRegionDetails}
         />

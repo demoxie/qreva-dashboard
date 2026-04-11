@@ -46,7 +46,7 @@ const PageHeader = ({
               return (
                 <button
                   key={filter}
-                  onClick={() => onTimeFilterChange(filter)}
+                  onClick={() => onTimeFilterChange?.(filter)}
                   className={`
                     font-general font-medium text-sm py-2.5 px-4
                     transition-all duration-200

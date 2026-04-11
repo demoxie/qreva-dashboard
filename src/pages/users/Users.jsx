@@ -35,14 +35,16 @@ const Users = () => {
   const stats = useMemo(() => {
     if (!metricsData?.data) return userStats;
 
-    const { users, agents, accounts, aggregators, aggregatorManagers } = metricsData.data;
+    const d = metricsData.data;
 
     return [
-      { label: 'Total Users', value: users?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
-      { label: 'Total Accounts', value: accounts?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
-      { label: 'Total Agents', value: agents?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
-      { label: 'Total Aggregators', value: aggregators?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
-      { label: 'Total Aggregator Managers', value: aggregatorManagers?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' }
+      { label: 'Total Users', value: (d.users || 0).toLocaleString(), change: d.usersChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Personal Accounts', value: (d.personalAccounts || 0).toLocaleString(), change: d.personalAccountsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Business Accounts', value: (d.businessAccounts || 0).toLocaleString(), change: d.businessAccountsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Total Agents', value: (d.agents || 0).toLocaleString(), change: d.agentsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Total Aggregators', value: (d.aggregators || 0).toLocaleString(), change: d.aggregatorsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Total Aggregator Managers', value: (d.aggregatorManagers || 0).toLocaleString(), change: d.aggregatorManagersChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Merchants', value: (d.merchants || 0).toLocaleString(), change: d.merchantsChange || '+0%', subtext: 'in last 24 hours' },
     ];
   }, [metricsData]);
 

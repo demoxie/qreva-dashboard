@@ -1,30 +1,52 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useState, useMemo } from 'react';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { regionsData, transactionHistoryData } from '@/constants/mockData';
-import { getRegionStats, regionTransactionActions } from '@/pages/airtimePurchase/constants';
+import LoadingState from '@/components/common/LoadingState';
+import { useAirtimePurchaseMetrics } from '@/store/features/dashboard/useDashboard';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
+import { getRegionStats, createTransactionActions } from '@/pages/airtimePurchase/constants';
 
 const RegionDetailsView = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const [timeFilter, setTimeFilter] = useState('Today');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const region = regionsData.find(r => r.id === Number(id));
-  if (!region) return <div>Region not found</div>;
+  const { data: metricsData, isLoading: isMetricsLoading } = useAirtimePurchaseMetrics({
+    range: timeFilter.toLowerCase(),
+  });
 
-  const transactions = transactionHistoryData.filter(
-    tx => tx.location === region.location
+  const regions = metricsData?.data?.topRegions || [];
+  const region = regions.find(r => r._id === id || r.id === id || r.location === decodeURIComponent(id));
+
+  const { data: txData, isLoading: isTxLoading } = useTransactions({
+    typeCategory: 'Airtime',
+    location: region?.location,
+    page: 1,
+    limit: 50,
+  });
+
+  const transactions = txData?.data || [];
+
+  const actions = createTransactionActions(
+    (tx) => {
+      setSelectedTransaction(tx);
+      setShowDetailsModal(true);
+    },
+    (tx) => {
+      setSelectedTransaction(tx);
+      setShowShareModal(true);
+    }
   );
 
-
+  if (isMetricsLoading || isTxLoading) return <LoadingState />;
+  if (!region) return <LoadingState message="Region not found" />;
 
   return (
     <>
@@ -40,7 +62,7 @@ const RegionDetailsView = () => {
       <TransactionHistoryTable
         data={transactions}
         title="Transactions"
-        actions={regionTransactionActions}
+        actions={actions}
       />
 
       <TransactionDetailsModal

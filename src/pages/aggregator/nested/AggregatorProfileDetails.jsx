@@ -13,11 +13,10 @@ import LoadingState from '@/components/common/LoadingState';
 import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
-import { useUserById, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import { useAggregatorProfileModals } from '@/hooks/useAggregatorProfileModals';
 import { useAgentDropdown } from '@/hooks/useAgentDropdown';
 import { createTransactionActions } from '@/utils/profileUtils';
-import { aggregatorTransactions } from '../data';
 import { aggregatorProfileTabs, createChartSeries } from '../constants';
 
 const AggregatorProfileDetails = () => {
@@ -26,8 +25,10 @@ const AggregatorProfileDetails = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   
-  const { data: aggregatorResponse, isLoading: loading } = useUserById(id);
+  const { data: aggregatorResponse, isLoading: loading } = useUserById(id, 'aggregators');
   const aggregatorData = aggregatorResponse?.data;
+  const { data: txResponse } = useUserTransactions(id, 'aggregators');
+  const aggregatorTransactions = txResponse?.data || [];
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
@@ -143,7 +144,7 @@ const AggregatorProfileDetails = () => {
             actions={aggregatorActions}
           />
 
-          <DashboardStats stats={aggregatorData.agentStats} />
+          <DashboardStats stats={aggregatorData?.stats} />
           <AgentsTable agents={aggregatorData.agents} onActionClick={handleAgentActionClick} />
         </div>
 
@@ -173,8 +174,7 @@ const AggregatorProfileDetails = () => {
           actions={aggregatorActions}
         />
 
-        <DashboardStats stats={aggregatorData.cardQRStats} />
-        <DashboardStats stats={aggregatorData.cardQRBreakdown} />
+        <DashboardStats stats={aggregatorData?.stats} />
 
         <TransactionChartsSection 
           chartData={aggregatorData.chartData}

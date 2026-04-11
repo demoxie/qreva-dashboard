@@ -11,45 +11,33 @@ const TransactionHistoryTable = ({
 }) => {
   // Define default columns for transaction history
   const columns = [
-    { 
-      field: 'title', 
-      headerName: 'Title', 
-      width: 180,
-      flex: 1,
+    {
+      field: 'typeCategory',
+      headerName: 'Category',
+      width: 130,
+      flex: 0.8,
       renderCell: (params) => (
-        <div className='flex flex-col justify-center h-full'>
-          <div className="text-sm font-general font-medium flex items-center h-full">{params.row.title}</div>
-          <div className="text-xs text-gray-500 flex items-center h-full">{params.row.acc}</div>
-        </div>
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {params.value || params.row.type || '-'}
+        </span>
       )
     },
-    { 
-      field: 'desc', 
-      headerName: 'Description',
-      width: 180,
-      flex: 1,
+    {
+      field: 'type',
+      headerName: 'Type',
+      width: 100,
+      flex: 0.7,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
           {params.value}
         </span>
-      ) 
+      )
     },
-    { 
-      field: 'category', 
-      headerName: 'Category', 
+    {
+      field: 'status',
+      headerName: 'Status',
       width: 130,
-      flex: 1,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value}
-        </span>
-      ) 
-    },
-    { 
-      field: 'status', 
-      headerName: 'Status', 
-      width: 130,
-      flex: 1,
+      flex: 0.8,
       renderCell: (params) => {
         const statusColors = {
           Pending: 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]',
@@ -59,26 +47,15 @@ const TransactionHistoryTable = ({
         };
         const statusClass = statusColors[params.value] || 'border border-gray-300 bg-gray-50 text-gray-500';
         return(
-        <span className={`px-2 py-1.5 text-center ${statusClass} font-general font-medium  text-xs rounded-md flex items-center justify-center h-full`}>
+        <span className={`px-2 py-1.5 text-center ${statusClass} font-general font-medium text-xs rounded-md flex items-center justify-center h-full`}>
           {params.value}
         </span>
         );
       }
     },
-    { 
-      field: 'type',
-      headerName: 'Type',
-      width: 100,
-      flex: 1,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value}
-        </span>
-      )
-    },
-    { 
-      field: 'amount', 
-      headerName: 'Amount (₦)', 
+    {
+      field: 'amount',
+      headerName: 'Amount (₦)',
       width: 150,
       flex: 1,
       renderCell: (params) => (
@@ -87,13 +64,26 @@ const TransactionHistoryTable = ({
         </span>
       )
     },
-    { 
-      field: 'date', 
-      headerName: 'Transaction Date', 
+    {
+      field: 'fees',
+      headerName: 'Fees (₦)',
+      width: 100,
+      flex: 0.7,
+      renderCell: (params) => (
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {(params.value || 0)?.toLocaleString()}
+        </span>
+      )
+    },
+    {
+      field: 'createdAt',
+      headerName: 'Transaction Date',
       width: 180,
       flex: 1,
       renderCell: (params) => (
-        <span className="text-sm text-gray-500 flex items-center h-full">{params.value}</span>
+        <span className="text-sm text-gray-500 flex items-center h-full">
+          {params.value ? new Date(params.value).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
+        </span>
       )
     }
   ];

@@ -118,7 +118,7 @@ const DataTable = ({
             className='w-full'
             rows={data}
             columns={gridColumns}
-            getRowId={getRowId || ((row) => row._id || row.id)}
+            getRowId={getRowId || ((row) => row._id || row.id || row.userId || row.clientId)}
             checkboxSelection={showCheckbox}
             disableRowSelectionOnClick
             disableColumnResize

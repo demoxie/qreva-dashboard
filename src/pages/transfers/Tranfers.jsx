@@ -13,9 +13,7 @@ import RegionsTable from '@/components/tables/RegionsTable';
 import DataTable from '@/components/tables/DataTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { createRegioncolumns, transactionColumns, createTransactionActions } from './constants';
-// TODO: Import mock data for charts not available in API
-import { multiLineData, barData, lineChartSeries, barChartSeries } from './data';
+import { transactionColumns, createTransactionActions } from './constants';
 
 const Transfers = () => {
   const navigate = useNavigate();
@@ -62,6 +60,10 @@ const Transfers = () => {
         label: d.label,
         value: d.count
       })),
+      dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
+        label: d.label,
+        value: d.amount
+      })),
     };
   }, [data]);
 
@@ -99,8 +101,6 @@ const Transfers = () => {
   const handleViewRegionDetails = (regionId) => {
     navigate(`/transfers/details/region/${regionId}`);
   };
-
-  const regionColumns = createRegioncolumns(handleViewRegionDetails);
 
   const transactionActions = createTransactionActions({
     setSelectedTransaction,
@@ -161,10 +161,9 @@ const Transfers = () => {
           </div>
         </div>
 
-        {/* TODO: API doesn't provide multi-line chart data - using mock */}
-        <MultiLineChart 
-          data={multiLineData}
-          series={lineChartSeries}
+        <MultiLineChart
+          data={metrics.dailyTransactionVolume}
+          series={[{ data: (metrics.dailyTransactionVolume || []).map(d => d.value), color: '#B54103', label: 'Volume' }]}
           title="Daily Transaction Volume"
         />
 
@@ -175,10 +174,9 @@ const Transfers = () => {
           title="Daily Transaction Count"
         />
 
-        <RegionsTable 
+        <RegionsTable
           data={metrics.topRegions}
           onViewDetails={handleViewRegionDetails}
-          columns={regionColumns}
         />
 
         <DataTable 

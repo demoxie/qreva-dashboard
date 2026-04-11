@@ -7,63 +7,68 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
   const handleViewDetails = (region) => {
     // If parent provides handler, use it (for navigation)
     if (onViewDetails) {
-      onViewDetails(region.id);
+      onViewDetails(region._id || region.id || region.location);
     }
   };
 
   const columns = [
-    { 
-      field: 'location', 
-      headerName: 'Location', 
+    {
+      field: 'location',
+      headerName: 'Location',
       flex: 1,
       minWidth: 150,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.row.id}. {params.row.location}
+        <span className="font-general text-sm flex items-center gap-3">
+          <p className="bg-[#F7FAFA] rounded-full w-6 h-6 flex items-center justify-center text-[#808C91] text-center border-2 border-[#E9F1F3]">
+            {params.api.getRowIndexRelativeToVisibleRows(params.id) + 1}
+          </p>
+          <p className="font-medium leading-[148%] text-[#1E1E1E]">
+            {params.row.location}
+          </p>
         </span>
       )
     },
-    { 
-      field: 'totalTransfers', 
-      headerName: 'Total Transfers', 
+    {
+      field: 'totalTransactions',
+      headerName: 'Total Transactions',
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.value?.toLocaleString()}
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center leading-[156%]">
+          {(params.row.totalTransactions ?? params.value ?? 0).toLocaleString()}
         </span>
       )
     },
-    { 
-      field: 'volume', 
-      headerName: 'Volume (₦)', 
+    {
+      field: 'totalRevenue',
+      headerName: 'Total Revenue (₦)',
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.value?.toLocaleString()}
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center font-medium">
+          {(params.row.totalRevenue ?? params.value ?? 0).toLocaleString()}
         </span>
       )
     },
-    { 
-      field: 'revenue', 
-      headerName: 'Revenue (₦)', 
+    {
+      field: 'totalTransactionVolume',
+      headerName: 'Total Transaction Volume (₦)',
       flex: 1,
-      minWidth: 180,
+      minWidth: 220,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.value?.toLocaleString()}
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center font-medium">
+          {(params.row.totalTransactionVolume ?? params.value ?? 0).toLocaleString()}
         </span>
       )
     },
-    { 
-      field: 'successRate', 
-      headerName: 'Success Rate (%)', 
+    {
+      field: 'successRate',
+      headerName: 'Success Rate (%)',
       flex: 0.8,
       minWidth: 150,
       renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.value}%
+        <span className="font-general text-sm text-[#1E1E1E] flex items-center">
+          {params.row.successRate ?? params.value ?? 0}%
         </span>
       )
     },
@@ -73,9 +78,9 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
       width: 130,
       sortable: false,
       renderCell: (params) => (
-        <button 
+        <button
           onClick={() => handleViewDetails(params.row)}
-          className="font-general text-sm text-[#06b6d4] hover:text-[#0891b2] font-medium transition-colors"
+          className="font-general flex items-center text-sm text-[#26C8B9] underline underline-offset-2 cursor-pointer font-semibold"
         >
           View Details
         </button>
@@ -100,6 +105,7 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
         <DataGrid
           rows={data}
           columns={columns}
+          getRowId={(row) => row._id || row.id || row.location || row.name || Math.random()}
           disableRowSelectionOnClick
           disableColumnMenu
           hideFooterSelectedRowCount

@@ -183,7 +183,7 @@ const AirtimePurchase = () => {
           </div>
         </div>
 
-        <RegionsTable 
+        <RegionsTable
           data={metrics.topRegions}
           title="Top Regions"
           onViewDetails={handleViewRegionDetails}

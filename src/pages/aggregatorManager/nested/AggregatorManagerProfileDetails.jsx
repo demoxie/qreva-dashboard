@@ -1,50 +1,86 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
-import { DataGrid } from '@mui/x-data-grid';
-import { Card } from '@/components/ui/card';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
+import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import UserProfileHeader from '@/components/base/UserProfileHeader';
 import PersonalDetailsCard from '@/components/cards/PersonalDetailsCard';
 import BusinessDetailsCard from '@/components/cards/BusinessDetailsCard';
 import TierDetailsCard from '@/components/cards/TierDetailsCard';
-import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
-import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
-import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import ConfirmDialog from '@/components/modals/ConfirmDialogComponent';
-import { useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import ProfileModals from '@/components/profile/ProfileModals';
+import LoadingState from '@/components/common/LoadingState';
+import AgentsTable from '@/components/aggregators/AgentsTable';
+import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
+import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
+import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useAggregatorProfileModals } from '@/hooks/useAggregatorProfileModals';
+import { useAgentDropdown } from '@/hooks/useAgentDropdown';
+import { createTransactionActions } from '@/utils/profileUtils';
+import { createChartSeries } from '@/pages/aggregator/constants';
+import { DataGrid } from '@mui/x-data-grid';
+import { Card, CardContent } from '@/components/ui/card';
+
+const managerProfileTabs = [
+  { key: 'profile', label: 'Profile Details' },
+  { key: 'transactions', label: 'Transaction History' },
+  { key: 'aggregators', label: 'Aggregators' },
+  { key: 'agents', label: 'Agents' },
+];
+
+const aggregatorListColumns = [
+  {
+    field: 'firstName',
+    headerName: 'Aggregator Name',
+    width: 220,
+    flex: 1,
+    renderCell: (params) => (
+      <div>
+        <div className="text-sm font-medium text-[#1E1E1E]">{params.row.firstName} {params.row.lastName}</div>
+        <div className="text-xs text-gray-500">{params.row.emailAddress}</div>
+      </div>
+    ),
+  },
+  { field: 'phoneNumber', headerName: 'Phone Number', width: 160, flex: 1 },
+  { field: 'type', headerName: 'Account Type', width: 130, flex: 1 },
+  {
+    field: 'status',
+    headerName: 'Status',
+    width: 130,
+    flex: 1,
+    renderCell: (params) => {
+      const statusColors = {
+        Active: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#1B7D3C]',
+        Inactive: 'border border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]',
+        Suspended: 'border border-[#F87171] bg-[#FEE2E2] text-[#B91C1C]',
+      };
+      return (
+        <span className={`px-2 py-1.5 text-center ${statusColors[params.value] || ''} font-general font-medium text-xs rounded-md`}>
+          {params.value || '-'}
+        </span>
+      );
+    },
+  },
+  { field: 'clientId', headerName: 'Client ID', width: 180, flex: 1 },
+];
 
 const AggregatorManagerProfileDetails = () => {
   const { id } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
-  const [loading, setLoading] = useState(true);
-  const [managerData, setManagerData] = useState(null);
-  const [aggregatorDropdown, setAggregatorDropdown] = useState({ open: false, row: null, x: 0, y: 0 });
-  const [agentDropdown, setAgentDropdown] = useState({ open: false, row: null, x: 0, y: 0 });
-  const [showActionsMenu, setShowActionsMenu] = useState(false);
-  const [showSuspendModal, setShowSuspendModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+  const { data: managerResponse, isLoading: loading } = useUserById(id, 'aggregator-managers');
+  const managerData = managerResponse?.data;
+  const { data: txResponse } = useUserTransactions(id, 'aggregator-managers');
+  const managerTransactions = txResponse?.data || [];
+
+  const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const { agentDropdown, openDropdown, closeDropdown } = useAgentDropdown();
+  const [aggregatorDropdown, setAggregatorDropdown] = useState({ open: false, row: null, x: 0, y: 0 });
 
-  const handleConfirmSuspend = () => {
-    if (!managerData?._id) {
-      setShowSuspendModal(false);
-      return;
-    }
-    const isActive = managerData.status === 'Active' || managerData.status === 'active';
-    const mutation = isActive ? suspendUserMutation : activateUserMutation;
-    mutation.mutate(managerData._id, {
-      onSettled: () => setShowSuspendModal(false),
-    });
-  };
-
-  // Sync URL with Tab State
   useEffect(() => {
     const currentTab = searchParams.get('tab');
     if (currentTab && currentTab !== activeTab) {
@@ -52,325 +88,253 @@ const AggregatorManagerProfileDetails = () => {
     }
   }, [searchParams, activeTab]);
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = useCallback((tab) => {
     setActiveTab(tab);
     setSearchParams({ tab });
-  };
+  }, [setSearchParams]);
 
-  // Fetch Data (Mock)
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // Mock Data specifically for an Aggregator Manager
-        const mockData = {
-          id: id,
-          name: 'Rejoice Regina Rose',
-          email: 'emailaddress@gmail.com',
-          accountType: 'Aggregator Manager',
-          tier: 'Tier 3',
-          phone: '08012345678',
-          address: '9, Figma Street, Ladipo',
-          
-          // Personal & Business Details
-          businessDetails: {
-            businessName: 'Rejoice Enterprises',
-            businessEmail: 'business@gmail.com',
-            businessPhone: '08012345679',
-            businessAddress: 'A Fijma Street, Ladepo'
-          },
-          tier1: { validId: 'BVN', bvnNumber: '2018****190' },
-          tier2: { validId: 'NIN', ninNumber: '2018****190', photo: '/path/to/nin.jpg' },
-          tier3: { state: 'Lagos', lga: 'Alimosho', address: 'A Fijma Street...', documentType: 'Utility Bill', document: '/path/doc.jpg' },
+  const handleAgentActionClick = useCallback((row, rect) => {
+    openDropdown(row, rect.right - 192, rect.bottom + window.scrollY + 4);
+  }, [openDropdown]);
 
-          // Tab 2: Transaction Stats
-          cardQRStats: [
-            { label: 'Total SoftPOS Transactions', value: '45,823', change: '10%', subtext: '50,000 in last 24 hours' },
-            { label: 'Total Transactions Volume', value: '₦4,005,823', change: '10%', subtext: '₦50,000 in last 24 hours' },
-            { label: 'Your Commission', value: '₦1,070,823', change: '10%', subtext: '₦60,000 in last 24 hours' },
-            { label: 'Total Manager Commission', value: '₦570,823', change: '10%', subtext: '₦100,000 in last 24 hours' }
-          ],
-          chartData: [
-            { date: 'Today', cardPayments: 850, qrPayments: 700 },
-            { date: 'Yesterday', cardPayments: 800, qrPayments: 650 },
-            { date: '2 Days Ago', cardPayments: 750, qrPayments: 600 },
-            { date: '3 Days Ago', cardPayments: 820, qrPayments: 680 },
-          ],
+  const handleAggregatorActionClick = useCallback((row, rect) => {
+    setAggregatorDropdown({ open: true, row, x: rect.right - 200, y: rect.bottom + window.scrollY + 5 });
+  }, []);
 
-          // Tab 3: Aggregators Data (Specific to Managers)
-          aggregatorsStats: [
-            { label: 'Total Aggregators', value: '8,000', change: '10%', subtext: '2% in last 24 hours' },
-            { label: 'Total Aggregators Transactions', value: '50,823', change: '10%', subtext: '5,000 in last 24 hours' },
-            { label: 'Total Aggregators Trans. Volume', value: '₦450,823', change: '10%', subtext: '₦600 in last 24 hours' },
-            { label: 'Total Aggregators Commission', value: '₦115,823', change: '10%', subtext: '₦6,000 in last 24 hours' }
-          ],
-          aggregatorsList: [
-            { id: 101, name: 'Rejoice Regina Rose', email: 'email@gmail.com', totalTransactions: 100, totalVolume: 40000, totalRevenue: 40000, totalCommission: 40000, joinedDate: '10:00 AM | 25th March, 2025' },
-            { id: 102, name: 'John Doe', email: 'john@gmail.com', totalTransactions: 150, totalVolume: 5000000, totalRevenue: 5000000, totalCommission: 5000000, joinedDate: '10:00 AM | 25th March, 2025' },
-          ],
-
-          // Tab 4: Agents Data
-          agentsStats: [
-            { label: 'Total Agents', value: '8,000', change: '10%', subtext: '2% in last 24 hours' },
-            { label: 'Total Agents Transactions', value: '50,823', change: '10%', subtext: '5,000 in last 24 hours' },
-            { label: 'Total Agents Trans. Volume', value: '₦450,823', change: '10%', subtext: '₦600 in last 24 hours' },
-            { label: 'Total Agents Commission', value: '₦115,823', change: '10%', subtext: '₦6,000 in last 24 hours' }
-          ],
-          agentsList: [
-            { id: 201, name: 'Agent Smith', email: 'agent@gmail.com', totalTransactions: 100, totalVolume: 40000, totalRevenue: 40000, totalCommission: 40000, joinedDate: '10:00 AM | 25th March, 2025' },
-          ]
-        };
-        setManagerData(mockData);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchData();
-  }, [id]);
-
-  // Click Outside Handler for Dropdowns
   useEffect(() => {
     const handleClickOutside = () => {
       setAggregatorDropdown({ open: false, row: null, x: 0, y: 0 });
-      setAgentDropdown({ open: false, row: null, x: 0, y: 0 });
     };
     window.addEventListener('click', handleClickOutside);
     return () => window.removeEventListener('click', handleClickOutside);
   }, []);
 
-  // --- Configuration ---
-
-  const tabs = [
-    { key: 'profile', label: 'Profile Details' },
-    { key: 'transactions', label: 'Transaction History' },
-    { key: 'aggregators', label: 'Aggregators' }, // The Key Difference
-    { key: 'agents', label: 'Agents' }
-  ];
+  const transactionActions = createTransactionActions(
+    setSelectedTransaction,
+    setters.setShowDetailsModal,
+    setters.setShowShareModal
+  );
 
   const managerActions = [
-    { label: 'Suspend Account', onClick: () => { setShowActionsMenu(false); setShowSuspendModal(true); } }
+    {
+      label: 'Suspend Account',
+      onClick: () => {
+        setters.setShowActionsMenu(false);
+        setters.setShowSuspendModal(true);
+      },
+    },
   ];
 
-  // Helper for DataGrid Columns
-  const renderName = (params) => (
-    <div>
-      <div className="text-sm font-medium text-[#1E1E1E]">{params.row.name}</div>
-      <div className="text-xs text-gray-500">{params.row.email}</div>
-    </div>
-  );
-  
-  const formatCurrency = (params) => params.value?.toLocaleString();
+  const handleSuspend = useCallback(() => {
+    if (!managerData?._id) return;
+    const isActive = managerData.status === 'Active' || managerData.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(managerData._id, {
+      onSettled: () => setters.setShowSuspendModal(false),
+    });
+  }, [managerData, setters, suspendUserMutation, activateUserMutation]);
 
-  const getActionColumn = (setDropdown) => ({
-    field: 'actions', headerName: '', width: 60, sortable: false,
-    renderCell: (params) => (
-      <button
-        className="text-gray-400 hover:text-gray-900 p-1"
-        onClick={(e) => {
-          e.stopPropagation();
-          const rect = e.currentTarget.getBoundingClientRect();
-          setDropdown({ open: true, row: params.row, x: rect.right - 200, y: rect.bottom + window.scrollY + 5 });
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" /></svg>
-      </button>
-    )
-  });
+  if (loading) return <LoadingState />;
+  if (!managerData) return <LoadingState message="Aggregator Manager not found" />;
 
-  const aggregatorColumns = [
-    { field: 'name', headerName: 'Aggregator Name', width: 220, renderCell: renderName },
-    { field: 'totalTransactions', headerName: 'Total Transactions', width: 140 },
-    { field: 'totalVolume', headerName: 'Total Volume (₦)', width: 150, valueFormatter: formatCurrency },
-    { field: 'totalRevenue', headerName: 'Total Revenue (₦)', width: 150, valueFormatter: formatCurrency },
-    { field: 'totalCommission', headerName: 'Total Commission (₦)', width: 160, valueFormatter: formatCurrency },
-    { field: 'joinedDate', headerName: 'Joined Date', width: 180 },
-    getActionColumn(setAggregatorDropdown)
+  const chartSeries = createChartSeries(managerData.chartData);
+
+  const aggregatorColumnsWithActions = [
+    ...aggregatorListColumns,
+    {
+      field: 'actions',
+      headerName: '',
+      width: 80,
+      sortable: false,
+      renderCell: (params) => (
+        <button
+          className="text-[#7C8D96] hover:text-[#1E1E1E]"
+          onClick={(e) => {
+            e.stopPropagation();
+            const rect = e.currentTarget.getBoundingClientRect();
+            handleAggregatorActionClick(params.row, rect);
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="5" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+            <circle cx="12" cy="19" r="1.5" />
+          </svg>
+        </button>
+      ),
+    },
   ];
 
-  const agentColumns = [
-    { field: 'name', headerName: 'Agent Name', width: 220, renderCell: renderName },
-    { field: 'totalTransactions', headerName: 'Total Transactions', width: 140 },
-    { field: 'totalVolume', headerName: 'Total Volume (₦)', width: 150, valueFormatter: formatCurrency },
-    { field: 'totalRevenue', headerName: 'Total Revenue (₦)', width: 150, valueFormatter: formatCurrency },
-    { field: 'totalCommission', headerName: 'Total Commission (₦)', width: 160, valueFormatter: formatCurrency },
-    { field: 'joinedDate', headerName: 'Joined Date', width: 180 },
-    getActionColumn(setAgentDropdown)
-  ];
+  // Profile View
+  if (activeTab === 'profile') {
+    return (
+      <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+        <div className="p-6">
+          <PageHeader
+            title="View Profile Details"
+            subtitle="Here is the full profile details of this user"
+            timeFilter={timeFilter}
+            onTimeFilterChange={setTimeFilter}
+          />
+          <UserProfileHeader
+            user={managerData}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            availableTabs={managerProfileTabs}
+            showActionsMenu={modals.showActionsMenu}
+            onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
+            actions={managerActions}
+          />
+          <PersonalDetailsCard user={managerData} />
+          {managerData.businessDetails && <BusinessDetailsCard business={managerData.businessDetails} />}
+          <TierDetailsCard tier={1} data={managerData.tier1} />
+          <TierDetailsCard tier={2} data={managerData.tier2} />
+          <TierDetailsCard tier={3} data={managerData.tier3} />
+        </div>
 
-  if (loading || !managerData) {
-    return <div className="flex-1 flex items-center justify-center h-full bg-[#F7FAFA]">Loading...</div>;
+        <ProfileModals
+          modals={modals}
+          setters={setters}
+          selectedTransaction={selectedTransaction}
+          onSuspend={handleSuspend}
+          suspendTitle="Suspend Manager"
+          suspendMessage="Are you sure you want to suspend this Aggregator Manager account?"
+        />
+      </div>
+    );
   }
 
+  // Aggregators View
+  if (activeTab === 'aggregators') {
+    return (
+      <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+        <div className="p-6">
+          <PageHeader
+            title="View Profile Details"
+            subtitle="Here is the full profile details of this user"
+            timeFilter={timeFilter}
+            onTimeFilterChange={setTimeFilter}
+          />
+          <UserProfileHeader
+            user={managerData}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            availableTabs={managerProfileTabs}
+            showActionsMenu={modals.showActionsMenu}
+            onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
+            actions={managerActions}
+          />
+          <DashboardStats stats={managerData?.stats} />
+          <Card>
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-urbanist font-semibold text-[#1E1E1E]">Aggregators</h2>
+            </div>
+            <CardContent>
+              <DataGrid
+                rows={managerData.aggregators || []}
+                columns={aggregatorColumnsWithActions}
+                getRowId={(row) => row._id || row.id || row.userId || row.clientId}
+                checkboxSelection
+                disableRowSelectionOnClick
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
+                sx={{
+                  border: 0,
+                  '& .MuiDataGrid-cell': { borderBottom: '1px solid #f0f0f0' },
+                  '& .MuiDataGrid-columnHeaders': { backgroundColor: '#fafafa', borderBottom: '1px solid #e0e0e0' },
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
-  return (
-    <div className="flex-1 overflow-auto bg-[#F7FAFA]">
-      <div className="p-6 pb-20">
-        <PageHeader 
-          title="View Profile Details" 
-          subtitle="Here is the full profile details of this user" 
-          timeFilter={timeFilter} 
-          onTimeFilterChange={setTimeFilter} 
-        />
-
-        <UserProfileHeader 
-          user={managerData} 
-          activeTab={activeTab} 
-          onTabChange={handleTabChange} 
-          availableTabs={tabs}
-          showActionsMenu={showActionsMenu}
-          onToggleActionsMenu={() => setShowActionsMenu(!showActionsMenu)}
-          actions={managerActions}
-        />
-
-        {activeTab === 'profile' && (
-          <div className="space-y-6">
-            <PersonalDetailsCard user={managerData} />
-            <BusinessDetailsCard business={managerData.businessDetails} />
-            <TierDetailsCard tier={1} data={managerData.tier1} />
-            <TierDetailsCard tier={2} data={managerData.tier2} />
-            <TierDetailsCard tier={3} data={managerData.tier3} />
-          </div>
-        )}
-
-        {activeTab === 'transactions' && (
-          <div className="space-y-6">
-            <DashboardStats stats={managerData.cardQRStats} />
-            <TransactionHistoryTable 
-              data={[/* Mock Transactions */]} 
-              title="Transaction History" 
-              actions={[
-                { label: 'View Details', onClick: (t) => { setSelectedTransaction(t); setShowDetailsModal(true); } },
-                { label: 'Share Receipt', onClick: (t) => { setSelectedTransaction(t); setShowShareModal(true); } }
-              ]} 
-            />
-          </div>
-        )}
-
-        {activeTab === 'aggregators' && (
-          <div className="space-y-6">
-            <DashboardStats stats={managerData.aggregatorsStats} />
-            <Card>
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-lg">
-                <h2 className="text-lg font-urbanist font-semibold text-[#1E1E1E]">Aggregators</h2>
-                <div className="flex gap-3">
-                  <div className="relative">
-                    <input 
-                      type="text" 
-                      placeholder="Search here..." 
-                      className="pl-8 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-64 focus:outline-none focus:border-[#FF5B04]"
-                    />
-                    <svg className="w-4 h-4 absolute left-2.5 top-2.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <button className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-2">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M6 12h12m-9 6h6"/></svg>
-                    Filter
-                  </button>
-                </div>
-              </div>
-              <div style={{ height: 500, width: '100%' }}>
-                <DataGrid
-                  rows={managerData.aggregatorsList}
-                  columns={aggregatorColumns}
-                  checkboxSelection
-                  disableRowSelectionOnClick
-                  pageSizeOptions={[5, 10, 20]}
-                  initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
-                  sx={{ border: 0, '& .MuiDataGrid-columnHeaders': { backgroundColor: '#F9FAFB' } }}
-                />
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {activeTab === 'agents' && (
-          <div className="space-y-6">
-            <DashboardStats stats={managerData.agentsStats} />
-            <Card>
-              <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white rounded-t-lg">
-                <h2 className="text-lg font-urbanist font-semibold text-[#1E1E1E]">Agents</h2>
-                <div className="flex gap-3">
-                  <input type="text" placeholder="Search here..." className="pl-4 pr-4 py-2 border border-gray-200 rounded-lg text-sm w-64" />
-                  <button className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600">Filter</button>
-                </div>
-              </div>
-              <div style={{ height: 500, width: '100%' }}>
-                <DataGrid
-                  rows={managerData.agentsList}
-                  columns={agentColumns}
-                  checkboxSelection
-                  disableRowSelectionOnClick
-                  initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
-                  sx={{ border: 0, '& .MuiDataGrid-columnHeaders': { backgroundColor: '#F9FAFB' } }}
-                />
-              </div>
-            </Card>
+        {aggregatorDropdown.open && (
+          <div
+            className="fixed bg-white rounded-lg shadow-xl border border-gray-100 w-56 py-1 z-50"
+            style={{ top: aggregatorDropdown.y, left: aggregatorDropdown.x }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row._id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+              View Profile Details
+            </button>
+            <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row._id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+              View Transaction History
+            </button>
           </div>
         )}
       </div>
-      
-      {/* Aggregator Actions Dropdown */}
-      {aggregatorDropdown.open && (
-        <div 
-          className="fixed bg-white rounded-lg shadow-xl border border-gray-100 w-56 py-1 z-50"
-          style={{ top: aggregatorDropdown.y, left: aggregatorDropdown.x }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row._id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-            <span className="text-gray-400">👁️</span> View Profile Details
-          </button>
-          <button onClick={() => { /* Suspend Logic */ }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-            <span className="text-gray-400">🚫</span> Suspend Aggregator
-          </button>
-          <button onClick={() => navigate(`/aggregators/${aggregatorDropdown.row._id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-            <span className="text-gray-400">📄</span> View Transaction History
-          </button>
+    );
+  }
+
+  // Agents View
+  if (activeTab === 'agents') {
+    return (
+      <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+        <div className="p-6">
+          <PageHeader
+            title="View Profile Details"
+            subtitle="Here is the full profile details of this user"
+            timeFilter={timeFilter}
+            onTimeFilterChange={setTimeFilter}
+          />
+          <UserProfileHeader
+            user={managerData}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            availableTabs={managerProfileTabs}
+            showActionsMenu={modals.showActionsMenu}
+            onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
+            actions={managerActions}
+          />
+          <DashboardStats stats={managerData?.stats} />
+          <AgentsTable agents={managerData.agents || []} onActionClick={handleAgentActionClick} />
         </div>
-      )}
 
-      {/* Agent Actions Dropdown */}
-      {agentDropdown.open && (
-        <div 
-          className="fixed bg-white rounded-lg shadow-xl border border-gray-100 w-56 py-1 z-50"
-          style={{ top: agentDropdown.y, left: agentDropdown.x }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button onClick={() => navigate(`/agents/${agentDropdown.row._id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-            <span className="text-gray-400">👁️</span> View Profile Details
-          </button>
-          <button onClick={() => { /* Suspend Logic */ }} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-            <span className="text-gray-400">🚫</span> Suspend Agent
-          </button>
-          <button onClick={() => navigate(`/agents/${agentDropdown.row._id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-            <span className="text-gray-400">📄</span> View Transaction History
-          </button>
-        </div>
-      )}
+        <AgentDropdownMenu dropdown={agentDropdown} onClose={closeDropdown} />
+      </div>
+    );
+  }
 
-      {/* --- MODALS --- */}
-      <ConfirmDialog
-        isOpen={showSuspendModal}
-        onClose={() => setShowSuspendModal(false)}
-        onConfirm={handleConfirmSuspend}
-        title="Suspend Manager"
-        message="Are you sure you want to suspend this Aggregator Manager account?"
-        confirmText="Yes, Suspend"
-        confirmStyle="danger"
-      />
-      
-      <TransactionDetailsModal
-        isOpen={showDetailsModal}
-        onClose={() => setShowDetailsModal(false)}
-        transaction={selectedTransaction}
-      />
+  // Transaction History View (default)
+  return (
+    <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+      <div className="p-6">
+        <PageHeader
+          title="View Profile Details"
+          subtitle="Here is the full profile details of this user"
+          timeFilter={timeFilter}
+          onTimeFilterChange={setTimeFilter}
+        />
+        <UserProfileHeader
+          user={managerData}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          availableTabs={managerProfileTabs}
+          showActionsMenu={modals.showActionsMenu}
+          onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
+          actions={managerActions}
+        />
+        <DashboardStats stats={managerData?.stats} />
 
-      <ShareReceiptModal
-        isOpen={showShareModal}
-        onClose={() => setShowShareModal(false)}
-        transaction={selectedTransaction}
+        <TransactionChartsSection
+          chartData={managerData.chartData}
+          chartSeries={chartSeries}
+        />
+
+        <TransactionHistoryTable
+          data={managerTransactions}
+          title="Transaction History"
+          actions={transactionActions}
+        />
+      </div>
+
+      <ProfileModals
+        modals={modals}
+        setters={setters}
+        selectedTransaction={selectedTransaction}
+        onSuspend={handleSuspend}
+        suspendTitle="Suspend Manager"
+        suspendMessage="Are you sure you want to suspend this Aggregator Manager account?"
       />
     </div>
   );

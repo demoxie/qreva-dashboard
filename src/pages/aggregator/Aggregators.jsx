@@ -1,39 +1,61 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PageHeader from '@/components/common/PageHeader';
-import DataTable from '@/components/tables/DataTable';
-import AggregatorModals from '@/components/aggregators/AggregatorModals';
-import { useAggregatorModals } from '@/hooks/useAggregatorModals';
-import { aggregatorStats } from './data';
-import { aggregatorColumns, createAggregatorActions } from './constants';
-import DashboardStats from '@/components/base/DashboardStats';
-import { useUsers, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import PageHeader from "@/components/common/PageHeader";
+import DataTable from "@/components/tables/DataTable";
+import AggregatorModals from "@/components/aggregators/AggregatorModals";
+import { useAggregatorModals } from "@/hooks/useAggregatorModals";
+import { aggregatorColumns, createAggregatorActions } from "./constants";
+import DashboardStats from "@/components/base/DashboardStats";
+import {
+  useUsers,
+  useSuspendUser,
+  useActivateUser,
+} from "@/store/features/users/useUsers";
+import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
+import { formatDashboardStats } from "@/utils/formatDashboardStats";
 
 const Aggregators = () => {
-  const [timeFilter, setTimeFilter] = useState('Today');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [timeFilter, setTimeFilter] = useState("Today");
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const { data: usersResponse, isLoading } = useUsers({
-    type: 'Aggregator',
+    type: "Aggregator",
     search: searchQuery || undefined,
   });
 
   const aggregators = usersResponse?.data || [];
 
-  const { modals, setters, selectedAggregator, setSelectedAggregator } = useAggregatorModals();
+  const { data: metricsData } = useCategoryMetrics("aggregators", {
+    range: timeFilter.toLowerCase(),
+  });
+  const metricsStats = useMemo(() => {
+    if (!metricsData?.data?.summary) return null;
+    return formatDashboardStats(
+      metricsData.data.summary,
+      metricsData.data.changePercentages || {},
+    );
+  }, [metricsData]);
 
-  const handleSuspendClick = useCallback((aggregator) => {
-    setSelectedAggregator(aggregator);
-    setters.setShowSuspendModal(true);
-  }, [setSelectedAggregator, setters]);
+  const { modals, setters, selectedAggregator, setSelectedAggregator } =
+    useAggregatorModals();
+
+  const handleSuspendClick = useCallback(
+    (aggregator) => {
+      setSelectedAggregator(aggregator);
+      setters.setShowSuspendModal(true);
+    },
+    [setSelectedAggregator, setters],
+  );
 
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
 
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedAggregator?._id) return;
-    const isActive = selectedAggregator.status === 'Active' || selectedAggregator.status === 'active';
+    const isActive =
+      selectedAggregator.status === "Active" ||
+      selectedAggregator.status === "active";
     const mutation = isActive ? suspendUserMutation : activateUserMutation;
     mutation.mutate(selectedAggregator._id, {
       onSettled: () => {
@@ -41,17 +63,26 @@ const Aggregators = () => {
         setSelectedAggregator(null);
       },
     });
-  }, [selectedAggregator, setters, setSelectedAggregator, suspendUserMutation, activateUserMutation]);
+  }, [
+    selectedAggregator,
+    setters,
+    setSelectedAggregator,
+    suspendUserMutation,
+    activateUserMutation,
+  ]);
 
-  const handleAddAggregator = useCallback((aggregatorData) => {
-    console.log('Add aggregator:', aggregatorData);
-    setters.setShowAddAggregatorModal(false);
-    setters.setShowAggregatorAddedModal(true);
-  }, [setters]);
+  const handleAddAggregator = useCallback(
+    (aggregatorData) => {
+      console.log("Add aggregator:", aggregatorData);
+      setters.setShowAddAggregatorModal(false);
+      setters.setShowAggregatorAddedModal(true);
+    },
+    [setters],
+  );
 
   const tableActions = useMemo(
     () => createAggregatorActions(navigate, handleSuspendClick),
-    [navigate, handleSuspendClick]
+    [navigate, handleSuspendClick],
   );
 
   return (
@@ -72,7 +103,7 @@ const Aggregators = () => {
           }
         />
 
-        <DashboardStats stats={aggregatorStats} />
+        <DashboardStats stats={metricsStats} />
 
         <DataTable
           data={aggregators}
@@ -80,7 +111,7 @@ const Aggregators = () => {
           title="Aggregators"
           actions={tableActions}
           onSearch={setSearchQuery}
-          onFilter={() => console.log('Filter clicked')}
+          onFilter={() => console.log("Filter clicked")}
           loading={isLoading}
         />
       </div>

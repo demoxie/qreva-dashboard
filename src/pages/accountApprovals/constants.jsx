@@ -10,30 +10,33 @@ export const approvalTabs = [
 
 export const approvalColumns = [
   {
-    field: 'name',
+    field: 'fullName',
     headerName: 'Customer Name',
     width: 250,
     flex: 1,
     renderCell: (params) => (
       <div className="flex items-center gap-3">
         <div>
-          <div className="text-sm font-medium text-[#1E1E1E]">{params.row.name}</div>
-          <div className="text-xs text-gray-500">{params.row.email}</div>
+          <div className="text-sm font-medium text-[#1E1E1E]">{params.row.fullName}</div>
+          <div className="text-xs text-gray-500">{params.row.emailAddress}</div>
         </div>
       </div>
     )
   },
-  { 
-    field: 'account', 
-    headerName: 'User Account', 
+  {
+    field: 'accountType',
+    headerName: 'User Account',
     width: 180,
     flex: 1,
   },
-  { 
-    field: 'tier', 
-    headerName: 'Tier', 
+  {
+    field: 'tier',
+    headerName: 'Tier',
     width: 100,
-    flex: 1, 
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#1E1E1E]">Tier {params.value}</span>
+    ),
   },
   {
     field: 'status',
@@ -46,7 +49,7 @@ export const approvalColumns = [
         Declined: 'border border-[#E56566] bg-[#FCECEC] text-[#9E2D2D]',
         Pending: 'border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]'
       };
-      
+
       return (
         <span className={`px-3 py-1 rounded-md text-xs font-medium ${statusStyles[params.value]}`}>
           {params.value}
@@ -54,11 +57,18 @@ export const approvalColumns = [
       );
     }
   },
-  { 
-    field: 'date', 
-    headerName: 'Submission Date', 
+  {
+    field: 'submittedAt',
+    headerName: 'Submission Date',
     width: 220,
-    flex: 1, 
+    flex: 1,
+    renderCell: (params) => {
+      const dateObj = params.value ? new Date(params.value) : null;
+      if (!dateObj) return <span>N/A</span>;
+      const formatted = dateObj.toLocaleString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+        + ' | ' + dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      return <span className="text-sm text-[#1E1E1E]">{formatted}</span>;
+    },
   },
 ];
 
@@ -72,7 +82,7 @@ export const createApprovalActions = (
     label: 'View Details',
     icon: CustomEye,
     onClick: (row) =>
-      navigate(`/account-approvals/${activeTab}/${row._id}`)
+      navigate(`/account-approvals/${activeTab}/${row.userId || row._id}`)
   },
   {
     label: 'Accept Approval',

@@ -44,7 +44,7 @@ const AccountApprovals = () => {
   }, [setSelectedUser, setters]);
 
   const handleAcceptApproval = useCallback(() => {
-    approveAccount.mutate(selectedUser.id, {
+    approveAccount.mutate(selectedUser.userId || selectedUser._id, {
       onSuccess: () => {
         setFeedbackType('approved');
         setters.setShowAcceptModal(false);
@@ -59,7 +59,7 @@ const AccountApprovals = () => {
   }, [selectedUser, approveAccount, setFeedbackType, setters]);
 
   const handleDeclineApproval = useCallback(() => {
-    declineAccount.mutate({ userId: selectedUser.id, reason: declineReason }, {
+    declineAccount.mutate({ userId: selectedUser.userId || selectedUser._id, reason: declineReason }, {
       onSuccess: () => {
         setFeedbackType('declined');
         setters.setShowDeclineModal(false);

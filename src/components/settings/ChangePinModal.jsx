@@ -1,20 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
 import BaseModal from '../modals/BaseModal';
 import { Button } from "@/components/ui/button";
+import { useChangePin } from '@/store/features/auth/useAuth';
 
 const ChangePinModal = ({ isOpen, onClose, onSubmit }) => {
     const [step, setStep] = useState('current'); // 'current' | 'new' | 'confirm'
     const [pin, setPin] = useState(['', '', '', '']);
+    const [currentPinValue, setCurrentPinValue] = useState('');
     const [newPinTemp, setNewPinTemp] = useState('');
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const inputsRef = useRef([]);
+    const changePinMutation = useChangePin();
 
     useEffect(() => {
         if (isOpen) {
             setStep('current');
             setPin(['', '', '', '']);
+            setCurrentPinValue('');
             setNewPinTemp('');
             setError('');
+            setIsSubmitting(false);
             setTimeout(() => inputsRef.current[0]?.focus(), 100);
         }
     }, [isOpen]);
@@ -52,32 +58,47 @@ const ChangePinModal = ({ isOpen, onClose, onSubmit }) => {
 
     const handleSubmit = () => {
         const currentInput = pin.join('');
-        
+
         if (step === 'current') {
-            // Validate current PIN (mock)
+            setCurrentPinValue(currentInput);
             setStep('new');
             setPin(['', '', '', '']);
-            inputsRef.current[0]?.focus();
+            setTimeout(() => inputsRef.current[0]?.focus(), 50);
         } else if (step === 'new') {
-            // Move to confirm step
             setNewPinTemp(currentInput);
             setStep('confirm');
             setPin(['', '', '', '']);
-            inputsRef.current[0]?.focus();
+            setTimeout(() => inputsRef.current[0]?.focus(), 50);
         } else if (step === 'confirm') {
-            if (currentInput === newPinTemp) {
-                if (onSubmit) {
-                    onSubmit(currentInput);
-                } else {
-                    onClose();
-                }
-            } else {
+            if (currentInput !== newPinTemp) {
                 setError('PINs do not match. Try again.');
                 setStep('new');
                 setPin(['', '', '', '']);
                 setNewPinTemp('');
-                inputsRef.current[0]?.focus();
+                setTimeout(() => inputsRef.current[0]?.focus(), 50);
+                return;
             }
+
+            setIsSubmitting(true);
+            changePinMutation.mutate(
+                { currentPin: currentPinValue, newPin: currentInput },
+                {
+                    onSuccess: () => {
+                        onSubmit?.(currentInput);
+                        onClose();
+                    },
+                    onError: (err) => {
+                        const message = err?.response?.data?.message || 'Failed to change PIN. Please try again.';
+                        setError(message);
+                        setStep('current');
+                        setPin(['', '', '', '']);
+                        setCurrentPinValue('');
+                        setNewPinTemp('');
+                        setTimeout(() => inputsRef.current[0]?.focus(), 50);
+                    },
+                    onSettled: () => setIsSubmitting(false),
+                }
+            );
         }
     };
 
@@ -124,10 +145,10 @@ const ChangePinModal = ({ isOpen, onClose, onSubmit }) => {
                 <Button
                     className="w-full h-12 bg-[#E8EBED] text-[#808C91] hover:bg-[#d5d8db] hover:text-[#505C61] font-medium text-base mb-2 disabled:opacity-50 transition-colors"
                     onClick={handleSubmit}
-                    disabled={!isComplete}
-                    style={{ backgroundColor: isComplete ? '#FF5B04' : undefined, color: isComplete ? 'white' : undefined }}
+                    disabled={!isComplete || isSubmitting}
+                    style={{ backgroundColor: isComplete && !isSubmitting ? '#FF5B04' : undefined, color: isComplete && !isSubmitting ? 'white' : undefined }}
                 >
-                    Enter PIN
+                    {isSubmitting ? 'Updating...' : 'Enter PIN'}
                 </Button>
             </div>
         </BaseModal>

@@ -1,6 +1,6 @@
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useProfileModals } from '@/hooks/useProfileModals';
-import { useUserById, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -9,9 +9,7 @@ import LoadingState from '@/components/common/LoadingState';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import { createTransactionActions } from '@/utils/profileUtils';
-import { cardVsQRPayments } from '@/constants/mockData';
-import { agentTransactions, multiLineData } from '../data';
-import { availableTabs, chartSeries } from '../constants'
+import { availableTabs, createChartSeries } from '../constants'
 
 const AgentProfileDetails = () => {
   const { id } = useParams();
@@ -20,8 +18,10 @@ const AgentProfileDetails = () => {
 
   
   
-  const { data: agentResponse, isLoading: loading } = useUserById(id);
+  const { data: agentResponse, isLoading: loading } = useUserById(id, 'agents');
   const agentData = agentResponse?.data;
+  const { data: txResponse } = useUserTransactions(id, 'agents');
+  const agentTransactions = txResponse?.data || [];
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
@@ -74,8 +74,8 @@ const AgentProfileDetails = () => {
           actions={transactionActions}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <PaymentComparisonPie data={cardVsQRPayments} />
-            <MultiLineChart data={multiLineData} series={chartSeries} />
+            <PaymentComparisonPie data={agentData.chartData || []} />
+            <MultiLineChart data={agentData.chartData || []} series={createChartSeries(agentData.chartData)} />
           </div>
         </TransactionView>
       )}

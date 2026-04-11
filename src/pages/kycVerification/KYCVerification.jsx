@@ -6,7 +6,6 @@ import MultiLineChart from '@/components/charts/MultiLineChart';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { topCustomers } from '@/constants/mockData';
 import DashboardStats from '@/components/base/DashboardStats';
 import TopCustomersCard from '@/components/cards/TopCustomersCard';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
@@ -26,14 +25,13 @@ const KYCVerification = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
 
-    // Navigation handler for regions
   const handleViewRegionDetails = (regionId) => {
     navigate(`/kyc/details/region/${regionId}`);
   };
 
   const regionColumns = createRegioncolumns(handleViewRegionDetails);
 
-  const { 
+  const {
     data: kycMetricsData, 
     isLoading: isMetricsLoading,
     isError: isMetricsError
@@ -123,7 +121,7 @@ const KYCVerification = () => {
           title="Daily Transaction Volume"
         />
 
-        <RegionsTable 
+        <RegionsTable
           data={metrics?.topRegions || []}
           onViewDetails={handleViewRegionDetails}
           columns={regionColumns}

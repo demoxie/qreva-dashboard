@@ -12,14 +12,12 @@ const TierDetailsCard = ({ tier, data }) => {
     <>
       <div className="grid grid-cols-2 gap-4 mb-4">
         <DetailItem label="Valid ID" value={data.validId} />
-        <DetailItem label="BVN Number" value={data.bvnNumber} />
-        <DetailItem label="Valid ID" value={data.validId2} />
         <DetailItem label="NIN Number" value={data.ninNumber} />
       </div>
-      <ImagePreview 
-        label="Uploaded Photo" 
-        src={data.photo} 
-        alt="NIN Card Image" 
+      <ImagePreview
+        label="Uploaded Photo"
+        src={data.photoUrl}
+        alt="NIN Card Image"
       />
     </>
   );
@@ -32,10 +30,10 @@ const TierDetailsCard = ({ tier, data }) => {
         <DetailItem label="Address" value={data.address} className="col-span-2" />
         <DetailItem label="Document Type" value={data.documentType} className="col-span-2" />
       </div>
-      <ImagePreview 
-        label="Uploaded Photo" 
-        src={data.document} 
-        alt={`${data.documentType} Image`} 
+      <ImagePreview
+        label="Uploaded Photo"
+        src={data.documentUrl}
+        alt={`${data.documentType} Image`}
       />
     </>
   );
