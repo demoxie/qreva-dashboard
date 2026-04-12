@@ -8,8 +8,12 @@ import DashboardStats from '@/components/base/DashboardStats';
 const AgentDashboard = ({ 
   formattedStats, 
   metrics, 
-  cardVsQRPayments,
-  handlePageChange
+  transactions,
+  pagination,
+  handlePageChange,
+  handleSearch,
+  handleFilter,
+  isTransactionsLoading
 }) => {
   return (
     <>
@@ -28,26 +32,27 @@ const AgentDashboard = ({
       {/* Daily Transaction Volume */}
       <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
 
-      {/* Card vs QR Payments - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <PaymentComparisonPie
-          data={cardVsQRPayments}
+          data={metrics.softPosPaymentBreakdown}
           title="Card Payments vs QR Payments %"
           showPercentage={true}
         />
         <PaymentComparisonPie
-          data={cardVsQRPayments}
-          title="Card Payments vs QR Payments Commission"
-          showPercentage={false}
-          amountData={['₦4,000,000', '₦170,823']}
+          data={metrics.transferStatusBreakdown}
+          title="Transfer Status %"
+          showPercentage={true}
         />
       </div>
 
       {/* Transaction History */}
       <TransactionHistoryTable
-        data={metrics.transactions}
-        pagination={metrics.pagination}
+        data={transactions}
+        pagination={pagination}
         onPageChange={handlePageChange}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        isLoading={isTransactionsLoading}
       />
     </>
   );

@@ -37,6 +37,30 @@ export const successMessages = {
   CONTRACT_DELETED: 'Contract deleted successfully',
   CONTRACTS_UPDATED: 'All contracts updated successfully',
   
+  // Settings - Agency Categories
+  CATEGORY_CREATED: 'Agent category created successfully',
+  CATEGORY_UPDATED: 'Agent category updated successfully',
+
+  // Settings - Tiers
+  TIER_CREATED: 'Tier created successfully',
+  TIER_UPDATED: 'Tier updated successfully',
+  TIER_DELETED: 'Tier deleted successfully',
+
+  // Settings - RBAC
+  ROLE_CREATED: 'Role permission created successfully',
+  ROLE_UPDATED: 'Role permission updated successfully',
+
+  // Settings - Commissions
+  COMMISSION_CREATED: 'Commission rule created successfully',
+  COMMISSION_UPDATED: 'Commission rule updated successfully',
+  COMMISSION_DUPLICATED: 'Commission rule duplicated successfully',
+
+  // Approvals
+  ACCOUNT_APPROVED: 'Account approved successfully',
+  ACCOUNT_DECLINED: 'Account declined successfully',
+  DISPUTE_REFUNDED: 'Dispute refunded successfully',
+  DISPUTE_DECLINED: 'Dispute declined successfully',
+
   // Generic
   SAVED: 'Changes saved successfully',
   CREATED: 'Created successfully',

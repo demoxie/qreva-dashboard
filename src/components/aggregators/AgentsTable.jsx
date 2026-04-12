@@ -38,6 +38,7 @@ const AgentsTable = ({ agents, onActionClick }) => {
         <DataGrid
           rows={agents}
           columns={columnsWithActions}
+          getRowId={(row) => row._id || row.id || row.userId || row.clientId}
           checkboxSelection
           disableRowSelectionOnClick
           pageSizeOptions={[5, 10, 25]}

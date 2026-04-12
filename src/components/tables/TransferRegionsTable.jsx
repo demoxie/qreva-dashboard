@@ -1,9 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DataGrid } from '@mui/x-data-grid';
-import SearchFilterBar from '../common/SearchFilterBar';
-import CustomPagination from '../common/Pagination';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataGrid } from "@mui/x-data-grid";
+import SearchFilterBar from "../common/SearchFilterBar";
+import CustomPagination from "../common/Pagination";
 
-const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails }) => {
+const TransferRegionsTable = ({
+  data = [],
+  title = "Top Regions",
+  onViewDetails,
+}) => {
   const handleViewDetails = (region) => {
     // If parent provides handler, use it (for navigation)
     if (onViewDetails) {
@@ -12,75 +16,75 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
   };
 
   const columns = [
-    { 
-      field: 'location', 
-      headerName: 'Location', 
+    {
+      field: "location",
+      headerName: "Location",
       flex: 1,
       minWidth: 150,
       renderCell: (params) => (
         <span className="font-general text-sm text-[#1E1E1E]">
           {params.row.id}. {params.row.location}
         </span>
-      )
+      ),
     },
-    { 
-      field: 'totalTransfers', 
-      headerName: 'Total Transfers', 
+    {
+      field: "totalTransfers",
+      headerName: "Total Transfers",
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <span className="font-general text-sm text-[#1E1E1E]">
+          {params.row.value?.toLocaleString()}
+        </span>
+      ),
+    },
+    {
+      field: "volume",
+      headerName: "Volume (₦)",
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
         <span className="font-general text-sm text-[#1E1E1E]">
           {params.value?.toLocaleString()}
         </span>
-      )
+      ),
     },
-    { 
-      field: 'volume', 
-      headerName: 'Volume (₦)', 
+    {
+      field: "revenue",
+      headerName: "Revenue (₦)",
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
         <span className="font-general text-sm text-[#1E1E1E]">
           {params.value?.toLocaleString()}
         </span>
-      )
+      ),
     },
-    { 
-      field: 'revenue', 
-      headerName: 'Revenue (₦)', 
-      flex: 1,
-      minWidth: 180,
-      renderCell: (params) => (
-        <span className="font-general text-sm text-[#1E1E1E]">
-          {params.value?.toLocaleString()}
-        </span>
-      )
-    },
-    { 
-      field: 'successRate', 
-      headerName: 'Success Rate (%)', 
+    {
+      field: "successRate",
+      headerName: "Success Rate (%)",
       flex: 0.8,
       minWidth: 150,
       renderCell: (params) => (
         <span className="font-general text-sm text-[#1E1E1E]">
           {params.value}%
         </span>
-      )
+      ),
     },
     {
-      field: 'actions',
-      headerName: '',
+      field: "actions",
+      headerName: "",
       width: 130,
       sortable: false,
       renderCell: (params) => (
-        <button 
+        <button
           onClick={() => handleViewDetails(params.row)}
           className="font-general text-sm text-[#06b6d4] hover:text-[#0891b2] font-medium transition-colors"
         >
           View Details
         </button>
-      )
-    }
+      ),
+    },
   ];
 
   return (
@@ -90,9 +94,9 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
           <CardTitle className="text-lg font-urbanist font-semibold text-[#1E1E1E]">
             {title}
           </CardTitle>
-          <SearchFilterBar 
-            onSearch={(value) => console.log('Search:', value)}
-            onFilter={() => console.log('Filter clicked')}
+          <SearchFilterBar
+            onSearch={(value) => console.log("Search:", value)}
+            onFilter={() => console.log("Filter clicked")}
           />
         </div>
       </CardHeader>
@@ -100,6 +104,9 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
         <DataGrid
           rows={data}
           columns={columns}
+          getRowId={(row) =>
+            row._id || row.id || row.location || row.name || Math.random()
+          }
           disableRowSelectionOnClick
           disableColumnMenu
           hideFooterSelectedRowCount
@@ -108,79 +115,79 @@ const TransferRegionsTable = ({ data = [], title = "Top Regions", onViewDetails 
             pagination: { paginationModel: { pageSize: 5 } },
           }}
           sx={{
-            border: 'none',
-            '& .MuiDataGrid-main': {
-              border: 'none',
+            border: "none",
+            "& .MuiDataGrid-main": {
+              border: "none",
             },
-            '& .MuiDataGrid-cell': {
-              borderBottom: '1px solid #F5F6F7',
-              padding: '16px',
-              fontSize: '14px',
-              fontFamily: 'General Sans, sans-serif',
-              color: '#1E1E1E',
+            "& .MuiDataGrid-cell": {
+              borderBottom: "1px solid #F5F6F7",
+              padding: "16px",
+              fontSize: "14px",
+              fontFamily: "General Sans, sans-serif",
+              color: "#1E1E1E",
             },
-            '& .MuiDataGrid-columnHeaders': {
-              backgroundColor: 'transparent',
-              borderBottom: '1px solid #E8EBED',
-              minHeight: '48px !important',
-              maxHeight: '48px !important',
-              lineHeight: '48px !important',
+            "& .MuiDataGrid-columnHeaders": {
+              backgroundColor: "transparent",
+              borderBottom: "1px solid #E8EBED",
+              minHeight: "48px !important",
+              maxHeight: "48px !important",
+              lineHeight: "48px !important",
             },
-            '& .MuiDataGrid-columnHeader': {
-              padding: '12px 16px',
-              '&:focus': {
-                outline: 'none',
+            "& .MuiDataGrid-columnHeader": {
+              padding: "12px 16px",
+              "&:focus": {
+                outline: "none",
               },
-              '&:focus-within': {
-                outline: 'none',
+              "&:focus-within": {
+                outline: "none",
               },
             },
-            '& .MuiDataGrid-columnHeaderTitle': {
-              fontSize: '12px',
+            "& .MuiDataGrid-columnHeaderTitle": {
+              fontSize: "12px",
               fontWeight: 500,
-              fontFamily: 'General Sans, sans-serif',
-              color: '#7C8D96',
-              textTransform: 'none',
+              fontFamily: "General Sans, sans-serif",
+              color: "#7C8D96",
+              textTransform: "none",
             },
-            '& .MuiDataGrid-row': {
-              '&:hover': {
-                backgroundColor: '#FAFBFB',
+            "& .MuiDataGrid-row": {
+              "&:hover": {
+                backgroundColor: "#FAFBFB",
               },
             },
-            '& .MuiDataGrid-footerContainer': {
-              borderTop: 'none',
-              marginTop: '16px',
-              minHeight: '56px',
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: "none",
+              marginTop: "16px",
+              minHeight: "56px",
             },
-            '& .MuiTablePagination-root': {
-              color: '#7C8D96',
-              fontFamily: 'General Sans, sans-serif',
+            "& .MuiTablePagination-root": {
+              color: "#7C8D96",
+              fontFamily: "General Sans, sans-serif",
             },
-            '& .MuiTablePagination-displayedRows': {
-              fontSize: '14px',
-              fontFamily: 'General Sans, sans-serif',
-              color: '#7C8D96',
+            "& .MuiTablePagination-displayedRows": {
+              fontSize: "14px",
+              fontFamily: "General Sans, sans-serif",
+              color: "#7C8D96",
             },
-            '& .MuiTablePagination-actions': {
-              gap: '8px',
+            "& .MuiTablePagination-actions": {
+              gap: "8px",
             },
-            '& .MuiTablePagination-actions button': {
-              padding: '8px 12px',
-              border: '1px solid #E8EBED',
-              borderRadius: '6px',
-              color: '#7C8D96',
-              fontFamily: 'General Sans, sans-serif',
-              fontSize: '14px',
-              '&:hover': {
-                backgroundColor: '#F5F6F7',
+            "& .MuiTablePagination-actions button": {
+              padding: "8px 12px",
+              border: "1px solid #E8EBED",
+              borderRadius: "6px",
+              color: "#7C8D96",
+              fontFamily: "General Sans, sans-serif",
+              fontSize: "14px",
+              "&:hover": {
+                backgroundColor: "#F5F6F7",
               },
-              '&.Mui-disabled': {
+              "&.Mui-disabled": {
                 opacity: 0.5,
-                border: '1px solid #E8EBED',
+                border: "1px solid #E8EBED",
               },
             },
-            '& .MuiDataGrid-virtualScroller': {
-              marginTop: '48px !important',
+            "& .MuiDataGrid-virtualScroller": {
+              marginTop: "48px !important",
             },
           }}
           slots={{

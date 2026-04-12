@@ -5,28 +5,68 @@ import DashboardStats from '@/components/base/DashboardStats';
 import DataTable from '@/components/tables/DataTable';
 import UserModals from '@/components/user/UserModal';
 import { useUserModals } from '@/hooks/useUserModals';
-import { useUserSearch } from '@/hooks/useUserSearch';
-import { usersData } from './data';
+import { useUsers, useUserMetrics, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import { userStats, userColumns, createUserActions } from './constants';
 
 const Users = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const navigate = useNavigate();
   
   const { modals, setters, selectedUser, setSelectedUser } = useUserModals();
-  const { searchQuery, setSearchQuery, filteredUsers } = useUserSearch(usersData);
+
+  // Fetch user metrics
+  const { data: metricsData } = useUserMetrics();
+
+  // Fetch users with pagination and search
+  const {
+    data: usersData,
+    isLoading: isLoadingUsers
+  } = useUsers({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    search: searchQuery || undefined,
+  });
+
+  const users = usersData?.data || [];
+
+  // Map metrics data to stats format
+  const stats = useMemo(() => {
+    if (!metricsData?.data) return userStats;
+
+    const d = metricsData.data;
+
+    return [
+      { label: 'Total Users', value: (d.users || 0).toLocaleString(), change: d.usersChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Personal Accounts', value: (d.personalAccounts || 0).toLocaleString(), change: d.personalAccountsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Business Accounts', value: (d.businessAccounts || 0).toLocaleString(), change: d.businessAccountsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Total Agents', value: (d.agents || 0).toLocaleString(), change: d.agentsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Total Aggregators', value: (d.aggregators || 0).toLocaleString(), change: d.aggregatorsChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Total Aggregator Managers', value: (d.aggregatorManagers || 0).toLocaleString(), change: d.aggregatorManagersChange || '+0%', subtext: 'in last 24 hours' },
+      { label: 'Merchants', value: (d.merchants || 0).toLocaleString(), change: d.merchantsChange || '+0%', subtext: 'in last 24 hours' },
+    ];
+  }, [metricsData]);
 
   const handleSuspendClick = useCallback((user) => {
     setSelectedUser(user);
     setters.setShowSuspendModal(true);
   }, [setSelectedUser, setters]);
 
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
+
   const handleConfirmSuspend = useCallback(() => {
-    console.log('Suspend user:', selectedUser);
-    // Add API call here to suspend user
-    setters.setShowSuspendModal(false);
-    setSelectedUser(null);
-  }, [selectedUser, setters, setSelectedUser]);
+    if (!selectedUser?._id) return;
+    const isActive = selectedUser.status === 'Active' || selectedUser.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(selectedUser._id, {
+      onSettled: () => {
+        setters.setShowSuspendModal(false);
+        setSelectedUser(null);
+      },
+    });
+  }, [selectedUser, setters, setSelectedUser, suspendUserMutation, activateUserMutation]);
 
   const tableActions = useMemo(
     () => createUserActions(navigate, handleSuspendClick),
@@ -43,14 +83,19 @@ const Users = () => {
           onTimeFilterChange={setTimeFilter}
         />
 
-        <DashboardStats stats={userStats} />
+        <DashboardStats stats={stats} />
 
         <DataTable
           className="font-general"
-          data={filteredUsers}
+          data={users}
           columns={userColumns}
           title="Users"
           actions={tableActions}
+          loading={isLoadingUsers}
+          paginationMode="server"
+          rowCount={usersData?.pagination?.total || 0}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
           onSearch={setSearchQuery}
           onFilter={() => console.log('Filter clicked')}
         />

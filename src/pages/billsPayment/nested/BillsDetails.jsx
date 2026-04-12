@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
@@ -9,18 +9,10 @@ import TransactionPercentagePie from '@/components/charts/TransactionPercentageP
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
+import { useCategoryDetailMetrics } from '@/store/features/category/useCategory';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import {
-  dailyTransactionData,
-  topTransactionTypes,
-  transactionPercentages,
-  topCustomers,
-  regionsData,
-  transactionHistoryData
-} from '@/constants/mockData';
-import { 
-  customerStats, 
   createCustomerTransactionActions,
-  createRegionStats,
   createRegionTransactionActions
 } from '../constants';
 
@@ -34,55 +26,73 @@ const BillsDetails = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  // Fetch category metrics for bills, optionally filtered by region
+  const regionParam = type === 'region' ? id : undefined;
+  const { data: metricsResponse } = useCategoryDetailMetrics('bills', {
+    region: regionParam,
+  });
+
+  // Fetch transactions filtered for bills + region
+  const { data: txResponse } = useTransactions({
+    category: 'bills',
+    region: regionParam,
+  });
+
+  const metrics = metricsResponse?.data || {};
+  const transactions = txResponse?.data || [];
+
+  const regionStats = useMemo(() => [
+    { label: 'Total Transactions', value: (metrics.totalTransactions || 0).toLocaleString(), change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Volume', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Success Rate', value: `${metrics.successRate || 0}%`, change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Average Value', value: `₦${(metrics.averageValue || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
+  ], [metrics]);
+
+  const topProviders = metrics.topProviders || [];
+  const topCustomers = metrics.topCustomers || [];
+  const dailyBreakdown = metrics.dailyBreakdown || [];
+
+  const regionTransactionActions = createRegionTransactionActions({
+    setSelectedTransaction,
+    setShowDetailsModal,
+    setShowShareModal,
+    navigate
+  });
+
+  const customerTransactionActions = createCustomerTransactionActions({
+    setSelectedTransaction,
+    setShowDetailsModal,
+    setShowShareModal
+  });
+
   // REGION DETAILS VIEW
   if (type === 'region') {
-    const region = regionsData.find(r => r.id === parseInt(id));
-    
-    if (!region) {
-      return <div>Region not found</div>;
-    }
-
-    // Filter transactions for this region
-    const regionTransactions = transactionHistoryData.filter(
-      tx => tx.location === region.location
-    ).map(tx => ({
-      ...tx,
-      category: 'Bills',
-    }));
-
-    // Generate region-specific stats and actions
-    const regionStats = createRegionStats(region);
-    const regionTransactionActions = createRegionTransactionActions({
-      setSelectedTransaction,
-      setShowDetailsModal,
-      setShowShareModal,
-      navigate
-    });
-
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
         <div className="p-6">
           <PageHeader
-            title={`${region.location} State`}
+            title={`${id} State`}
             subtitle="Here is how this location has been performing so far"
             timeFilter={timeFilter}
             onTimeFilterChange={setTimeFilter}
           />
 
-          {/* Region Stats - Dynamic */}
           <DashboardStats stats={regionStats} />
 
-          {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
             <div className="lg:col-span-2">
-              <TopTransactionValueCard 
-                data={topTransactionTypes}
+              <TopTransactionValueCard
+                data={topProviders.map(p => ({ name: p.name, value: p.volume }))}
                 title="Top Transaction Value"
               />
             </div>
             <div className="lg:col-span-3">
-              <TopCustomersCard 
-                data={topCustomers} 
+              <TopCustomersCard
+                data={topCustomers.map(c => ({
+                  name: `${c.firstName} ${c.lastName}`,
+                  amount: c.totalVolume,
+                  transactions: c.totalTransactions,
+                }))}
                 title="Top Customers"
               />
             </div>
@@ -90,35 +100,32 @@ const BillsDetails = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
             <div className="lg:col-span-2">
-              <TransactionVolumeChart 
-                data={dailyTransactionData}
+              <TransactionVolumeChart
+                data={dailyBreakdown.map(d => ({ label: d.date, value: d.volume }))}
                 title="Daily Transaction Volume"
               />
             </div>
             <div className="lg:col-span-1">
-              <TransactionPercentagePie 
-                data={transactionPercentages}
+              <TransactionPercentagePie
+                data={topProviders.map(p => ({ name: p.name, value: p.percentage }))}
                 title="Top % Purchase from Customers"
                 wrapped={true}
               />
             </div>
           </div>
 
-          {/* Region Transactions */}
-          <TransactionHistoryTable 
-            data={regionTransactions}
+          <TransactionHistoryTable
+            data={transactions}
             title="Transactions"
             actions={regionTransactionActions}
           />
         </div>
 
-        {/* External Modals */}
         <TransactionDetailsModal
           isOpen={showDetailsModal}
           onClose={() => setShowDetailsModal(false)}
           transaction={selectedTransaction}
         />
-
         <ShareReceiptModal
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
@@ -130,26 +137,7 @@ const BillsDetails = () => {
 
   // TRANSACTION DETAILS VIEW
   if (type === 'transaction') {
-    const transaction = transactionHistoryData.find(tx => tx.id === parseInt(id));
-    
-    if (!transaction) {
-      return <div>Transaction not found</div>;
-    }
-
-    // Get all transactions for this customer
-    const customerTransactions = transactionHistoryData.filter(
-      tx => tx.title === transaction.title
-    ).map(tx => ({
-      ...tx,
-      category: 'Bills',
-    }));
-
-    // Generate customer transaction actions
-    const customerTransactionActions = createCustomerTransactionActions({
-      setSelectedTransaction,
-      setShowDetailsModal,
-      setShowShareModal
-    });
+    const transaction = transactions.find(tx => String(tx.id || tx._id) === String(id));
 
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -161,61 +149,52 @@ const BillsDetails = () => {
             onTimeFilterChange={setTimeFilter}
           />
 
-          {/* Customer Info Card */}
-          <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-                <span className="text-2xl font-bold text-orange-600">
-                  {transaction.title?.split(' ').map(n => n[0]).join('') || 'RR'}
-                </span>
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">{transaction.title}</h3>
-                <p className="text-gray-600">{transaction.acc}</p>
-              </div>
-              <div className="ml-auto">
-                <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                  Repeat Buyer
-                </span>
+          {transaction && (
+            <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+                  <span className="text-2xl font-bold text-orange-600">
+                    {(transaction.customerName || transaction.title || '')?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'TX'}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{transaction.customerName || transaction.title}</h3>
+                  <p className="text-gray-600">{transaction.customerPhone || transaction.acc}</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Customer Stats - Dynamic */}
-          <DashboardStats stats={customerStats} />
+          <DashboardStats stats={regionStats} />
 
-          {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
             <div className="lg:col-span-2">
-              <TopTransactionValueCard 
-                data={topTransactionTypes}
+              <TopTransactionValueCard
+                data={topProviders.map(p => ({ name: p.name, value: p.volume }))}
                 title="Top Transaction Value"
               />
             </div>
             <div className="lg:col-span-3">
-              <TransactionPercentagePie 
-                data={transactionPercentages}
+              <TransactionPercentagePie
+                data={topProviders.map(p => ({ name: p.name, value: p.percentage }))}
                 title="Top % Purchase"
                 wrapped={true}
               />
             </div>
           </div>
 
-          {/* All Transactions for this customer */}
-          <TransactionHistoryTable 
-            data={customerTransactions}
+          <TransactionHistoryTable
+            data={transactions}
             title="Transactions"
             actions={customerTransactionActions}
           />
         </div>
 
-        {/* External Modals */}
         <TransactionDetailsModal
           isOpen={showDetailsModal}
           onClose={() => setShowDetailsModal(false)}
           transaction={selectedTransaction}
         />
-
         <ShareReceiptModal
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
@@ -225,7 +204,6 @@ const BillsDetails = () => {
     );
   }
 
-  // Fallback
   return <div>Invalid view type</div>;
 };
 

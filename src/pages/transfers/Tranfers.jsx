@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTransferMetrics } from '@/store/features/dashboard/useDashboard';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
@@ -12,15 +13,15 @@ import RegionsTable from '@/components/tables/RegionsTable';
 import DataTable from '@/components/tables/DataTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { createRegioncolumns, transactionColumns, createTransactionActions } from './constants';
-// TODO: Import mock data for charts not available in API
-import { multiLineData, barData, lineChartSeries, barChartSeries } from './data';
+import { transactionColumns, createTransactionActions } from './constants';
 
 const Transfers = () => {
   const navigate = useNavigate();
   const [timeFilter, setTimeFilter] = useState('today');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [search, setSearch] = useState('');
+  const [filters, setFilters] = useState({});
 
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -28,30 +29,50 @@ const Transfers = () => {
 
   const { data, isLoading, isError, refetch } = useTransferMetrics({
     range: timeFilter,
+  });
+
+  // Fetch transactions using the new API
+  const { 
+    data: transactionData, 
+    isLoading: isTransactionsLoading 
+  } = useTransactions({
+    typeCategory: 'Transfer',
     page,
     limit,
+    search,
+    ...filters
   });
 
   const metrics = useMemo(() => {
     if (!data?.data) return null;
     return {
       summary: data.data.summary || {},
+      changePercentages: data.data.changePercentages || {},
       topCustomers: data.data.topCustomers || [],
       topRegions: data.data.topRegions || [],
-      transactions: data.data.transactions || [],
-      pagination: data.data.pagination || {},
-      // TODO: API doesn't provide status breakdown - using mock for now
-      statusData: data.data.statusBreakdown || [
-        { id: 0, value: 70, label: 'Successful', color: '#26C8B9' },
-        { id: 1, value: 20, label: 'Pending', color: '#FFA500' },
-        { id: 2, value: 10, label: 'Failed', color: '#E85304' }
-      ],
+      statusData: (data.data.transferStatusBreakdown || []).map(item => ({
+        id: item.status,
+        value: item.percentage,
+        label: item.status,
+        color: item.status === 'Completed' ? '#26C8B9' : item.status === 'Pending' ? '#FFA500' : '#E85304'
+      })),
+      dailyTransactionCounts: (data.data.dailyTransactionCounts || []).map(d => ({
+        label: d.label,
+        value: d.count
+      })),
+      dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
+        label: d.label,
+        value: d.amount
+      })),
     };
   }, [data]);
 
+  const transactions = useMemo(() => transactionData?.data || [], [transactionData]);
+  const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
+
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages);
   }, [metrics]);
 
   const handleTimeFilterChange = (newFilter) => {
@@ -66,13 +87,20 @@ const Transfers = () => {
     setPage(1);
   };
 
+  const handleSearch = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleFilter = () => {
+    console.log('Filter clicked');
+  };
+
   const handlePageChange = (newPage) => setPage(newPage);
 
   const handleViewRegionDetails = (regionId) => {
     navigate(`/transfers/details/region/${regionId}`);
   };
-
-  const regionColumns = createRegioncolumns(handleViewRegionDetails);
 
   const transactionActions = createTransactionActions({
     setSelectedTransaction,
@@ -133,33 +161,34 @@ const Transfers = () => {
           </div>
         </div>
 
-        {/* TODO: API doesn't provide multi-line chart data - using mock */}
-        <MultiLineChart 
-          data={multiLineData}
-          series={lineChartSeries}
+        <MultiLineChart
+          data={metrics.dailyTransactionVolume}
+          series={[{ data: (metrics.dailyTransactionVolume || []).map(d => d.value), color: '#B54103', label: 'Volume' }]}
           title="Daily Transaction Volume"
         />
 
-        {/* TODO: API doesn't provide bar chart data - using mock */}
+        {/* Use actual dailyTransactionCounts from API */}
         <BarChartComponent 
-          data={barData}
-          series={barChartSeries}
+          data={metrics.dailyTransactionCounts}
+          series={[{ data: (metrics?.dailyTransactionCounts || []).map(d => d.value), color: '#FF5B04' }]}
           title="Daily Transaction Count"
         />
 
-        <RegionsTable 
+        <RegionsTable
           data={metrics.topRegions}
           onViewDetails={handleViewRegionDetails}
-          columns={regionColumns}
         />
 
         <DataTable 
-          data={metrics.transactions}
+          data={transactions}
           title="Transactions"
           actions={transactionActions}
           columns={transactionColumns}
-          pagination={metrics.pagination}
+          pagination={pagination}
           onPageChange={handlePageChange}
+          onSearch={handleSearch}
+          onFilter={handleFilter}
+          isLoading={isTransactionsLoading}
         />
       </div>
 

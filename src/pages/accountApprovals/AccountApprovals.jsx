@@ -1,18 +1,30 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import DataTable from '@/components/tables/DataTable';
 import ApprovalTabs from '@/components/account-approvals/ApprovalTabs';
 import ApprovalModals from '@/components/account-approvals/ApprovalModals';
-import { useApprovalFilters } from '@/hooks/useApprovalFilters';
 import { useApprovalModals } from '@/hooks/useApprovalModals';
-import { mockApprovals } from './data';
 import { approvalTabs, approvalColumns, createApprovalActions } from './constants';
+import { useAccountApprovals, useApproveAccount, useDeclineAccount } from '@/store/features/approvals/useAccountApprovals';
+import { handleError } from '@/store/utils/handleError';
+import { handleSuccess } from '@/store/utils/handleSuccess';
 
 const AccountApprovals = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('Pending');
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
 
-  const { activeTab, setActiveTab, filteredApprovals, tabCounts } = useApprovalFilters(mockApprovals);
+  const { data: approvalsResponse, isLoading } = useAccountApprovals({
+    status: activeTab.toLowerCase(),
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+  });
+  const approveAccount = useApproveAccount();
+  const declineAccount = useDeclineAccount();
+
+  const approvals = approvalsResponse?.data || [];
+
   const {
     modals,
     setters,
@@ -35,29 +47,52 @@ const AccountApprovals = () => {
   }, [setSelectedUser, setters]);
 
   const handleAcceptApproval = useCallback(() => {
-    console.log('Accepting approval for:', selectedUser);
-    setFeedbackType('approved');
-    setters.setShowAcceptModal(false);
-    setters.setShowSuccessModal(true);
-  }, [selectedUser, setFeedbackType, setters]);
+    approveAccount.mutate(selectedUser.userId || selectedUser._id, {
+      onSuccess: () => {
+        setFeedbackType('approved');
+        setters.setShowAcceptModal(false);
+        setters.setShowSuccessModal(true);
+        handleSuccess('Account approved successfully');
+      },
+      onError: (error) => {
+        setters.setShowAcceptModal(false);
+        handleError(error);
+      },
+    });
+  }, [selectedUser, approveAccount, setFeedbackType, setters]);
 
   const handleDeclineApproval = useCallback(() => {
-    console.log('Declining approval for:', selectedUser, 'Reason:', declineReason);
-    setFeedbackType('declined');
-    setters.setShowDeclineModal(false);
-    setters.setShowSuccessModal(true);
-  }, [selectedUser, declineReason, setFeedbackType, setters]);
+    declineAccount.mutate({ userId: selectedUser.userId || selectedUser._id, reason: declineReason }, {
+      onSuccess: () => {
+        setFeedbackType('declined');
+        setters.setShowDeclineModal(false);
+        setters.setShowSuccessModal(true);
+        handleSuccess('Account declined successfully');
+      },
+      onError: (error) => {
+        setters.setShowDeclineModal(false);
+        handleError(error);
+      },
+    });
+  }, [selectedUser, declineReason, declineAccount, setFeedbackType, setters]);
 
   const tableActions = useMemo(
-  () =>
-    createApprovalActions(
-      navigate,
-      activeTab,
-      handleAcceptClick,
-      handleDeclineClick
-    ),
-  [navigate, activeTab, handleAcceptClick, handleDeclineClick]
-);
+    () =>
+      createApprovalActions(
+        navigate,
+        activeTab,
+        handleAcceptClick,
+        handleDeclineClick
+      ),
+    [navigate, activeTab, handleAcceptClick, handleDeclineClick]
+  );
+
+  // Tab counts - use total from response or length of current data
+  const tabCounts = {
+    Pending: activeTab === 'Pending' ? approvals.length : '-',
+    Approved: activeTab === 'Approved' ? approvals.length : '-',
+    Declined: activeTab === 'Declined' ? approvals.length : '-',
+  };
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
@@ -76,10 +111,15 @@ const AccountApprovals = () => {
         />
 
         <DataTable
-          data={filteredApprovals}
+          data={approvals}
           title={`${activeTab} KYC`}
           columns={approvalColumns}
           actions={tableActions}
+          loading={isLoading}
+          paginationMode="server"
+          rowCount={approvalsResponse?.pagination?.total || 0}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
         />
       </div>
 
@@ -95,6 +135,6 @@ const AccountApprovals = () => {
       />
     </div>
   );
-  };
+};
 
 export default AccountApprovals;

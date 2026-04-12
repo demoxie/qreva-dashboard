@@ -7,7 +7,11 @@ const UserProfileHeader = ({
   onToggleActionsMenu,
   actions
 }) => {
+  const displayName = user.name || user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown';
+  const displayEmail = user.email || user.emailAddress || '';
+
   const getInitials = (name) => {
+    if (!name) return '??';
     return name
       .split(' ')
       .map(n => n[0])
@@ -22,12 +26,12 @@ const UserProfileHeader = ({
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center">
             <span className="text-2xl font-bold text-cyan-600">
-              {getInitials(user.name)}
+              {getInitials(displayName)}
             </span>
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-900">{user.name}</h3>
-            <p className="text-gray-600">{user.email}</p>
+            <h3 className="text-xl font-bold text-gray-900">{displayName}</h3>
+            <p className="text-gray-600">{displayEmail}</p>
           </div>
           <span className="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm font-medium">
             {user.tier}
@@ -40,7 +44,7 @@ const UserProfileHeader = ({
             onClick={onToggleActionsMenu}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2"
           >
-            {user.accountType}
+            {user.type || user.accountType}
             <svg 
               className={`w-4 h-4 transition-transform ${showActionsMenu ? 'rotate-180' : ''}`} 
               fill="none" 

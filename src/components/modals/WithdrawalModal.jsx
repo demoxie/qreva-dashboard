@@ -1,5 +1,6 @@
 import React from 'react';
 import BaseModal from './BaseModal';
+import { useBanks } from '@/store/features/earnings/useEarnings';
 
 const WithdrawModal = ({
   isOpen,
@@ -16,6 +17,9 @@ const WithdrawModal = ({
   handleAmountChange,
   handleWithdraw,
 }) => {
+  const { data: banksResponse, isLoading: isBanksLoading } = useBanks();
+  const banks = banksResponse?.data || [];
+
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} title="Withdraw Now">
       <p className="text-sm text-[#808C91] font-general font-medium mb-4">Kindly input the right info to perform this action</p>
@@ -26,12 +30,12 @@ const WithdrawModal = ({
         <div className="flex gap-2 overflow-x-auto pb-2">
           {frequentBeneficiaries.map((beneficiary, idx) => (
             <button
-              key={idx}
+              key={beneficiary._id || idx}
               className="flex flex-col items-center min-w-[60px]"
               onClick={() => {
-                setBankName('Access Bank');
-                setAccountNumber('0123456789');
-                setAccountName('PECULIAR REGINA');
+                setBankName(beneficiary.bankCode || beneficiary.bankName || '');
+                setAccountNumber(beneficiary.accountNumber || '');
+                setAccountName(beneficiary.accountName || '');
               }}
             >
               <div className="w-10 h-10 rounded-full bg-[#333333]/5 flex items-center justify-center text-[#FF9157] font-medium text-sm mb-1">
@@ -50,10 +54,12 @@ const WithdrawModal = ({
           onChange={(e) => setBankName(e.target.value)}
           className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm font-general text-[#808C91] focus:outline-none focus:ring-2 focus:ring-[#22C55E]/20 appearance-none pr-12"
         >
-          <option value="">Bank Name</option>
-          <option value="Access Bank">Access Bank</option>
-          <option value="GTBank">GTBank</option>
-          <option value="First Bank">First Bank</option>
+          <option value="">{isBanksLoading ? 'Loading banks...' : 'Bank Name'}</option>
+          {banks.map((bank) => (
+            <option key={bank.code || bank._id} value={bank.code || bank.name}>
+              {bank.name}
+            </option>
+          ))}
         </select>
         {/* Custom Chevron */}
         <div className="pointer-events-none cursor-pointer absolute top-1/2 right-4 transform -translate-y-1/2 bg-[#333333]/5 rounded-full p-2 flex items-center justify-center">

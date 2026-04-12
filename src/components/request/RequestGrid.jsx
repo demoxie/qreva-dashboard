@@ -13,7 +13,7 @@ const RequestsGrid = ({ requests, onViewDetails }) => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {requests.map((request) => (
         <RequestCard
-          key={request.id}
+          key={request._id || request.id}
           request={request}
           onViewDetails={onViewDetails}
         />

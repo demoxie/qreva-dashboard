@@ -1,8 +1,7 @@
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useProfileData } from '@/hooks/useProfileData';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import { useTransactionSearch } from '@/hooks/useTransactionSearch';
-import { usersData } from '../data';
+import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -13,20 +12,21 @@ import {
   getAvailableTabs,
   tabConfig
 } from '@/utils/profileUtils';
-import { userTransactions } from '../data';
 
 const UserProfileDetails = () => {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'profile';
   const currentTab = tabConfig[activeTab] || tabConfig.transactions;
-  const data = userData[currentTab.dataKey] || [];
 
-  const fetchUserById = async (userId) => {
-    return usersData.find(user => String(user.id) === String(userId));
-  };
+  const { data: userResponse, isLoading: loading } = useUserById(id, 'users');
+  const userData = userResponse?.data;
+  const { data: txResponse } = useUserTransactions(id, 'users');
+  const userTransactions = txResponse?.data || [];
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
 
-  const { data: userData, loading } = useProfileData(id, fetchUserById);
+  const data = userData?.[currentTab.dataKey] || userTransactions;
 
   const { searchQuery, setSearchQuery, filteredTransactions } =
     useTransactionSearch(userTransactions);
@@ -38,6 +38,15 @@ const UserProfileDetails = () => {
     promotionType,
     setPromotionType
   } = useProfileModals();
+
+  const handleSuspend = () => {
+    if (!userData?._id) return;
+    const isActive = userData.status === 'Active' || userData.status === 'active';
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(userData._id, {
+      onSettled: () => setters.setShowSuspendModal(false),
+    });
+  };
 
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
@@ -60,13 +69,13 @@ const UserProfileDetails = () => {
       userData={userData}
       activeTab={activeTab}
       onTabChange={handleTabChange}
-      availableTabs={getAvailableTabs(userData.accountType)}
+      availableTabs={getAvailableTabs(userData.type || userData.accountType)}
       actions={userActions}
     >
       {activeTab === 'profile' ? (
         <ProfileDetailsView
           userData={userData}
-          showBusinessDetails={userData.accountType !== 'Personal Account'}
+          showBusinessDetails={userData.type !== 'Individual' && userData.accountType !== 'Personal Account'}
         />
       ) : (
         <TransactionView
@@ -82,6 +91,7 @@ const UserProfileDetails = () => {
         setters={setters}
         selectedTransaction={selectedTransaction}
         promotionType={promotionType}
+        onSuspend={handleSuspend}
       />
     </ProfileLayout>
   );

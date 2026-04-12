@@ -4,8 +4,10 @@ import { DataGrid } from '@mui/x-data-grid';
 import { MoreVertical } from 'lucide-react';
 import SearchFilterBar from '../common/SearchFilterBar';
 import CustomPagination from '../common/Pagination';
+import { Skeleton, Box } from '@mui/material';
+import { GridOverlay } from '@mui/x-data-grid';
 
-const DataTable = ({ 
+const DataTable = ({
   data = [],
   columns = [],
   title = "Data Table",
@@ -15,7 +17,16 @@ const DataTable = ({
   showSearch = true,
   showCheckbox = true,
   pageSize = 5,
-  pageSizeOptions = [5, 10, 25]
+  pageSizeOptions = [5, 10, 25],
+  getRowId,
+  // Extract pagination props so they don't conflict via {...rest}
+  pagination,
+  onPageChange,
+  paginationMode,
+  paginationModel: externalPaginationModel,
+  onPaginationModelChange,
+  rowCount,
+  ...rest
 }) => {
   const [dropdown, setDropdown] = useState({ open: false, anchor: null, row: null, x: 0, y: 0 });
   const [searchQuery, setSearchQuery] = useState('');
@@ -78,6 +89,23 @@ const DataTable = ({
       ]
     : columns;
 
+  const CustomLoadingOverlay = () => (
+    <GridOverlay>
+      <Box sx={{ width: '100%', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {[...Array(5)].map((_, i) => (
+          <Box key={i} sx={{ display: 'flex', gap: 2, width: '100%' }}>
+            <Skeleton variant="rectangular" width="30%" height={20} />
+            <Skeleton variant="rectangular" width="40%" height={20} />
+            <Skeleton variant="rectangular" width="15%" height={20} />
+            <Skeleton variant="rectangular" width="15%" height={20} />
+          </Box>
+        ))}
+      </Box>
+    </GridOverlay>
+  );
+
+  const isLoading = rest.loading || rest.isLoading;
+
   return (
     <>
       <Card>
@@ -94,17 +122,33 @@ const DataTable = ({
         </CardHeader>
         <CardContent className="px-0 h-full">
           <DataGrid
-          className='w-full'
+            className='w-full'
             rows={data}
             columns={gridColumns}
+            getRowId={getRowId || ((row) => row._id || row.id || row.userId || row.clientId)}
             checkboxSelection={showCheckbox}
             disableRowSelectionOnClick
             disableColumnResize
             columnBufferPx={0}
-            pageSizeOptions={pageSizeOptions}
-            initialState={{
-              pagination: { paginationModel: { pageSize } },
+            paginationMode={paginationMode || (pagination ? "server" : "client")}
+            rowCount={rowCount ?? pagination?.total ?? data.length}
+            loading={isLoading}
+            paginationModel={
+              externalPaginationModel
+                ? externalPaginationModel
+                : {
+                    page: (pagination?.page || 1) - 1,
+                    pageSize: pagination?.limit || pageSize
+                  }
+            }
+            onPaginationModelChange={(model) => {
+              if (onPaginationModelChange) {
+                onPaginationModelChange(model);
+              } else if (onPageChange) {
+                onPageChange(model.page + 1);
+              }
             }}
+            {...rest}
             sx={{
               border: 0,
               width: '%100',
@@ -164,6 +208,22 @@ const DataTable = ({
             }}
             slots={{
               pagination: CustomPagination,
+              loadingOverlay: CustomLoadingOverlay,
+            }}
+            slotProps={{
+              pagination: {
+                currentPage: externalPaginationModel
+                  ? externalPaginationModel.page + 1
+                  : (pagination?.page || 1),
+                totalPages: externalPaginationModel
+                  ? Math.ceil((rowCount || data.length) / (externalPaginationModel.pageSize || pageSize))
+                  : (pagination?.totalPages || Math.ceil((pagination?.total || data.length) / (pagination?.limit || pageSize))),
+                onPageChange: externalPaginationModel
+                  ? (page) => onPaginationModelChange?.({ ...externalPaginationModel, page: page - 1 })
+                  : onPageChange,
+                totalItems: rowCount ?? pagination?.total ?? data.length,
+                itemsPerPage: externalPaginationModel?.pageSize || pagination?.limit || pageSize
+              }
             }}
           />
         </CardContent>

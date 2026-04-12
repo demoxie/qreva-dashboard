@@ -1,45 +1,94 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import PageHeader from '@/components/common/PageHeader';
-import DashboardStats from '@/components/base/DashboardStats';
-import DataTable from '@/components/tables/DataTable';
-import AggregatorManagerModals from '@/components/aggregatorManager/AggregatorManagerModals';
-import { useAggregatorManagerModals } from '@/hooks/useAggregatorManagerModals';
-import { useAggregatorManagerSearch } from '@/hooks/useAggregatorManagerSearch';
-import { aggregatorManagersData } from './data';
-import { 
-  aggregatorManagerStats, 
-  aggregatorManagerColumns, 
-  createAggregatorManagerActions 
-} from './constants';
+import { useState, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import PageHeader from "@/components/common/PageHeader";
+import DashboardStats from "@/components/base/DashboardStats";
+import DataTable from "@/components/tables/DataTable";
+import AggregatorManagerModals from "@/components/aggregatorManager/AggregatorManagerModals";
+import { useAggregatorManagerModals } from "@/hooks/useAggregatorManagerModals";
+import {
+  aggregatorManagerColumns,
+  createAggregatorManagerActions,
+} from "./constants";
+import {
+  useUsers,
+  useSuspendUser,
+  useActivateUser,
+} from "@/store/features/users/useUsers";
+import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
+import { formatDashboardStats } from "@/utils/formatDashboardStats";
 
 const AggregatorManagers = () => {
-  const [timeFilter, setTimeFilter] = useState('Today');
+  const [timeFilter, setTimeFilter] = useState("Today");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const navigate = useNavigate();
-  
-  const { modals, setters, selectedManager, setSelectedManager } = useAggregatorManagerModals();
-  const { searchQuery, setSearchQuery, filteredManagers } = useAggregatorManagerSearch(aggregatorManagersData);
 
-  const handleSuspendClick = useCallback((manager) => {
-    setSelectedManager(manager);
-    setters.setShowSuspendModal(true);
-  }, [setSelectedManager, setters]);
+  const { data: usersResponse, isLoading } = useUsers({
+    type: "AggregatorManager",
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    search: searchQuery || undefined,
+  });
+
+  const managers = usersResponse?.data || [];
+
+  const { data: metricsData } = useCategoryMetrics("aggregator-managers", {
+    range: timeFilter.toLowerCase(),
+  });
+  const metricsStats = useMemo(() => {
+    if (!metricsData?.data?.summary) return null;
+    return formatDashboardStats(
+      metricsData.data.summary,
+      metricsData.data.changePercentages || {},
+    );
+  }, [metricsData]);
+
+  const { modals, setters, selectedManager, setSelectedManager } =
+    useAggregatorManagerModals();
+
+  const handleSuspendClick = useCallback(
+    (manager) => {
+      setSelectedManager(manager);
+      setters.setShowSuspendModal(true);
+    },
+    [setSelectedManager, setters],
+  );
+
+  const suspendUserMutation = useSuspendUser();
+  const activateUserMutation = useActivateUser();
 
   const handleConfirmSuspend = useCallback(() => {
-    console.log('Suspend aggregator manager:', selectedManager);
-    setters.setShowSuspendModal(false);
-    setSelectedManager(null);
-  }, [selectedManager, setters, setSelectedManager]);
+    if (!selectedManager?._id) return;
+    const isActive =
+      selectedManager.status === "Active" ||
+      selectedManager.status === "active";
+    const mutation = isActive ? suspendUserMutation : activateUserMutation;
+    mutation.mutate(selectedManager._id, {
+      onSettled: () => {
+        setters.setShowSuspendModal(false);
+        setSelectedManager(null);
+      },
+    });
+  }, [
+    selectedManager,
+    setters,
+    setSelectedManager,
+    suspendUserMutation,
+    activateUserMutation,
+  ]);
 
-  const handleAddAggregator = useCallback((aggregatorData) => {
-    console.log('Add aggregator:', aggregatorData);
-    setters.setShowAddAggregatorModal(false);
-    setters.setShowAggregatorAddedModal(true);
-  }, [setters]);
+  const handleAddAggregator = useCallback(
+    (aggregatorData) => {
+      console.log("Add aggregator:", aggregatorData);
+      setters.setShowAddAggregatorModal(false);
+      setters.setShowAggregatorAddedModal(true);
+    },
+    [setters],
+  );
 
   const tableActions = useMemo(
     () => createAggregatorManagerActions(navigate, handleSuspendClick),
-    [navigate, handleSuspendClick]
+    [navigate, handleSuspendClick],
   );
 
   return (
@@ -60,16 +109,21 @@ const AggregatorManagers = () => {
           }
         />
 
-        <DashboardStats stats={aggregatorManagerStats} />
+        <DashboardStats stats={metricsStats} />
 
         <DataTable
           className="font-general"
-          data={filteredManagers}
+          data={managers}
           columns={aggregatorManagerColumns}
           title="Aggregator Managers"
           actions={tableActions}
           onSearch={setSearchQuery}
-          onFilter={() => console.log('Filter clicked')}
+          onFilter={() => console.log("Filter clicked")}
+          loading={isLoading}
+          paginationMode="server"
+          rowCount={usersResponse?.pagination?.total || 0}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
         />
       </div>
 

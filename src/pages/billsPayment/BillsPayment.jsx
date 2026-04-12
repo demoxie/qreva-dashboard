@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCategoryMetrics } from '@/store/features/dashboard/useDashboard';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
@@ -30,6 +31,14 @@ const BillsPayment = () => {
   // TODO: API needs 'bills' category or combined electricity+cabletv
   const { data, isLoading, isError, refetch } = useCategoryMetrics('all', {
     range: timeFilter,
+  });
+
+  // Fetch transactions using the new API
+  const { 
+    data: transactionData, 
+    isLoading: isTransactionsLoading 
+  } = useTransactions({
+    typeCategory: 'Bills',
     page,
     limit,
   });
@@ -38,19 +47,24 @@ const BillsPayment = () => {
     if (!data?.data) return null;
     return {
       summary: data.data.summary || {},
+      changePercentages: data.data.changePercentages || {},
       topTransactionValues: data.data.topTransactionValues || [],
       topCustomers: data.data.topCustomers || [],
-      dailyTransactionVolume: data.data.dailyTransactionVolume || [],
+      dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
+        label: d.label,
+        value: d.amount
+      })),
       topPurchasePercentages: data.data.topPurchasePercentages || [],
       topRegions: data.data.topRegions || [],
-      transactions: data.data.transactions || [],
-      pagination: data.data.pagination || {},
     };
   }, [data]);
 
+  const transactions = useMemo(() => transactionData?.data || [], [transactionData]);
+  const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
+
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages);
   }, [metrics]);
 
   const handleTimeFilterChange = (newFilter) => {
@@ -150,18 +164,19 @@ const BillsPayment = () => {
           </div>
         </div>
 
-        <RegionsTable 
+        <RegionsTable
           data={metrics.topRegions}
           title="Top Regions"
           onViewDetails={handleViewRegionDetails}
         />
 
         <TransactionHistoryTable 
-          data={metrics.transactions}
+          data={transactions}
           title="Transactions"
           actions={transactionActions}
-          pagination={metrics.pagination}
+          pagination={pagination}
           onPageChange={handlePageChange}
+          isLoading={isTransactionsLoading}
         />
       </div>
 

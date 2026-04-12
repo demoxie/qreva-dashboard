@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { ROUTES, getAllRoutes } from './config/routes.config';
 import { RouteComponentMap } from './config/routeComponentMap';
 import LoginPage from './pages/auth/LoginPage';
@@ -100,7 +100,15 @@ const PublicRoute = ({ children }) => {
 // ============ LAYOUT COMPONENT ============
 const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
-  const [activeSection, setActiveSection] = useState('dashboard');
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState(() => {
+    return location.pathname.split('/')[1] || 'dashboard';
+  });
+
+  useEffect(() => {
+    const section = location.pathname.split('/')[1] || 'dashboard';
+    setActiveSection(section);
+  }, [location.pathname]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -122,29 +130,22 @@ const DashboardLayout = ({ children }) => {
 };
 
 // ============ AUTH PROVIDER ============
+const getStoredUser = () => {
+  const token = localStorage.getItem('adminToken');
+  const role = localStorage.getItem('userRole');
+  if (!token || !role) return null;
+  return {
+    email: localStorage.getItem('userEmail'),
+    username: localStorage.getItem('userName'),
+    role,
+    token,
+    userId: localStorage.getItem('userId'),
+    mustChangePassword: localStorage.getItem('mustChangePassword') === 'true',
+  };
+};
+
 const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-
-  // Check for existing session on mount
-  useEffect(() => {
-    const token = localStorage.getItem('adminToken');
-    const role = localStorage.getItem('userRole');
-    const email = localStorage.getItem('userEmail');
-    const name = localStorage.getItem('userName');
-    const userId = localStorage.getItem('userId');
-    const mustChangePassword = localStorage.getItem('mustChangePassword');
-
-    if (token && role) {
-      setUser({
-        email: email,
-        username: name,
-        role: role,
-        token: token,
-        userId: userId,
-        mustChangePassword: mustChangePassword === 'true',
-      });
-    }
-  }, []);
+  const [user, setUser] = useState(getStoredUser);
 
   const login = (userData) => {
     setUser(userData);

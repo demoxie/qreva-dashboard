@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Copy } from 'lucide-react';
 
+// TODO: Wire to real API when backend endpoint for adding aggregators/aggregator managers is ready. Currently uses mock data.
 const AddAggregatorModal = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -31,7 +32,10 @@ const AddAggregatorModal = ({ isOpen, onClose, onSubmit }) => {
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-urbanist font-bold text-[#1E1E1E] mb-0">Add Aggregator</h2>
+        <div className="flex items-center gap-2 mb-0">
+          <h2 className="text-xl font-urbanist font-bold text-[#1E1E1E]">Add Aggregator</h2>
+          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-[10px] font-semibold font-general rounded-full border border-yellow-300 uppercase tracking-wide">Mock Data</span>
+        </div>
         <p className="text-sm text-[#808C91] font-general font-medium mb-4">Fill out the info below to add an aggregator or copy the link</p>
 
         <form onSubmit={handleSubmit}>

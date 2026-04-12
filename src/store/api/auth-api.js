@@ -10,4 +10,24 @@ export const authApi = {
     const { data } = await apiClient.patch('/admin/auth/change-password', passwordData);
     return data;
   },
+
+  sendOtp: async () => {
+    const { data } = await apiClient.post('/admin/auth/send-otp');
+    return data;
+  },
+
+  verifyOtp: async (otpData) => {
+    const { data } = await apiClient.post('/admin/auth/verify-otp', otpData);
+    return data;
+  },
+
+  changePin: async (pinData) => {
+    const { data } = await apiClient.patch('/admin/auth/change-pin', pinData);
+    return data;
+  },
+
+  logout: async () => {
+    const { data } = await apiClient.post('/admin/auth/logout');
+    return data;
+  },
 };

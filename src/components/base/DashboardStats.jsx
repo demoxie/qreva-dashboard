@@ -14,7 +14,7 @@ const DashboardStats = ({ stats, route }) => {
     { label: "Success Rate", value: "90%", change: "+19%", subtext: "24 % out of 24 hours" }
   ];
 
-  let statsToDisplay = stats || defaultStats;
+  let statsToDisplay = (stats && stats.length > 0) ? stats.filter(Boolean) : defaultStats;
 
   const userRole = localStorage.getItem("userRole") || "SuperAdmin";
 

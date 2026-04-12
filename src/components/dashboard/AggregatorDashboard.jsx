@@ -11,14 +11,18 @@ import DashboardStats from '@/components/base/DashboardStats';
 const AggregatorDashboard = ({ 
   formattedStats, 
   metrics, 
-  cardVsQRPayments,
+  transactions,
+  pagination,
   transactionActions,
   handlePageChange,
+  handleSearch,
+  handleFilter,
   showDetailsModal,
   setShowDetailsModal,
   showShareModal,
   setShowShareModal,
-  selectedTransaction
+  selectedTransaction,
+  isTransactionsLoading
 }) => {
   return (
     <>
@@ -37,15 +41,15 @@ const AggregatorDashboard = ({
       {/* Daily Transaction Volume */}
       <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
 
-      {/* Top Agents + Card vs QR Payments - Side by Side */}
+      {/* Top Customers + Card vs QR Payments - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <TopCustomersCard 
           data={metrics.topCustomers} 
-          title="Top Agents"
+          title="Top Customers"
           showTabs={true}
         />
         <PaymentComparisonPie
-          data={cardVsQRPayments}
+          data={metrics.softPosPaymentBreakdown}
           title="Card Payments vs QR Payments %"
           showPercentage={true}
         />
@@ -53,10 +57,13 @@ const AggregatorDashboard = ({
 
       {/* Transaction History */}
       <TransactionHistoryTable
-        data={metrics.transactions}
+        data={transactions}
         actions={transactionActions}
-        pagination={metrics.pagination}
+        pagination={pagination}
         onPageChange={handlePageChange}
+        onSearch={handleSearch}
+        onFilter={handleFilter}
+        isLoading={isTransactionsLoading}
       />
 
       <TransactionDetailsModal

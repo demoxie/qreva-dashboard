@@ -1,23 +1,22 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useDashboardMetrics } from '@/store/features/dashboard/useDashboard';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
 import AgentDashboard from '@/components/dashboard/AgentDashboard';
 import AggregatorDashboard from '@/components/dashboard/AggregatorDashboard';
-
-// Mock data for Card vs QR Payments (TODO: Add to API)
-const cardVsQRPayments = [
-  { name: 'Card Payments', value: 70, amount: 4000000 },
-  { name: 'QR Payments', value: 30, amount: 170823 }
-];
+import CustomEye from '@/components/icons/CustomEye';
+import CustomShare from '@/components/icons/CustomShare';
 
 const DashboardContent = () => {
   const { user } = useAuth();
   const [timeFilter, setTimeFilter] = useState('today');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
 
   // Modal states
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -28,8 +27,17 @@ const DashboardContent = () => {
   const { data, isLoading, isError, refetch } = useDashboardMetrics({
     category: 'all',
     range: timeFilter,
+  });
+
+  // Fetch transactions using the new API
+  const { 
+    data: transactionData, 
+    isLoading: isTransactionsLoading 
+  } = useTransactions({
     page,
     limit,
+    search,
+    status
   });
 
   // Extract data from API response
@@ -38,20 +46,45 @@ const DashboardContent = () => {
 
     return {
       summary: data.data.summary || {},
+      changePercentages: data.data.changePercentages || {},
       topTransactionValues: data.data.topTransactionValues || [],
       topCustomers: data.data.topCustomers || [],
-      dailyTransactionVolume: data.data.dailyTransactionVolume || [],
+      dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
+        label: d.label,
+        value: d.amount
+      })),
+      dailyTransactionCounts: (data.data.dailyTransactionCounts || []).map(d => ({
+        label: d.label,
+        value: d.count
+      })),
       topPurchasePercentages: data.data.topPurchasePercentages || [],
       topRegions: data.data.topRegions || [],
-      transactions: data.data.transactions || [],
-      pagination: data.data.pagination || {},
+      transferStatusBreakdown: (data.data.transferStatusBreakdown || []).map(item => ({
+        id: item.status,
+        value: item.percentage,
+        label: item.status,
+        color: item.status === 'Completed' ? '#26C8B9' : item.status === 'Pending' ? '#FFA500' : '#E85304'
+      })),
+      softPosPaymentBreakdown: (data.data.softPosPaymentBreakdown || []).map(item => ({
+        id: item.method,
+        value: item.percentage,
+        label: `${item.method} Payments`,
+        color: item.method === 'Card' ? '#E85304' : '#26C8B9'
+      })),
+      hourlyBreakdown: data.data.hourlyBreakdown || [],
+      paymentRequestVolume: data.data.paymentRequestVolume || 0,
+      paymentRequestDailyVolume: data.data.paymentRequestDailyVolume || [],
+      paymentRequests: data.data.paymentRequests || [],
     };
   }, [data]);
+
+  const transactions = useMemo(() => transactionData?.data || [], [transactionData]);
+  const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
 
   // Format stats for DashboardStats component
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages);
   }, [metrics]);
 
   // Role checks
@@ -65,6 +98,7 @@ const DashboardContent = () => {
     {
       label: 'View Transaction Details',
       type: 'view',
+      icon: CustomEye,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowDetailsModal(true);
@@ -73,6 +107,7 @@ const DashboardContent = () => {
     {
       label: 'Share Receipt',
       type: 'share',
+      icon: CustomShare,
       onClick: (transaction) => {
         setSelectedTransaction(transaction);
         setShowShareModal(true);
@@ -92,6 +127,15 @@ const DashboardContent = () => {
     
     setTimeFilter(filterMap[newFilter] || 'today');
     setPage(1);
+  };
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  const handleFilter = () => {
+    console.log('Filter clicked');
   };
 
   // Handle pagination
@@ -136,7 +180,12 @@ const DashboardContent = () => {
   const dashboardProps = {
     formattedStats,
     metrics,
+    transactions,
+    pagination,
     handlePageChange,
+    handleSearch,
+    handleFilter,
+    isTransactionsLoading,
   };
 
   const modalProps = {
@@ -168,16 +217,14 @@ const DashboardContent = () => {
         )}
 
         {isAgent && (
-          <AgentDashboard 
+          <AgentDashboard
             {...dashboardProps}
-            cardVsQRPayments={cardVsQRPayments}
           />
         )}
 
         {(isAggregator || isAggregatorManager) && (
-          <AggregatorDashboard 
+          <AggregatorDashboard
             {...dashboardProps}
-            cardVsQRPayments={cardVsQRPayments}
             transactionActions={transactionActions}
             {...modalProps}
           />

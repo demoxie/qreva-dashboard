@@ -1,4 +1,4 @@
-export const formatDashboardStats = (summary) => {
+export const formatDashboardStats = (summary, changePercentages = {}) => {
   if (!summary) return null;
 
   // Format currency
@@ -15,30 +15,36 @@ export const formatDashboardStats = (summary) => {
     return new Intl.NumberFormat('en-US').format(num);
   };
 
+  const getChange = (val) => {
+    if (val === undefined || val === null) return '0%';
+    const prefix = val > 0 ? '+' : '';
+    return `${prefix}${val}%`;
+  };
+
   return [
     {
       label: 'Total Transactions',
       value: formatNumber(summary.totalTransactions || 0),
-      change: '+20%', // TODO: Calculate from historical data or get from API
-      subtext: '80,000 Last 24 hours', // TODO: Get from API
+      change: getChange(changePercentages.totalTransactions),
+      subtext: `${formatNumber(summary.dailyTransactions || 0)} Last 24 hours`,
     },
     {
       label: 'Total Transaction Volume',
       value: formatCurrency(summary.totalTransactionVolume || 0),
-      change: '+10%', // TODO: Calculate from historical data or get from API
-      subtext: formatCurrency(summary.dailyVolume || 80000) + ' in last 24 hours',
+      change: getChange(changePercentages.totalTransactionVolume),
+      subtext: formatCurrency(summary.dailyVolume || 0) + ' in last 24 hours',
     },
     {
       label: 'Total Revenue',
       value: formatCurrency(summary.totalRevenue || 0),
-      change: '+15%', // TODO: Calculate from historical data or get from API
-      subtext: formatCurrency(summary.dailyRevenue || 80000) + ' in last 24 hours',
+      change: getChange(changePercentages.totalRevenue),
+      subtext: formatCurrency(summary.dailyRevenue || 0) + ' in last 24 hours',
     },
     {
       label: 'Success Rate',
       value: `${summary.successRate || 0}%`,
-      change: summary.successRate >= 90 ? '+19%' : '-5%',
-      subtext: '24 % out of 24 hours', // TODO: Get from API
+      change: getChange(changePercentages.successRate),
+      subtext: 'Out of last 24 hours',
     },
   ];
 };

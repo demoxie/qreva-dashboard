@@ -2,29 +2,64 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { DISPUTED_TRANSACTIONS_DATA } from './data';
 import DeclineReasonModal from '@/components/modals/DeclineReasonModal';
 import ActionSuccessModal from '@/components/modals/ActionSuccessModal';
+import { useDisputeDetails, useRefundDispute, useDeclineDispute } from '@/store/features/approvals/useDisputes';
+import { handleError } from '@/store/utils/handleError';
 
 const DisputedTransactionDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
     const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-    
-    // Find transaction by ID or default to first for demo if not found/mocking
-    const transaction = DISPUTED_TRANSACTIONS_DATA.find(t => t.id === Number(id)) || DISPUTED_TRANSACTIONS_DATA[0];
+    const [successMessage, setSuccessMessage] = useState({ title: '', message: '' });
+
+    const { data: disputeResponse, isLoading } = useDisputeDetails(id);
+    const refundDispute = useRefundDispute();
+    const declineDispute = useDeclineDispute();
+    const transaction = disputeResponse?.data || {};
+
+    const handleRefund = () => {
+        refundDispute.mutate(id, {
+            onSuccess: () => {
+                setSuccessMessage({
+                    title: 'Dispute Refunded',
+                    message: 'The user will be notified about the refund as this action has been successfully completed',
+                });
+                setIsSuccessModalOpen(true);
+            },
+            onError: (error) => handleError(error),
+        });
+    };
 
     const handleDeclineClick = () => {
         setIsDeclineModalOpen(true);
     };
 
     const handleDeclineSubmit = (reason) => {
-        console.log("Declined with reason:", reason);
-        // Here you would typically make an API call
-        setIsDeclineModalOpen(false);
-        setIsSuccessModalOpen(true);
+        declineDispute.mutate({ id, reason }, {
+            onSuccess: () => {
+                setIsDeclineModalOpen(false);
+                setSuccessMessage({
+                    title: 'Dispute Declined',
+                    message: 'The user will be notified about the declined dispute as this action has been successfully completed',
+                });
+                setIsSuccessModalOpen(true);
+            },
+            onError: (error) => {
+                setIsDeclineModalOpen(false);
+                handleError(error);
+            },
+        });
     };
+
+    if (isLoading) {
+        return (
+            <div className="p-6 flex items-center justify-center h-64">
+                <p className="text-gray-500">Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="p-6 space-y-6">
@@ -45,17 +80,24 @@ const DisputedTransactionDetails = () => {
             <div className="flex justify-between items-start">
                 <div>
                      <h1 className="text-2xl font-bold text-gray-900">View Details</h1>
-                     <p className="text-gray-500">Here is the full list of KYC approvals on the platform</p>
+                     <p className="text-gray-500">Here is the full detail about this disputed transaction</p>
                 </div>
                 <div className="flex gap-3">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         className="text-red-500 border-red-200 bg-red-50 hover:bg-red-100 font-medium px-8"
                         onClick={handleDeclineClick}
+                        disabled={declineDispute.isPending}
                     >
                         Decline
                     </Button>
-                    <Button className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-8">Refund</Button>
+                    <Button
+                        className="bg-orange-500 hover:bg-orange-600 text-white font-medium px-8"
+                        onClick={handleRefund}
+                        disabled={refundDispute.isPending}
+                    >
+                        {refundDispute.isPending ? 'Refunding...' : 'Refund'}
+                    </Button>
                 </div>
             </div>
 
@@ -63,15 +105,15 @@ const DisputedTransactionDetails = () => {
             <div className="bg-gray-50 rounded-lg p-6 flex justify-between items-center">
                 <div className="flex items-center gap-4">
                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-semibold text-lg">
-                        RR
+                        {(transaction.recipient || 'N/A').slice(0, 2).toUpperCase()}
                      </div>
                      <div>
-                        <h2 className="text-lg font-bold text-gray-900">{transaction.recipient}</h2>
-                        <p className="text-sm text-gray-500">{transaction.walletAccountNo}</p>
+                        <h2 className="text-lg font-bold text-gray-900">{transaction.recipient || '-'}</h2>
+                        <p className="text-sm text-gray-500">{transaction.walletAccountNo || '-'}</p>
                      </div>
                 </div>
                 <div className="text-right">
-                    <span className="text-2xl font-bold text-gray-900">{transaction.balance}</span>
+                    <span className="text-2xl font-bold text-gray-900">{transaction.balance || transaction.amount || '-'}</span>
                 </div>
             </div>
 
@@ -79,43 +121,43 @@ const DisputedTransactionDetails = () => {
             <div className="bg-gray-50 rounded-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12">
                 <div>
                     <label className="text-xs text-gray-400 block mb-1">Recipient Details</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.recipientDetails}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.recipientDetails || '-'}</p>
                 </div>
                  <div>
                     <label className="text-xs text-gray-400 block mb-1">Dispute Type</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.disputeType}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.disputeType || transaction.title || '-'}</p>
                 </div>
                 <div>
                     <label className="text-xs text-gray-400 block mb-1">Transaction Date</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.transactionDate}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.transactionDate || '-'}</p>
                 </div>
                  <div>
                     <label className="text-xs text-gray-400 block mb-1">Date Sent</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.dateSent}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.dateSent || transaction.date || '-'}</p>
                 </div>
                  <div>
                     <label className="text-xs text-gray-400 block mb-1">Transaction ID</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.transactionId}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.transactionId || '-'}</p>
                 </div>
                  <div>
                     <label className="text-xs text-gray-400 block mb-1">Category</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.category}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.category || '-'}</p>
                 </div>
                  <div>
                     <label className="text-xs text-gray-400 block mb-1">Dispute Status</label>
                     <span className="inline-block px-3 py-1 bg-orange-100 text-orange-600 text-xs rounded-full font-medium">
-                        {transaction.disputeStatus}
+                        {transaction.disputeStatus || transaction.status || '-'}
                     </span>
                 </div>
                  <div>
                     <label className="text-xs text-gray-400 block mb-1">Transaction Status</label>
                      <span className="inline-block px-3 py-1 bg-gray-100 text-gray-600 text-xs rounded-full font-medium border border-gray-200">
-                        {transaction.transactionStatus}
+                        {transaction.transactionStatus || '-'}
                     </span>
                 </div>
                 <div className="md:col-span-2">
                     <label className="text-xs text-gray-400 block mb-1">Short Description</label>
-                    <p className="text-sm font-medium text-gray-900">{transaction.shortDescription}</p>
+                    <p className="text-sm font-medium text-gray-900">{transaction.shortDescription || transaction.description || '-'}</p>
                 </div>
             </div>
 
@@ -123,21 +165,28 @@ const DisputedTransactionDetails = () => {
             <div className="space-y-2">
                  <h3 className="text-sm text-gray-500">Uploaded Photo</h3>
                  <div className="border border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-100 min-h-[300px] flex items-center justify-center">
-                     <div className="text-gray-400">Image Preview Placeholder</div>
+                     {transaction.imageUrl ? (
+                         <img src={transaction.imageUrl} alt="Evidence" className="w-full h-auto object-cover" />
+                     ) : (
+                         <div className="text-gray-400">Image Preview Placeholder</div>
+                     )}
                  </div>
             </div>
 
-            <DeclineReasonModal 
+            <DeclineReasonModal
                 isOpen={isDeclineModalOpen}
                 onClose={() => setIsDeclineModalOpen(false)}
                 onDecline={handleDeclineSubmit}
             />
 
-            <ActionSuccessModal 
+            <ActionSuccessModal
                 isOpen={isSuccessModalOpen}
-                onClose={() => setIsSuccessModalOpen(false)}
-                title="Dispute Declined"
-                message="The user will be notified about the declined dispute as this action has been successfully completed"
+                onClose={() => {
+                    setIsSuccessModalOpen(false);
+                    navigate('/disputed-transactions');
+                }}
+                title={successMessage.title}
+                message={successMessage.message}
                 buttonText="Dismiss"
             />
         </div>

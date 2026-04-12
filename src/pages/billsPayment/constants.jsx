@@ -89,7 +89,6 @@ export const createRegionTransactionActions = ({
   setSelectedTransaction,
   setShowDetailsModal,
   setShowShareModal,
-  navigate
 }) => [
   {
     label: 'View Transaction Details',
@@ -109,12 +108,4 @@ export const createRegionTransactionActions = ({
       setShowShareModal(true);
     }
   },
-  {
-    label: 'View Transaction History',
-    type: 'history',
-    icon: CustomHistory,
-    onClick: (transaction) => {
-      navigate(`/bills/details/transaction/${transaction.id}`);
-    }
-  }
 ];

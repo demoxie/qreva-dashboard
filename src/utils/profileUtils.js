@@ -34,7 +34,7 @@ export const createUserActions = (userData, setShowSuspendModal, setShowPromoteM
     }
   ];
 
-  if (userData?.accountType === 'Personal Account') {
+  if (userData?.type === 'Individual' || userData?.accountType === 'Personal Account') {
     const promotions = ['Agent', 'Aggregator', 'Agg. Manager'];
     promotions.forEach(type => {
       actions.push({
@@ -51,17 +51,17 @@ export const createUserActions = (userData, setShowSuspendModal, setShowPromoteM
   return actions;
 };
 
-export const getAvailableTabs = (accountType) => {
+export const getAvailableTabs = (userType) => {
   const tabs = [
     { key: 'profile', label: 'Profile Details' },
     { key: 'transactions', label: 'Transaction History' }
   ];
 
-  if (accountType === 'Aggregator') {
+  if (userType === 'Aggregator') {
     tabs.push({ key: 'agents', label: 'Agents' });
   }
 
-  if (accountType === 'Merchant') {
+  if (userType === 'Merchant') {
     tabs.push(
       { key: 'terminalA', label: 'Terminal A' },
       { key: 'terminalB', label: 'Terminal B' }

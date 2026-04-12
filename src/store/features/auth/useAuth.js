@@ -50,3 +50,45 @@ export const useChangePassword = () => {
     },
   });
 };
+
+export const useSendOtp = () => {
+  return useMutation({
+    mutationFn: authApi.sendOtp,
+    onSuccess: () => {
+      handleSuccess('OTP sent to your email.');
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to send OTP.');
+    },
+  });
+};
+
+export const useVerifyOtp = () => {
+  return useMutation({
+    mutationFn: authApi.verifyOtp,
+    onError: (error) => {
+      handleError(error, 'Invalid OTP. Please try again.');
+    },
+  });
+};
+
+export const useChangePin = () => {
+  return useMutation({
+    mutationFn: authApi.changePin,
+    onSuccess: () => {
+      handleSuccess('PIN changed successfully.');
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to change PIN.');
+    },
+  });
+};
+
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: authApi.logout,
+    onError: () => {
+      // Logout locally even if API call fails
+    },
+  });
+};

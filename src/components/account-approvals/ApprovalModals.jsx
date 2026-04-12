@@ -1,4 +1,5 @@
-import { X, CheckCircle } from 'lucide-react';
+import { CheckCircle, X } from 'lucide-react';
+import BaseModal from '@/components/modals/BaseModal';
 
 const ApprovalModals = ({
   modals,
@@ -10,209 +11,180 @@ const ApprovalModals = ({
   onDecline,
   feedbackType
 }) => {
+  const displayName = selectedUser?.name || selectedUser?.fullName ||
+    `${selectedUser?.firstName || ''} ${selectedUser?.lastName || ''}`.trim() || 'this user';
+
   return (
     <>
       {/* Accept Modal */}
-      {modals.showAcceptModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Accept Approval</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to accept the approval for{' '}
-              <span className="font-medium">{selectedUser?.name}</span>?
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => {
-                  setters.setShowAcceptModal(false);
-                  setters.setSelectedUser(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={onAccept}
-                className="px-4 py-2 text-sm font-medium text-white bg-[#4ED17E] rounded-lg hover:bg-[#3DB86A]"
-              >
-                Accept
-              </button>
-            </div>
-          </div>
+      <BaseModal
+        isOpen={modals.showAcceptModal}
+        onClose={() => {
+          setters.setShowAcceptModal(false);
+        }}
+        title="Accept Approval"
+      >
+        <p className="text-sm text-[#808C91] font-general mb-6">
+          Are you sure you want to accept the approval for{' '}
+          <span className="font-semibold text-[#1E1E1E]">{displayName}</span>?
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => {
+              setters.setShowAcceptModal(false);
+            }}
+            className="flex-1 py-3 text-sm font-general font-medium text-[#1E1E1E] bg-white border border-[#E8EBED] rounded-lg hover:bg-[#F7FAFA] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onAccept}
+            className="flex-1 py-3 text-sm font-general font-medium text-white bg-[#4ED17E] rounded-lg hover:bg-[#3DB86A] transition-colors"
+          >
+            Accept
+          </button>
         </div>
-      )}
+      </BaseModal>
 
       {/* Decline Modal */}
-      {modals.showDeclineModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Reason for Declining</h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Kindly write down your reason for declining this KYC approval
-                </p>
-              </div>
-              <button
-                onClick={() => setters.setShowDeclineModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            <textarea
-              className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5B04] mb-6 h-32 resize-none"
-              placeholder="Reason For Declining..."
-              value={declineReason}
-              onChange={(e) => setDeclineReason(e.target.value)}
-            />
-            <button
-              onClick={onDecline}
-              className="w-full py-3 bg-[#E56566] text-white rounded-lg font-medium hover:bg-[#D14546]"
-            >
-              Decline Approval
-            </button>
-          </div>
-        </div>
-      )}
+      <BaseModal
+        isOpen={modals.showDeclineModal}
+        onClose={() => setters.setShowDeclineModal(false)}
+        title="Reason for Declining"
+      >
+        <p className="text-sm text-[#808C91] font-general mb-4">
+          Kindly write down your reason for declining this KYC approval
+        </p>
+        <textarea
+          className="w-full p-3 border border-[#E8EBED] rounded-lg text-sm font-general focus:outline-none focus:ring-2 focus:ring-[#FF5B04]/20 mb-6 h-32 resize-none"
+          placeholder="Reason For Declining..."
+          value={declineReason}
+          onChange={(e) => setDeclineReason(e.target.value)}
+        />
+        <button
+          onClick={onDecline}
+          disabled={!declineReason?.trim()}
+          className="w-full py-3 bg-[#E56566] text-white rounded-lg font-general font-medium hover:bg-[#D14546] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          Decline Approval
+        </button>
+      </BaseModal>
 
       {/* Success Modal */}
-      {modals.showSuccessModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-            <button
-              onClick={() => setters.setShowSuccessModal(false)}
-              className="ml-auto block text-gray-400 hover:text-gray-600 mb-4"
-            >
-              <X size={20} />
-            </button>
-            
-            <div className="text-center">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-                feedbackType === 'approved' ? 'bg-green-100' : 'bg-red-100'
-              }`}>
-                {feedbackType === 'approved' ? (
-                  <CheckCircle className="w-8 h-8 text-green-500" />
-                ) : (
-                  <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                )}
-              </div>
-
-              <h3 className="text-xl font-bold text-[#1E1E1E] mb-2">
-                KYC {feedbackType === 'approved' ? 'Approved' : 'Declined'}
-              </h3>
-              <p className="text-sm text-gray-500 mb-6">
-                The user will be notified about the {feedbackType === 'approved' ? 'approved' : 'declined'} KYC as this action has been successfully completed
-              </p>
-
-              <button
-                onClick={() => setters.setShowSuccessModal(false)}
-                className="w-full py-3 bg-[#FF5B04] text-white rounded-lg font-medium hover:bg-[#E54F03]"
-              >
-                Dismiss
-              </button>
-            </div>
+      <BaseModal
+        isOpen={modals.showSuccessModal}
+        onClose={() => setters.setShowSuccessModal(false)}
+        hasCloseButton={true}
+        title=""
+      >
+        <div className="text-center">
+          <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            feedbackType === 'approved' ? 'bg-[#E9F9EF]' : 'bg-[#FCECEC]'
+          }`}>
+            {feedbackType === 'approved' ? (
+              <CheckCircle className="w-8 h-8 text-[#4ED17E]" />
+            ) : (
+              <X className="w-8 h-8 text-[#E56566]" />
+            )}
           </div>
+
+          <h3 className="text-xl font-bold font-urbanist text-[#1E1E1E] mb-2">
+            KYC {feedbackType === 'approved' ? 'Approved' : 'Declined'}
+          </h3>
+          <p className="text-sm text-[#808C91] font-general mb-6">
+            The user will be notified about the {feedbackType === 'approved' ? 'approved' : 'declined'} KYC as this action has been successfully completed
+          </p>
+
+          <button
+            onClick={() => setters.setShowSuccessModal(false)}
+            className="w-full py-3 bg-[#FF5B04] text-white rounded-lg font-general font-medium hover:bg-[#E54F03] transition-colors"
+          >
+            Dismiss
+          </button>
         </div>
-      )}
+      </BaseModal>
 
       {/* Guidelines Modal */}
-      {modals.showGuidelinesModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-[#1E1E1E]">Guidelines for Good Upload</h3>
-                <p className="text-sm text-gray-500 mt-1">Here are the following guidelines</p>
+      <BaseModal
+        isOpen={modals.showGuidelinesModal}
+        onClose={() => setters.setShowGuidelinesModal(false)}
+        title="Guidelines for Good Upload"
+        maxWidth="max-w-2xl"
+      >
+        <p className="text-sm text-[#808C91] font-general mb-6">Here are the following guidelines</p>
+
+        {/* Example Cards */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="text-center">
+            <div className="bg-[#F7FAFA] rounded-lg p-4 mb-2 relative">
+              <div className="absolute top-2 right-2 w-6 h-6 bg-[#4ED17E] rounded-full flex items-center justify-center text-white text-xs">
+                &#10003;
               </div>
-              <button
-                onClick={() => setters.setShowGuidelinesModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X size={24} />
-              </button>
+              <div className="text-xs font-general text-[#808C91]">ID Card Sample</div>
             </div>
-
-            {/* Example Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center">
-                <div className="bg-gray-100 rounded-lg p-4 mb-2 relative">
-                  <div className="absolute top-2 right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white">
-                    ✓
-                  </div>
-                  <div className="text-xs text-gray-600">ID Card Sample</div>
-                </div>
-                <p className="text-sm font-medium text-gray-700">Good</p>
+            <p className="text-sm font-general font-medium text-[#1E1E1E]">Good</p>
+          </div>
+          <div className="text-center">
+            <div className="bg-[#F7FAFA] rounded-lg p-4 mb-2 relative">
+              <div className="absolute top-2 right-2 w-6 h-6 bg-[#E56566] rounded-full flex items-center justify-center text-white text-xs">
+                &#10007;
               </div>
-              <div className="text-center">
-                <div className="bg-gray-100 rounded-lg p-4 mb-2 relative">
-                  <div className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white">
-                    ✗
-                  </div>
-                  <div className="text-xs text-gray-600">Blurred</div>
-                </div>
-                <p className="text-sm font-medium text-gray-700">No blur</p>
-              </div>
-              <div className="text-center">
-                <div className="bg-gray-100 rounded-lg p-4 mb-2 relative">
-                  <div className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white">
-                    ✗
-                  </div>
-                  <div className="text-xs text-gray-600">Cut off</div>
-                </div>
-                <p className="text-sm font-medium text-gray-700">No cut</p>
-              </div>
+              <div className="text-xs font-general text-[#808C91]">Blurred</div>
             </div>
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Must Be:</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 border border-green-200 bg-green-50 rounded-lg p-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Government Issued</span>
-                  </div>
-                  <div className="flex items-center gap-2 border border-green-200 bg-green-50 rounded-lg p-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Original Full size, unedited</span>
-                  </div>
-                  <div className="flex items-center gap-2 border border-green-200 bg-green-50 rounded-lg p-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Place document against a single colored background</span>
-                  </div>
-                  <div className="flex items-center gap-2 border border-green-200 bg-green-50 rounded-lg p-3">
-                    <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Readable, well lit and colored</span>
-                  </div>
-                </div>
+            <p className="text-sm font-general font-medium text-[#1E1E1E]">No blur</p>
+          </div>
+          <div className="text-center">
+            <div className="bg-[#F7FAFA] rounded-lg p-4 mb-2 relative">
+              <div className="absolute top-2 right-2 w-6 h-6 bg-[#E56566] rounded-full flex items-center justify-center text-white text-xs">
+                &#10007;
               </div>
-
-              <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">Must Not Be:</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 border border-red-200 bg-red-50 rounded-lg p-3">
-                    <X className="w-5 h-5 text-red-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Black or white images</span>
-                  </div>
-                  <div className="flex items-center gap-2 border border-red-200 bg-red-50 rounded-lg p-3">
-                    <X className="w-5 h-5 text-red-500 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">Blurred or cut images</span>
-                  </div>
-                </div>
-              </div>
+              <div className="text-xs font-general text-[#808C91]">Cut off</div>
             </div>
-
-            <button
-              onClick={() => setters.setShowGuidelinesModal(false)}
-              className="w-full py-3 bg-[#FF5B04] text-white rounded-lg font-medium hover:bg-[#E54F03]"
-            >
-              Dismiss
-            </button>
+            <p className="text-sm font-general font-medium text-[#1E1E1E]">No cut</p>
           </div>
         </div>
-      )}
+
+        <div className="space-y-4 mb-6">
+          <div>
+            <h4 className="text-sm font-general font-semibold text-[#1E1E1E] mb-3">Must Be:</h4>
+            <div className="space-y-2">
+              {[
+                'Government Issued',
+                'Original Full size, unedited',
+                'Place document against a single colored background',
+                'Readable, well lit and colored',
+              ].map((text) => (
+                <div key={text} className="flex items-center gap-2 border border-[#4ED17E]/30 bg-[#E9F9EF] rounded-lg p-3">
+                  <CheckCircle className="w-5 h-5 text-[#4ED17E] flex-shrink-0" />
+                  <span className="text-sm font-general text-[#1E1E1E]">{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-general font-semibold text-[#1E1E1E] mb-3">Must Not Be:</h4>
+            <div className="space-y-2">
+              {[
+                'Black or white images',
+                'Blurred or cut images',
+              ].map((text) => (
+                <div key={text} className="flex items-center gap-2 border border-[#E56566]/30 bg-[#FCECEC] rounded-lg p-3">
+                  <X className="w-5 h-5 text-[#E56566] flex-shrink-0" />
+                  <span className="text-sm font-general text-[#1E1E1E]">{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setters.setShowGuidelinesModal(false)}
+          className="w-full py-3 bg-[#FF5B04] text-white rounded-lg font-general font-medium hover:bg-[#E54F03] transition-colors"
+        >
+          Dismiss
+        </button>
+      </BaseModal>
     </>
   );
 };

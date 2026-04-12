@@ -16,7 +16,7 @@ const SettingsCard = ({ icon: Icon, title, description, onClick, iconColor = "te
 
                 <h3 className="font-semibold text-lg mb-2 text-[#1E1E1E]">{title}</h3>
 
-                <p className="text-sm text-gray-500 mb-6 flex-grow">
+                <p className="text-sm text-gray-500 mb-6 grow">
                     {description}
                 </p>
 

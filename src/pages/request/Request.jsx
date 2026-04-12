@@ -1,23 +1,42 @@
+import { useState, useMemo } from 'react';
 import DashboardStats from '@/components/base/DashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import RequestTabs from '@/components/request/RequestTabs';
 import RequestsSearch from '@/components/request/RequestSearch';
 import RequestsGrid from '@/components/request/RequestGrid';
 import RequestDetailsModal from '@/components/request/RequestDetailsModal';
-import { useRequestFilters } from '@/hooks/useRequestFilters';
 import { useRequestModals } from '@/hooks/useRequestModals';
-import { requestsData } from './data';
-import { stats, requestTabs } from './constants';
+import { useRequests, useRequestMetrics } from '@/store/features/requests/useRequests';
+import { requestTabs } from './constants';
 
 export default function Request() {
-  const {
-    activeTab,
-    setActiveTab,
-    searchQuery,
-    setSearchQuery,
-    filteredRequests,
-    pendingCount
-  } = useRequestFilters(requestsData);
+  const [activeTab, setActiveTab] = useState('pending');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const statusMap = { pending: 'Pending', accepted: 'Approved', declined: 'Rejected' };
+
+  const { data: requestsResponse, isLoading } = useRequests({
+    status: statusMap[activeTab],
+    search: searchQuery || undefined,
+    page: 1,
+    limit: 50,
+  });
+
+  const { data: metricsResponse } = useRequestMetrics();
+
+  const requests = requestsResponse?.data || [];
+  const pendingCount = metricsResponse?.data?.pendingRequests || 0;
+
+  const stats = useMemo(() => {
+    if (!metricsResponse?.data) return [];
+    const m = metricsResponse.data;
+    return [
+      { label: 'Total Requests', value: m.totalRequests?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
+      { label: 'Pending Requests', value: m.pendingRequests?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
+      { label: 'Approved Requests', value: m.approvedRequests?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
+      { label: 'Rejected Requests', value: m.rejectedRequests?.toLocaleString() || '0', change: '+0%', subtext: 'in last 24 hours' },
+    ];
+  }, [metricsResponse]);
 
   const {
     showDetailsModal,
@@ -50,8 +69,9 @@ export default function Request() {
         />
 
         <RequestsGrid
-          requests={filteredRequests}
+          requests={requests}
           onViewDetails={openDetailsModal}
+          loading={isLoading}
         />
       </div>
 

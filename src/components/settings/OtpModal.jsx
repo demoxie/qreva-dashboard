@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import BaseModal from '../modals/BaseModal';
 import { Button } from "@/components/ui/button";
 
-const OtpModal = ({ isOpen, onClose, phoneNumber = "08012345678" }) => {
+const OtpModal = ({ isOpen, onClose, onSubmit, phoneNumber = "08012345678" }) => {
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const inputsRef = useRef([]);
 
@@ -50,7 +50,7 @@ const OtpModal = ({ isOpen, onClose, phoneNumber = "08012345678" }) => {
             isOpen={isOpen}
             onClose={onClose}
             title="OTP Verification"
-            maxWidth="max-w-lg"
+            maxWidth="max-w-md"
         >
             <div className="mt-2 text-center">
                 <p className="text-sm text-gray-500 mb-8">
@@ -81,9 +81,15 @@ const OtpModal = ({ isOpen, onClose, phoneNumber = "08012345678" }) => {
 
                 <Button
                     className="w-full h-12 bg-[#E8EBED] text-[#808C91] hover:bg-[#d5d8db] hover:text-[#505C61] font-medium text-base mb-2 disabled:opacity-50"
-                    onClick={onClose}
+                    onClick={() => {
+                        if (onSubmit) {
+                            onSubmit(otp.join(''));
+                        } else {
+                            onClose();
+                        }
+                    }}
                     disabled={!isComplete}
-                    style={{ backgroundColor: isComplete ? '#E8EBED' : undefined, color: isComplete ? '#1E1E1E' : undefined }}
+                    style={{ backgroundColor: isComplete ? '#FF5B04' : undefined, color: isComplete ? 'white' : undefined }}
                 >
                     Enter OTP
                 </Button>

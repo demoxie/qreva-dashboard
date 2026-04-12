@@ -1,8 +1,13 @@
 import React from 'react';
 import DataTable from "@/components/tables/DataTable";
-import { ACTIVITY_LOGS_DATA, ACTIVITY_LOGS_COLUMNS } from './constants';
+import { ACTIVITY_LOGS_COLUMNS } from './constants';
+import { useActivityLogs } from '@/store/features/settings/useActivityLogs';
 
 const ActivityLogs = () => {
+    const { data: logsResponse, isLoading } = useActivityLogs();
+
+    const logs = logsResponse?.data || [];
+
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
             <div className="mb-8">
@@ -11,11 +16,12 @@ const ActivityLogs = () => {
             </div>
 
             <DataTable
-                data={ACTIVITY_LOGS_DATA}
+                data={logs}
                 columns={ACTIVITY_LOGS_COLUMNS}
                 title="Activity Logs"
                 showSearch={true}
                 showCheckbox={true}
+                loading={isLoading}
             />
         </div>
     );

@@ -1,11 +1,12 @@
 import { useParams } from 'react-router-dom';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { transactionHistoryData } from '@/constants/mockData';
+import LoadingState from '@/components/common/LoadingState';
+import { useTransactions } from '@/store/features/transactions/useTransactions';
 import { createCustomerStats, createCustomerTransactionActions } from '@/pages/airtimePurchase/constants';
 
 const TransactionDetailsView = () => {
@@ -16,21 +17,23 @@ const TransactionDetailsView = () => {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
 
-  const transaction = transactionHistoryData.find(
-    tx => tx.id === Number(id)
+  const { data: txData, isLoading } = useTransactions({
+    typeCategory: 'Airtime',
+    page: 1,
+    limit: 50,
+  });
+
+  const transactions = txData?.data || [];
+  const transaction = transactions.find(tx => tx._id === id || tx.id === id);
+
+  const customerTransactions = transactions.filter(
+    tx => (tx.senderName && tx.senderName === transaction?.senderName)
+      || (tx.phoneNumber && tx.phoneNumber === transaction?.phoneNumber)
+      || (tx.accountNumber && tx.accountNumber === transaction?.accountNumber)
+      || (tx.title && tx.title === transaction?.title)
   );
 
-  if (!transaction) return <div>Transaction not found</div>;
-
-  const customerTransactions = useMemo(
-    () =>
-      transactionHistoryData.filter(
-        tx => tx.title === transaction.title
-      ),
-    [transaction.title]
-  );
-
-  const stats = createCustomerStats(transaction);
+  const stats = transaction ? createCustomerStats(transaction) : [];
 
   const actions = createCustomerTransactionActions(
     (tx) => {
@@ -42,6 +45,9 @@ const TransactionDetailsView = () => {
       setShowShareModal(true);
     }
   );
+
+  if (isLoading) return <LoadingState />;
+  if (!transaction) return <LoadingState message="Transaction not found" />;
 
   return (
     <>
