@@ -10,7 +10,7 @@ const createRegioncolumns = (handleViewRegionDetails) => [
       minWidth: 150,
       renderCell: (params) => (
         <span className="font-general text-sm flex items-center gap-3">
-          <p className='bg-[#F7FAFA] rounded-full w-6 h-6 flex items-center justify-center text-[#808C91] text-center border-2 border-[#E9F1F3]'>{params.row.id}</p> <p className='font-medium leading-[148%] text-[#1E1E1E]'>{params.row.location}</p>
+          <p className='bg-[#F7FAFA] rounded-full w-6 h-6 flex items-center justify-center text-[#808C91] text-center border-2 border-[#E9F1F3]'>{params.api.getRowIndexRelativeToVisibleRows(params.id) + 1}</p> <p className='font-medium leading-[148%] text-[#1E1E1E]'>{params.row.location || params.row.name}</p>
         </span>
       )
     },
@@ -65,7 +65,7 @@ const createRegioncolumns = (handleViewRegionDetails) => [
       sortable: false,
       renderCell: (params) => (
         <button 
-          onClick={() => handleViewRegionDetails(params.row.id)}
+          onClick={() => handleViewRegionDetails(params.row._id || params.row.id || params.row.location)}
           className="font-general flex items-center text-sm text-[#26C8B9] underline underline-offset-2 cursor-pointer font-semibold"
         >
           View Details
@@ -83,7 +83,7 @@ const createRegioncolumns = (handleViewRegionDetails) => [
       renderCell: (params) => (
         <div className='flex flex-col justify-center h-full'>
           <div className="text-sm font-general font-medium flex items-center h-full">
-            {params.row.senderName || '-'}
+            {params.row.senderName || params.row.metadata?.debitAccountName || params.row.narration || '-'}
           </div>
         </div>
       )
@@ -93,7 +93,7 @@ const createRegioncolumns = (handleViewRegionDetails) => [
       headerName: 'Recipient Name',
       width: 180,
       flex: 1,
-      valueGetter: (value, row) => row.recipientName || row.transferId?.nameEnquiryId?.accountName || '-',
+      valueGetter: (value, row) => row.recipientName || row.transferId?.nameEnquiryId?.accountName || row.metadata?.creditAccountName || '-',
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
           {params.value}

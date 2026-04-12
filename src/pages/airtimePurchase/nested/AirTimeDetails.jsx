@@ -169,12 +169,12 @@ const AirtimeDetails = () => {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
                   <span className="text-2xl font-bold text-orange-600">
-                    {(transaction.senderName || transaction.title || '')?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'TX'}
+                    {(transaction.senderName || transaction.narration || transaction.typeCategory || transaction.title || '')?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'TX'}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{transaction.senderName || transaction.title}</h3>
-                  <p className="text-gray-600">{transaction.senderPhone || transaction.acc}</p>
+                  <h3 className="text-xl font-bold text-gray-900">{transaction.senderName || transaction.narration || transaction.typeCategory || transaction.title}</h3>
+                  <p className="text-gray-600">{transaction.senderPhone || transaction.phoneNumber || transaction.creditAccountNumber || transaction.accountNumber || transaction.acc}</p>
                 </div>
               </div>
             </div>

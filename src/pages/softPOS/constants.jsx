@@ -89,7 +89,7 @@ const chartSeries = [
       sortable: false,
       renderCell: (params) => (
         <button 
-          onClick={() => handleViewRegionDetails(params.row.id)}
+          onClick={() => handleViewRegionDetails(params.row._id || params.row.id || params.row.location)}
           className="font-general flex items-center text-sm text-[#26C8B9] underline underline-offset-2 cursor-pointer font-semibold"
         >
           View Details

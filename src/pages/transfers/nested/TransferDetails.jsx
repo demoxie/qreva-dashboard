@@ -97,12 +97,12 @@ const TransferDetails = () => {
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center">
                   <span className="text-2xl font-bold text-teal-600">
-                    {(transaction.customerName || transaction.title || '')?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'TX'}
+                    {(transaction.senderName || transaction.transferId?.nameEnquiryId?.accountName || transaction.narration || transaction.typeCategory || transaction.customerName || transaction.title || '')?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'TX'}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">{transaction.customerName || transaction.title}</h3>
-                  <p className="text-gray-600">{transaction.customerPhone || transaction.acc}</p>
+                  <h3 className="text-xl font-bold text-gray-900">{transaction.senderName || transaction.transferId?.nameEnquiryId?.accountName || transaction.narration || transaction.typeCategory || transaction.customerName || transaction.title}</h3>
+                  <p className="text-gray-600">{transaction.phoneNumber || transaction.creditAccountNumber || transaction.accountNumber || transaction.customerPhone || transaction.acc}</p>
                 </div>
                 <div className="ml-auto">
                   <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">{transaction.status}</span>

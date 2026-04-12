@@ -12,24 +12,41 @@ const TransactionHistoryTable = ({
   // Define default columns for transaction history
   const columns = [
     {
+      field: 'title',
+      headerName: 'Title',
+      width: 180,
+      flex: 1,
+      renderCell: (params) => {
+        const name = params.row.senderName
+          || params.row.transferId?.nameEnquiryId?.accountName
+          || params.row.utilityId?.vasVerificationId?.name
+          || params.row.narration
+          || params.row.typeCategory
+          || params.row.title
+          || '-';
+        const acc = params.row.senderPhone
+          || params.row.phoneNumber
+          || params.row.meterNumber
+          || params.row.creditAccountNumber
+          || params.row.accountNumber
+          || params.row.acc
+          || '';
+        return (
+          <div className='flex flex-col justify-center h-full'>
+            <div className="text-sm font-general font-medium flex items-center h-full">{name}</div>
+            {acc && <div className="text-xs text-gray-500 flex items-center h-full">{acc}</div>}
+          </div>
+        );
+      }
+    },
+    {
       field: 'typeCategory',
       headerName: 'Category',
       width: 130,
       flex: 0.8,
       renderCell: (params) => (
         <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value || params.row.type || '-'}
-        </span>
-      )
-    },
-    {
-      field: 'type',
-      headerName: 'Type',
-      width: 100,
-      flex: 0.7,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value}
+          {params.value || params.row.category || '-'}
         </span>
       )
     },
@@ -54,6 +71,17 @@ const TransactionHistoryTable = ({
       }
     },
     {
+      field: 'type',
+      headerName: 'Type',
+      width: 100,
+      flex: 0.7,
+      renderCell: (params) => (
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {params.value}
+        </span>
+      )
+    },
+    {
       field: 'amount',
       headerName: 'Amount (₦)',
       width: 150,
@@ -65,26 +93,17 @@ const TransactionHistoryTable = ({
       )
     },
     {
-      field: 'fees',
-      headerName: 'Fees (₦)',
-      width: 100,
-      flex: 0.7,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {(params.value || 0)?.toLocaleString()}
-        </span>
-      )
-    },
-    {
       field: 'createdAt',
       headerName: 'Transaction Date',
       width: 180,
       flex: 1,
-      renderCell: (params) => (
-        <span className="text-sm text-gray-500 flex items-center h-full">
-          {params.value ? new Date(params.value).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
-        </span>
-      )
+      renderCell: (params) => {
+        const val = params.value || params.row.date;
+        if (!val) return <span className="text-sm text-gray-500 flex items-center h-full">-</span>;
+        const d = new Date(val);
+        if (isNaN(d)) return <span className="text-sm text-gray-500 flex items-center h-full">{val}</span>;
+        return <span className="text-sm text-gray-500 flex items-center h-full">{d.toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>;
+      }
     }
   ];
 

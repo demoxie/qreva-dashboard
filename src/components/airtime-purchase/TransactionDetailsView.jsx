@@ -27,7 +27,10 @@ const TransactionDetailsView = () => {
   const transaction = transactions.find(tx => tx._id === id || tx.id === id);
 
   const customerTransactions = transactions.filter(
-    tx => tx.senderName === transaction?.senderName || tx.title === transaction?.title
+    tx => (tx.senderName && tx.senderName === transaction?.senderName)
+      || (tx.phoneNumber && tx.phoneNumber === transaction?.phoneNumber)
+      || (tx.accountNumber && tx.accountNumber === transaction?.accountNumber)
+      || (tx.title && tx.title === transaction?.title)
   );
 
   const stats = transaction ? createCustomerStats(transaction) : [];

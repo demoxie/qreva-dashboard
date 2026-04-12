@@ -75,6 +75,7 @@ const CreateTier = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const createTier = useCreateTier();
 
+  const [tierLevel, setTierLevel] = useState("");
   const [tierName, setTierName] = useState("");
   const [tierDesc, setTierDesc] = useState("");
   const [selectedDocs, setSelectedDocs] = useState([]);
@@ -102,7 +103,8 @@ const CreateTier = () => {
 
   const handleCreate = () => {
     const payload = {
-      level: tierName,
+      level: tierLevel,
+      name: tierName,
       accountType:
         activeTab === "personal" ? "PersonalAccount" : "AgentAccount",
       tierDescription: tierDesc,
@@ -173,8 +175,22 @@ const CreateTier = () => {
       <Card className="mb-6">
         <CardContent className="p-6">
           <h3 className="font-bold text-[#1E1E1E] mb-6">General Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
+              <label className="text-xs text-[#808C91] mb-1 block">Tier Level *</label>
+              <select
+                value={tierLevel}
+                onChange={(e) => setTierLevel(e.target.value)}
+                className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#FF5B04] bg-white"
+              >
+                <option value="">Select Tier Level</option>
+                <option value="Tier1">Tier 1</option>
+                <option value="Tier2">Tier 2</option>
+                <option value="Tier3">Tier 3</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-[#808C91] mb-1 block">Tier Name</label>
               <input
                 type="text"
                 placeholder="Tier Name"
@@ -184,9 +200,10 @@ const CreateTier = () => {
               />
             </div>
             <div>
+              <label className="text-xs text-[#808C91] mb-1 block">Description *</label>
               <input
                 type="text"
-                placeholder="Tier Description (Required)"
+                placeholder="Tier Description"
                 value={tierDesc}
                 onChange={(e) => setTierDesc(e.target.value)}
                 className="w-full px-4 py-3 border border-[#E8EBED] rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-[#FF5B04]"

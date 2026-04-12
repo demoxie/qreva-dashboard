@@ -17,10 +17,13 @@ import { formatDashboardStats } from "@/utils/formatDashboardStats";
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const navigate = useNavigate();
 
   const { data: usersResponse, isLoading } = useUsers({
     type: "Aggregator",
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
     search: searchQuery || undefined,
   });
 
@@ -113,6 +116,10 @@ const Aggregators = () => {
           onSearch={setSearchQuery}
           onFilter={() => console.log("Filter clicked")}
           loading={isLoading}
+          paginationMode="server"
+          rowCount={usersResponse?.pagination?.total || 0}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
         />
       </div>
 

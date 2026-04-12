@@ -13,9 +13,12 @@ import { handleSuccess } from '@/store/utils/handleSuccess';
 const AccountApprovals = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Pending');
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
 
   const { data: approvalsResponse, isLoading } = useAccountApprovals({
     status: activeTab.toLowerCase(),
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
   });
   const approveAccount = useApproveAccount();
   const declineAccount = useDeclineAccount();
@@ -113,6 +116,10 @@ const AccountApprovals = () => {
           columns={approvalColumns}
           actions={tableActions}
           loading={isLoading}
+          paginationMode="server"
+          rowCount={approvalsResponse?.pagination?.total || 0}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
         />
       </div>
 

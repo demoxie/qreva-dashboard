@@ -19,6 +19,13 @@ const DataTable = ({
   pageSize = 5,
   pageSizeOptions = [5, 10, 25],
   getRowId,
+  // Extract pagination props so they don't conflict via {...rest}
+  pagination,
+  onPageChange,
+  paginationMode,
+  paginationModel: externalPaginationModel,
+  onPaginationModelChange,
+  rowCount,
   ...rest
 }) => {
   const [dropdown, setDropdown] = useState({ open: false, anchor: null, row: null, x: 0, y: 0 });
@@ -123,16 +130,22 @@ const DataTable = ({
             disableRowSelectionOnClick
             disableColumnResize
             columnBufferPx={0}
-            paginationMode={rest.pagination ? "server" : "client"}
-            rowCount={rest.pagination?.total || data.length}
+            paginationMode={paginationMode || (pagination ? "server" : "client")}
+            rowCount={rowCount ?? pagination?.total ?? data.length}
             loading={isLoading}
-            paginationModel={{ 
-              page: (rest.pagination?.page || 1) - 1, 
-              pageSize: rest.pagination?.limit || pageSize 
-            }}
+            paginationModel={
+              externalPaginationModel
+                ? externalPaginationModel
+                : {
+                    page: (pagination?.page || 1) - 1,
+                    pageSize: pagination?.limit || pageSize
+                  }
+            }
             onPaginationModelChange={(model) => {
-              if (rest.onPageChange) {
-                rest.onPageChange(model.page + 1);
+              if (onPaginationModelChange) {
+                onPaginationModelChange(model);
+              } else if (onPageChange) {
+                onPageChange(model.page + 1);
               }
             }}
             {...rest}
@@ -199,11 +212,17 @@ const DataTable = ({
             }}
             slotProps={{
               pagination: {
-                currentPage: rest.pagination?.page || 1,
-                totalPages: rest.pagination?.totalPages || Math.ceil((rest.pagination?.total || data.length) / (rest.pagination?.limit || pageSize)),
-                onPageChange: rest.onPageChange,
-                totalItems: rest.pagination?.total || data.length,
-                itemsPerPage: rest.pagination?.limit || pageSize
+                currentPage: externalPaginationModel
+                  ? externalPaginationModel.page + 1
+                  : (pagination?.page || 1),
+                totalPages: externalPaginationModel
+                  ? Math.ceil((rowCount || data.length) / (externalPaginationModel.pageSize || pageSize))
+                  : (pagination?.totalPages || Math.ceil((pagination?.total || data.length) / (pagination?.limit || pageSize))),
+                onPageChange: externalPaginationModel
+                  ? (page) => onPaginationModelChange?.({ ...externalPaginationModel, page: page - 1 })
+                  : onPageChange,
+                totalItems: rowCount ?? pagination?.total ?? data.length,
+                itemsPerPage: externalPaginationModel?.pageSize || pagination?.limit || pageSize
               }
             }}
           />

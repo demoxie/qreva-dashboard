@@ -20,7 +20,7 @@ const CommissionForm = ({
     subtitle = "Kindly input the info about this new commission",
     isSubmitting = false,
 }) => {
-    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentAccount');
+    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentMerchant');
     const [transactionType, setTransactionType] = useState(initialData.transactionType || 'SoftPOS');
     const [feeType, setFeeType] = useState(initialData.feeType || 'Percentage');
     const [percentageFee, setPercentageFee] = useState(
@@ -60,7 +60,7 @@ const CommissionForm = ({
             feeType,
             percentageFee: Number(percentageFee) || 0,
             flatFee: Number(flatFee) || 0,
-            userAccountType: userAccountType === 'AgentAccount' ? 'AgentAccount' : 'PersonalAccount',
+            userAccountType,
             appliesTo: Object.entries(appliesTo)
                 .filter(([, checked]) => checked)
                 .map(([key]) => key),
@@ -75,7 +75,7 @@ const CommissionForm = ({
     };
 
     // Map backend values to option IDs for radio selection
-    const userAccountOptionId = userAccountType === 'PersonalAccount' ? 'personal' : 'agent';
+    const userAccountOptionId = USER_ACCOUNT_OPTIONS.find(o => o.value === userAccountType)?.id || 'agent';
     const transactionOptionId = TRANSACTION_TYPE_OPTIONS.find(
         o => o.label === transactionType || o.id === transactionType.toLowerCase().replace(/\s+&\s+/g, '_')
     )?.id || 'softpos';
@@ -102,7 +102,7 @@ const CommissionForm = ({
                 <h3 className="text-sm font-semibold text-[#1E1E1E] mb-6">User Account</h3>
                 <div className="flex flex-wrap gap-8">
                     {USER_ACCOUNT_OPTIONS.map((option) => (
-                        <div key={option.id} className="flex items-center space-x-3 cursor-pointer" onClick={() => setUserAccountType(option.id === 'personal' ? 'PersonalAccount' : 'AgentAccount')}>
+                        <div key={option.id} className="flex items-center space-x-3 cursor-pointer" onClick={() => setUserAccountType(option.value)}>
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${userAccountOptionId === option.id ? 'border-[#FF5B04]' : 'border-[#D1D5DB]'}`}>
                                 {userAccountOptionId === option.id && <div className="w-2.5 h-2.5 rounded-full bg-[#FF5B04]" />}
                             </div>

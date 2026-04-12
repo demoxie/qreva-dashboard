@@ -38,7 +38,7 @@ const APPLIES_TO_OPTIONS = [
 ];
 
 const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create Category', isSubmitting = false }) => {
-    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentAccount');
+    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentMerchant');
     const [categoryName, setCategoryName] = useState(initialData.name || '');
     const [description, setDescription] = useState(initialData.description || '');
     const [monthlyVolume, setMonthlyVolume] = useState(
@@ -94,7 +94,7 @@ const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create C
             name: categoryName,
             description,
             active: true,
-            userAccountType: userAccountType === 'AgentAccount' ? 'AgentAccount' : 'PersonalAccount',
+            userAccountType,
             monthlyTransactionVolume: Number(monthlyVolume.replace(/[^0-9]/g, '')) || 0,
             dailyTransactionCount: Number(dailyCount.replace(/[^0-9]/g, '')) || 0,
             commissionType,
@@ -134,8 +134,8 @@ const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create C
                             label="Personal Account"
                         />
                         <GreenRadio
-                            checked={userAccountType === 'AgentAccount'}
-                            onChange={() => setUserAccountType('AgentAccount')}
+                            checked={userAccountType === 'AgentMerchant'}
+                            onChange={() => setUserAccountType('AgentMerchant')}
                             label="Agents/Merchants"
                         />
                     </div>

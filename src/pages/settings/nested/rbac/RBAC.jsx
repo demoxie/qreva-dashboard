@@ -13,9 +13,9 @@ const RBAC = () => {
 
   const handleAction = (action, row) => {
     if (action.label === "View Details") {
-      navigate(`/settings/rbac/view/${row.id}`);
+      navigate(`/settings/rbac/view/${row._id || row.id}`);
     } else if (action.label === "Edit Details") {
-      navigate(`/settings/rbac/edit/${row.id}`);
+      navigate(`/settings/rbac/edit/${row._id || row.id}`);
     }
   };
 
