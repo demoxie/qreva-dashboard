@@ -8,13 +8,19 @@ import BgImage from "../../assets/images/Vector.png";
 const DashboardStats = ({ stats, route }) => {
   // Default stats
   const defaultStats = [
-    { label: "Total Transactions", value: "45,823", change: "+20%", subtext: "80,000 Last 24 hours" },
-    { label: "Total Transaction Volume", value: "₦4,005,823", change: "-10%", subtext: "₦80,000 in last 24 hours" },
-    { label: "Total Revenue", value: "₦1,070,823", change: "-20%", subtext: "₦80,000 in last 24 hours" },
-    { label: "Success Rate", value: "90%", change: "+19%", subtext: "24 % out of 24 hours" }
+    { label: "Total Transactions", value: "-", change: "", subtext: "-" },
+    {
+      label: "Total Transaction Volume",
+      value: "-",
+      change: "%",
+      subtext: "-",
+    },
+    { label: "Total Revenue", value: "-", change: "%", subtext: "-" },
+    { label: "Success Rate", value: "-", change: "%", subtext: "-" },
   ];
 
-  let statsToDisplay = (stats && stats.length > 0) ? stats.filter(Boolean) : defaultStats;
+  let statsToDisplay =
+    stats && stats.length > 0 ? stats.filter(Boolean) : defaultStats;
 
   const userRole = localStorage.getItem("userRole") || "SuperAdmin";
 
@@ -27,7 +33,7 @@ const DashboardStats = ({ stats, route }) => {
         label: "My Earnings",
         value: stats[0]?.value || "₦0",
         change: "",
-        subtext: stats[0]?.subtext || "₦0 in last 24 hours"
+        subtext: stats[0]?.subtext || "₦0 in last 24 hours",
       };
     }
 
@@ -39,7 +45,7 @@ const DashboardStats = ({ stats, route }) => {
           label: "Your Earnings",
           value: "₦1,570,823",
           change: "",
-          subtext: "₦100,000 in last 24 hours"
+          subtext: "₦100,000 in last 24 hours",
         };
 
       default:
@@ -54,57 +60,52 @@ const DashboardStats = ({ stats, route }) => {
   //  RENDER CUSTOM CARD JSX
   // ---------------------------
   const renderCustomFirstCard = (stat) => {
-  const [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
 
-  return (
-    <Card
-      className="relative overflow-hidden h-full bg-[#26C8B9]"
-      style={{
-        backgroundImage: `url(${BgImage})`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "right center",  
-        backgroundSize: "auto 100%",       
-      }}
-    >
-
-      <CardContent className="p-4">
-
-        {/* Content */}
-        <div className="relative z-10">
-          <span className="text-sm font-urbanist font-medium text-white/70">
-            {stat.label}
-          </span>
-
-          <div className="flex items-center gap-2 mt-2 mb-1">
-            <div className="text-[32px] font-semibold font-general text-white">
-              {show ? stat.value : "••••••"}
+    return (
+      <Card
+        className="relative overflow-hidden h-full bg-[#26C8B9] border-none"
+        style={{
+          backgroundImage: `url(${BgImage})`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right center",
+          backgroundSize: "auto 100%",
+        }}
+      >
+        <CardContent className="p-4 h-full flex flex-col">
+          <div className="relative z-10">
+            {/* 1. FIXED HEIGHT FOR TOP LABEL SECTION */}
+            <div className="min-h-10 flex items-start">
+              <span className="text-sm font-urbanist font-medium text-white/70">
+                {stat.label}
+              </span>
             </div>
 
-            {/* Eye toggle */}
-            <button
-              type="button"
-              onClick={() => setShow(!show)}
-              className="text-white/80 hover:text-white"
-            >
-              {show ? (
-                <EyeOff size={20} />
-              ) : (
-                <Eye size={20} />
-              )}
-            </button>
+            {/* 2. AMOUNT SECTION - Now starts at the same Y-axis as others */}
+            <div className="flex items-center gap-2 mt-1 mb-1">
+              <div className="text-[32px] font-semibold font-general text-white leading-none">
+                {show ? stat.value : "••••••"}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className="text-white/80 hover:text-white"
+              >
+                {show ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+
+            {stat.subtext && (
+              <div className="text-xs font-urbanist font-medium text-white/70 mt-1">
+                {stat.subtext}
+              </div>
+            )}
           </div>
-
-          {stat.subtext && (
-            <div className="text-xs font-urbanist font-medium text-white/70">
-              {stat.subtext}
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
+        </CardContent>
+      </Card>
+    );
+  };
 
   // ---------------------------
   //  SUPPORT FUNCTIONS
@@ -115,9 +116,17 @@ const DashboardStats = ({ stats, route }) => {
 
   const renderStatIcon = (change) =>
     change?.startsWith("+") ? (
-      <img src={StatGreen} alt="stat" className={`w-4 h-4 ${getChangeColor(change)}`} />
+      <img
+        src={StatGreen}
+        alt="stat"
+        className={`w-4 h-4 ${getChangeColor(change)}`}
+      />
     ) : (
-      <img src={StatRed} alt="stat" className={`w-4 h-4 ${getChangeColor(change)}`} />
+      <img
+        src={StatRed}
+        alt="stat"
+        className={`w-4 h-4 ${getChangeColor(change)}`}
+      />
     );
 
   const getBgColor = (change) =>
@@ -127,27 +136,31 @@ const DashboardStats = ({ stats, route }) => {
   //  RENDER FINAL GRID
   // ---------------------------
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-stretch">
       {statsToDisplay.map((stat, idx) => {
-        // First card gets custom layout
-        if (idx === 0 && (userRole !== "SuperAdmin" || route === "my-earnings")) {
-          return <div key={idx}>{renderCustomFirstCard(stat)}</div>;
+        if (
+          idx === 0 &&
+          (userRole !== "SuperAdmin" || route === "my-earnings")
+        ) {
+          return (
+            <div key={idx} className="h-full">
+              {renderCustomFirstCard(stat)}
+            </div>
+          );
         }
 
-        // Normal card for others
         return (
-          <Card key={idx}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-sm font-urbanist font-medium text-[#808C91]">
+          <Card key={idx} className="h-full">
+            <CardContent className="p-4 h-full flex flex-col">
+              {/* 1. FIXED HEIGHT FOR TOP LABEL SECTION */}
+              <div className="flex justify-between items-start mb-2 gap-2 min-h-10">
+                <span className="text-sm font-urbanist font-medium text-[#808C91] wrap-break-word">
                   {stat.label}
                 </span>
 
                 {stat.change && (
                   <span
-                    className={`text-xs font-general font-medium flex items-center py-1 px-1.5 rounded-2xl ${getBgColor(
-                      stat.change
-                    )} ${getChangeColor(stat.change)}`}
+                    className={`text-xs font-general font-medium flex items-center py-1 px-1.5 rounded-2xl whitespace-nowrap ${getBgColor(stat.change)} ${getChangeColor(stat.change)}`}
                   >
                     {renderStatIcon(stat.change)}
                     {stat.change}
@@ -155,12 +168,13 @@ const DashboardStats = ({ stats, route }) => {
                 )}
               </div>
 
-              <div className="text-[32px] font-semibold font-general text-[#084059] mb-1">
+              {/* 2. AMOUNT SECTION - Will always be perfectly leveled */}
+              <div className="text-[32px] font-semibold font-general text-[#084059] mb-1 leading-none">
                 {stat.value}
               </div>
 
               {stat.subtext && (
-                <div className="text-xs font-urbanist font-medium leading-[145%] text-[#808c91]">
+                <div className="text-xs font-urbanist font-medium leading-[145%] text-[#808c91] mt-auto">
                   {stat.subtext}
                 </div>
               )}

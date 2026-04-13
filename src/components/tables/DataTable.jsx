@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DataGrid } from '@mui/x-data-grid';
-import { MoreVertical } from 'lucide-react';
-import SearchFilterBar from '../common/SearchFilterBar';
-import CustomPagination from '../common/Pagination';
-import { Skeleton, Box } from '@mui/material';
-import { GridOverlay } from '@mui/x-data-grid';
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataGrid } from "@mui/x-data-grid";
+import { MoreVertical } from "lucide-react";
+import SearchFilterBar from "../common/SearchFilterBar";
+import CustomPagination from "../common/Pagination";
+import { Skeleton, Box } from "@mui/material";
+import { GridOverlay } from "@mui/x-data-grid";
 
 const DataTable = ({
   data = [],
@@ -28,20 +28,30 @@ const DataTable = ({
   rowCount,
   ...rest
 }) => {
-  const [dropdown, setDropdown] = useState({ open: false, anchor: null, row: null, x: 0, y: 0 });
-  const [searchQuery, setSearchQuery] = useState('');
+  const [dropdown, setDropdown] = useState({
+    open: false,
+    anchor: null,
+    row: null,
+    x: 0,
+    y: 0,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Close dropdown on click outside
   useEffect(() => {
     function handleClick(e) {
-      if (dropdown.open && dropdown.anchor && !dropdown.anchor.contains(e.target)) {
+      if (
+        dropdown.open &&
+        dropdown.anchor &&
+        !dropdown.anchor.contains(e.target)
+      ) {
         setDropdown({ open: false, anchor: null, row: null, x: 0, y: 0 });
       }
     }
     if (dropdown.open) {
-      document.addEventListener('mousedown', handleClick);
+      document.addEventListener("mousedown", handleClick);
     }
-    return () => document.removeEventListener('mousedown', handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
   }, [dropdown]);
 
   const handleAction = (action, row) => {
@@ -59,41 +69,50 @@ const DataTable = ({
   };
 
   // Add actions column if actions are provided
-  const gridColumns = actions.length > 0 
-    ? [
-        ...columns,
-        {
-          field: 'actions',
-          headerName: '',
-          width: 80,
-          sortable: false,
-          renderCell: (params) => (
-            <button
-              className="text-[#7C8D96] hover:text-[#1E1E1E] flex items-center cursor-pointer border border-[#E4E7EC] p-2 rounded h-full"
-              onClick={e => {
-                const rect = e.currentTarget.getBoundingClientRect();
-                setDropdown({
-                  open: true,
-                  anchor: e.currentTarget,
-                  row: params.row,
-                  x: rect.right - 192,
-                  y: rect.bottom + 4
-                });
-              }}
-              onMouseDown={e => e.stopPropagation()}
-            >
-              <MoreVertical size={16} />
-            </button>
-          )
-        }
-      ]
-    : columns;
+  const gridColumns =
+    actions.length > 0
+      ? [
+          ...columns,
+          {
+            field: "actions",
+            headerName: "",
+            width: 80,
+            sortable: false,
+            renderCell: (params) => (
+              <button
+                className="text-[#7C8D96] hover:text-[#1E1E1E] flex items-center cursor-pointer border border-[#E4E7EC] p-2 rounded h-full"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  setDropdown({
+                    open: true,
+                    anchor: e.currentTarget,
+                    row: params.row,
+                    x: rect.right - 192,
+                    y: rect.bottom + 4,
+                  });
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <MoreVertical size={16} />
+              </button>
+            ),
+          },
+        ]
+      : columns;
 
   const CustomLoadingOverlay = () => (
     <GridOverlay>
-      <Box sx={{ width: '100%', p: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box
+        sx={{
+          width: "100%",
+          p: 2,
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
         {[...Array(5)].map((_, i) => (
-          <Box key={i} sx={{ display: 'flex', gap: 2, width: '100%' }}>
+          <Box key={i} sx={{ display: "flex", gap: 2, width: "100%" }}>
             <Skeleton variant="rectangular" width="30%" height={20} />
             <Skeleton variant="rectangular" width="40%" height={20} />
             <Skeleton variant="rectangular" width="15%" height={20} />
@@ -111,26 +130,33 @@ const DataTable = ({
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-lg font-urbanist font-semibold text-[#1E1E1E]">{title}</CardTitle>
+            <CardTitle className="text-lg font-urbanist font-semibold text-[#1E1E1E]">
+              {title}
+            </CardTitle>
             {showSearch && (
-              <SearchFilterBar 
+              <SearchFilterBar
                 onSearch={handleSearch}
-                onFilter={onFilter || (() => console.log('Filter clicked'))}
+                onFilter={onFilter || (() => console.log("Filter clicked"))}
               />
             )}
           </div>
         </CardHeader>
         <CardContent className="px-0 h-full">
           <DataGrid
-            className='w-full'
+            className="w-full"
             rows={data}
             columns={gridColumns}
-            getRowId={getRowId || ((row) => row._id || row.id || row.userId || row.clientId)}
+            getRowId={
+              getRowId ||
+              ((row) => row._id || row.id || row.userId || row.clientId)
+            }
             checkboxSelection={showCheckbox}
             disableRowSelectionOnClick
             disableColumnResize
             columnBufferPx={0}
-            paginationMode={paginationMode || (pagination ? "server" : "client")}
+            paginationMode={
+              paginationMode || (pagination ? "server" : "client")
+            }
             rowCount={rowCount ?? pagination?.total ?? data.length}
             loading={isLoading}
             paginationModel={
@@ -138,7 +164,7 @@ const DataTable = ({
                 ? externalPaginationModel
                 : {
                     page: (pagination?.page || 1) - 1,
-                    pageSize: pagination?.limit || pageSize
+                    pageSize: pagination?.limit || pageSize,
                   }
             }
             onPaginationModelChange={(model) => {
@@ -151,59 +177,60 @@ const DataTable = ({
             {...rest}
             sx={{
               border: 0,
-              width: '%100',
-                '& .MuiDataGrid-row:hover': {
-                    backgroundColor: 'transparent !important',
-                },
-                '& .MuiDataGrid-cell:hover': {
-                    backgroundColor: 'transparent !important',
-                },
-                '& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within': {
-                    outline: 'none !important',
-                },
-                '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within': {
-                    outline: 'none !important',
-                },
-                '& .MuiDataGrid-row.Mui-selected': {
-                    backgroundColor: 'transparent !important',
-                },
-                '& .MuiDataGrid-row.Mui-selected:hover': {
-                    backgroundColor: 'transparent !important',
-                },
-              '& .MuiDataGrid-cell': {
-                borderBottom: '1px solid #f0f0f0',
-                padding: '12px 16px',
-                //margin: '16px 0px',
-                fontSize: '14px',
-                fontFamily: 'General Sans, sans-serif',
-                color: '#1E1E1E',
-                display: 'flex',
-                alignItems: 'center',
+              width: "%100",
+              "& .MuiDataGrid-row:hover": {
+                backgroundColor: "transparent !important",
               },
-              '& .MuiDataGrid-columnHeaders': {
-                backgroundColor: 'transparent',
-                borderBottom: '1px solid #E8EBED',
-                minHeight: '48px !important',
-                maxHeight: '48px !important',
-                lineHeight: '48px !important',
+              "& .MuiDataGrid-cell:hover": {
+                backgroundColor: "transparent !important",
               },
-              '& .MuiDataGrid-columnHeader': {
-                padding: '12px 0px',
-                backgroundColor: '#F9FAFB',
-                '&:focus': {
-                  outline: 'none',
+              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+              },
+              "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within":
+                {
+                  outline: "none !important",
                 },
-                '&:focus-within': {
-                  outline: 'none',
+              "& .MuiDataGrid-row.Mui-selected": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-row.Mui-selected:hover": {
+                backgroundColor: "transparent !important",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: "1px solid #f0f0f0",
+                padding: "12px 16px",
+                margin: "12px 0px",
+                fontSize: "14px",
+                fontFamily: "General Sans, sans-serif",
+                color: "#1E1E1E",
+                display: "flex",
+                alignItems: "center",
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                backgroundColor: "transparent",
+                borderBottom: "1px solid #E8EBED",
+                minHeight: "48px !important",
+                maxHeight: "48px !important",
+                lineHeight: "48px !important",
+              },
+              "& .MuiDataGrid-columnHeader": {
+                padding: "12px 0px",
+                backgroundColor: "#F9FAFB",
+                "&:focus": {
+                  outline: "none",
+                },
+                "&:focus-within": {
+                  outline: "none",
                 },
               },
-              '& .MuiDataGrid-columnHeaderTitle': {
-                fontSize: '12px',
-                marginLeft: '16px',
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontSize: "12px",
+                marginLeft: "16px",
                 fontWeight: 600,
-                fontFamily: 'Urbanist, sans-serif',
-                color: '#344054',
-                textTransform: 'none',
+                fontFamily: "Urbanist, sans-serif",
+                color: "#344054",
+                textTransform: "none",
               },
             }}
             slots={{
@@ -214,16 +241,30 @@ const DataTable = ({
               pagination: {
                 currentPage: externalPaginationModel
                   ? externalPaginationModel.page + 1
-                  : (pagination?.page || 1),
+                  : pagination?.page || 1,
                 totalPages: externalPaginationModel
-                  ? Math.ceil((rowCount || data.length) / (externalPaginationModel.pageSize || pageSize))
-                  : (pagination?.totalPages || Math.ceil((pagination?.total || data.length) / (pagination?.limit || pageSize))),
+                  ? Math.ceil(
+                      (rowCount || data.length) /
+                        (externalPaginationModel.pageSize || pageSize),
+                    )
+                  : pagination?.totalPages ||
+                    Math.ceil(
+                      (pagination?.total || data.length) /
+                        (pagination?.limit || pageSize),
+                    ),
                 onPageChange: externalPaginationModel
-                  ? (page) => onPaginationModelChange?.({ ...externalPaginationModel, page: page - 1 })
+                  ? (page) =>
+                      onPaginationModelChange?.({
+                        ...externalPaginationModel,
+                        page: page - 1,
+                      })
                   : onPageChange,
                 totalItems: rowCount ?? pagination?.total ?? data.length,
-                itemsPerPage: externalPaginationModel?.pageSize || pagination?.limit || pageSize
-              }
+                itemsPerPage:
+                  externalPaginationModel?.pageSize ||
+                  pagination?.limit ||
+                  pageSize,
+              },
             }}
           />
         </CardContent>
@@ -233,13 +274,13 @@ const DataTable = ({
       {dropdown.open && actions.length > 0 && (
         <div
           style={{
-            position: 'fixed',
+            position: "fixed",
             top: dropdown.y,
             left: dropdown.x,
             zIndex: 9999,
           }}
           className="bg-white rounded-lg shadow-lg border border-[#E8EBED] py-2 w-48"
-          onMouseDown={e => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
         >
           {actions.map((action, index) => {
             const Icon = action.icon;
