@@ -64,7 +64,7 @@ const DashboardStats = ({ stats, route }) => {
 
     return (
       <Card
-        className="relative overflow-hidden h-full bg-[#26C8B9]"
+        className="relative overflow-hidden h-full bg-[#26C8B9] border-none"
         style={{
           backgroundImage: `url(${BgImage})`,
           backgroundRepeat: "no-repeat",
@@ -72,19 +72,21 @@ const DashboardStats = ({ stats, route }) => {
           backgroundSize: "auto 100%",
         }}
       >
-        <CardContent className="p-4">
-          {/* Content */}
+        <CardContent className="p-4 h-full flex flex-col">
           <div className="relative z-10">
-            <span className="text-sm font-urbanist font-medium text-white/70">
-              {stat.label}
-            </span>
+            {/* 1. FIXED HEIGHT FOR TOP LABEL SECTION */}
+            <div className="min-h-10 flex items-start">
+              <span className="text-sm font-urbanist font-medium text-white/70">
+                {stat.label}
+              </span>
+            </div>
 
-            <div className="flex items-center gap-2 mt-2 mb-1">
-              <div className="text-[32px] font-semibold font-general text-white">
+            {/* 2. AMOUNT SECTION - Now starts at the same Y-axis as others */}
+            <div className="flex items-center gap-2 mt-1 mb-1">
+              <div className="text-[32px] font-semibold font-general text-white leading-none">
                 {show ? stat.value : "••••••"}
               </div>
 
-              {/* Eye toggle */}
               <button
                 type="button"
                 onClick={() => setShow(!show)}
@@ -95,7 +97,7 @@ const DashboardStats = ({ stats, route }) => {
             </div>
 
             {stat.subtext && (
-              <div className="text-xs font-urbanist font-medium text-white/70">
+              <div className="text-xs font-urbanist font-medium text-white/70 mt-1">
                 {stat.subtext}
               </div>
             )}
@@ -134,30 +136,31 @@ const DashboardStats = ({ stats, route }) => {
   //  RENDER FINAL GRID
   // ---------------------------
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-stretch">
       {statsToDisplay.map((stat, idx) => {
-        // First card gets custom layout
         if (
           idx === 0 &&
           (userRole !== "SuperAdmin" || route === "my-earnings")
         ) {
-          return <div key={idx}>{renderCustomFirstCard(stat)}</div>;
+          return (
+            <div key={idx} className="h-full">
+              {renderCustomFirstCard(stat)}
+            </div>
+          );
         }
 
-        // Normal card for others
         return (
-          <Card key={idx}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-sm font-urbanist font-medium text-[#808C91]">
+          <Card key={idx} className="h-full">
+            <CardContent className="p-4 h-full flex flex-col">
+              {/* 1. FIXED HEIGHT FOR TOP LABEL SECTION */}
+              <div className="flex justify-between items-start mb-2 gap-2 min-h-10">
+                <span className="text-sm font-urbanist font-medium text-[#808C91] wrap-break-word">
                   {stat.label}
                 </span>
 
                 {stat.change && (
                   <span
-                    className={`text-xs font-general font-medium flex items-center py-1 px-1.5 rounded-2xl ${getBgColor(
-                      stat.change,
-                    )} ${getChangeColor(stat.change)}`}
+                    className={`text-xs font-general font-medium flex items-center py-1 px-1.5 rounded-2xl whitespace-nowrap ${getBgColor(stat.change)} ${getChangeColor(stat.change)}`}
                   >
                     {renderStatIcon(stat.change)}
                     {stat.change}
@@ -165,12 +168,13 @@ const DashboardStats = ({ stats, route }) => {
                 )}
               </div>
 
-              <div className="text-[32px] font-semibold font-general text-[#084059] mb-1">
+              {/* 2. AMOUNT SECTION - Will always be perfectly leveled */}
+              <div className="text-[32px] font-semibold font-general text-[#084059] mb-1 leading-none">
                 {stat.value}
               </div>
 
               {stat.subtext && (
-                <div className="text-xs font-urbanist font-medium leading-[145%] text-[#808c91]">
+                <div className="text-xs font-urbanist font-medium leading-[145%] text-[#808c91] mt-auto">
                   {stat.subtext}
                 </div>
               )}

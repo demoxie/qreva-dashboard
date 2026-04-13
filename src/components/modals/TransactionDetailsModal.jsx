@@ -209,19 +209,26 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
           <DetailRow
             label="Recipient Name"
             value={
-              transfer?.nameEnquiryId?.accountName || transaction.narration
+              transaction?.metadata?.creditAccountName ||
+              transaction?.transferId?.nameEnquiryId?.accountName ||
+              "-"
             }
           />
           <DetailRow
             label="Recipient Account"
             value={
-              transfer?.creditAccountNumber || transaction.creditAccountNumber
+              transaction?.metadata?.creditAccountNumber ||
+              transaction?.transferId?.creditAccountNumber ||
+              "-"
             }
           />
           <DetailRow
             label="Sender Account"
             value={
-              transfer?.debitAccountNumber || transaction.debitAccountNumber
+              transaction?.metadata?.debitAccountName ||
+              transaction?.transferId?.debitAccountName ||
+              transaction?.transferId?.debitAccountNumber ||
+              "-"
             }
           />
           <DetailRow
