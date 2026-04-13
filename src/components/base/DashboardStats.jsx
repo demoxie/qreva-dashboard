@@ -8,13 +8,19 @@ import BgImage from "../../assets/images/Vector.png";
 const DashboardStats = ({ stats, route }) => {
   // Default stats
   const defaultStats = [
-    { label: "Total Transactions", value: "45,823", change: "+20%", subtext: "80,000 Last 24 hours" },
-    { label: "Total Transaction Volume", value: "₦4,005,823", change: "-10%", subtext: "₦80,000 in last 24 hours" },
-    { label: "Total Revenue", value: "₦1,070,823", change: "-20%", subtext: "₦80,000 in last 24 hours" },
-    { label: "Success Rate", value: "90%", change: "+19%", subtext: "24 % out of 24 hours" }
+    { label: "Total Transactions", value: "-", change: "", subtext: "-" },
+    {
+      label: "Total Transaction Volume",
+      value: "-",
+      change: "%",
+      subtext: "-",
+    },
+    { label: "Total Revenue", value: "-", change: "%", subtext: "-" },
+    { label: "Success Rate", value: "-", change: "%", subtext: "-" },
   ];
 
-  let statsToDisplay = (stats && stats.length > 0) ? stats.filter(Boolean) : defaultStats;
+  let statsToDisplay =
+    stats && stats.length > 0 ? stats.filter(Boolean) : defaultStats;
 
   const userRole = localStorage.getItem("userRole") || "SuperAdmin";
 
@@ -27,7 +33,7 @@ const DashboardStats = ({ stats, route }) => {
         label: "My Earnings",
         value: stats[0]?.value || "₦0",
         change: "",
-        subtext: stats[0]?.subtext || "₦0 in last 24 hours"
+        subtext: stats[0]?.subtext || "₦0 in last 24 hours",
       };
     }
 
@@ -39,7 +45,7 @@ const DashboardStats = ({ stats, route }) => {
           label: "Your Earnings",
           value: "₦1,570,823",
           change: "",
-          subtext: "₦100,000 in last 24 hours"
+          subtext: "₦100,000 in last 24 hours",
         };
 
       default:
@@ -54,57 +60,50 @@ const DashboardStats = ({ stats, route }) => {
   //  RENDER CUSTOM CARD JSX
   // ---------------------------
   const renderCustomFirstCard = (stat) => {
-  const [show, setShow] = useState(false);
+    const [show, setShow] = useState(false);
 
-  return (
-    <Card
-      className="relative overflow-hidden h-full bg-[#26C8B9]"
-      style={{
-        backgroundImage: `url(${BgImage})`,
-        backgroundRepeat: "no-repeat",
-        backgroundPosition: "right center",  
-        backgroundSize: "auto 100%",       
-      }}
-    >
+    return (
+      <Card
+        className="relative overflow-hidden h-full bg-[#26C8B9]"
+        style={{
+          backgroundImage: `url(${BgImage})`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right center",
+          backgroundSize: "auto 100%",
+        }}
+      >
+        <CardContent className="p-4">
+          {/* Content */}
+          <div className="relative z-10">
+            <span className="text-sm font-urbanist font-medium text-white/70">
+              {stat.label}
+            </span>
 
-      <CardContent className="p-4">
+            <div className="flex items-center gap-2 mt-2 mb-1">
+              <div className="text-[32px] font-semibold font-general text-white">
+                {show ? stat.value : "••••••"}
+              </div>
 
-        {/* Content */}
-        <div className="relative z-10">
-          <span className="text-sm font-urbanist font-medium text-white/70">
-            {stat.label}
-          </span>
-
-          <div className="flex items-center gap-2 mt-2 mb-1">
-            <div className="text-[32px] font-semibold font-general text-white">
-              {show ? stat.value : "••••••"}
+              {/* Eye toggle */}
+              <button
+                type="button"
+                onClick={() => setShow(!show)}
+                className="text-white/80 hover:text-white"
+              >
+                {show ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
             </div>
 
-            {/* Eye toggle */}
-            <button
-              type="button"
-              onClick={() => setShow(!show)}
-              className="text-white/80 hover:text-white"
-            >
-              {show ? (
-                <EyeOff size={20} />
-              ) : (
-                <Eye size={20} />
-              )}
-            </button>
+            {stat.subtext && (
+              <div className="text-xs font-urbanist font-medium text-white/70">
+                {stat.subtext}
+              </div>
+            )}
           </div>
-
-          {stat.subtext && (
-            <div className="text-xs font-urbanist font-medium text-white/70">
-              {stat.subtext}
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
+        </CardContent>
+      </Card>
+    );
+  };
 
   // ---------------------------
   //  SUPPORT FUNCTIONS
@@ -115,9 +114,17 @@ const DashboardStats = ({ stats, route }) => {
 
   const renderStatIcon = (change) =>
     change?.startsWith("+") ? (
-      <img src={StatGreen} alt="stat" className={`w-4 h-4 ${getChangeColor(change)}`} />
+      <img
+        src={StatGreen}
+        alt="stat"
+        className={`w-4 h-4 ${getChangeColor(change)}`}
+      />
     ) : (
-      <img src={StatRed} alt="stat" className={`w-4 h-4 ${getChangeColor(change)}`} />
+      <img
+        src={StatRed}
+        alt="stat"
+        className={`w-4 h-4 ${getChangeColor(change)}`}
+      />
     );
 
   const getBgColor = (change) =>
@@ -130,7 +137,10 @@ const DashboardStats = ({ stats, route }) => {
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
       {statsToDisplay.map((stat, idx) => {
         // First card gets custom layout
-        if (idx === 0 && (userRole !== "SuperAdmin" || route === "my-earnings")) {
+        if (
+          idx === 0 &&
+          (userRole !== "SuperAdmin" || route === "my-earnings")
+        ) {
           return <div key={idx}>{renderCustomFirstCard(stat)}</div>;
         }
 
@@ -146,7 +156,7 @@ const DashboardStats = ({ stats, route }) => {
                 {stat.change && (
                   <span
                     className={`text-xs font-general font-medium flex items-center py-1 px-1.5 rounded-2xl ${getBgColor(
-                      stat.change
+                      stat.change,
                     )} ${getChangeColor(stat.change)}`}
                   >
                     {renderStatIcon(stat.change)}
