@@ -8,9 +8,9 @@ import BgImage from "../../assets/images/Vector.png";
 const DashboardStats = ({ stats, route }) => {
   // Default stats
   const defaultStats = [
-    { label: "Total Transactions", value: "-", change: "", subtext: "-" },
+    { label: "Total Transaction Volume", value: "-", change: "", subtext: "-" },
     {
-      label: "Total Transaction Volume",
+      label: "Total Transaction Value",
       value: "-",
       change: "%",
       subtext: "-",

@@ -23,13 +23,13 @@ export const formatDashboardStats = (summary, changePercentages = {}) => {
 
   return [
     {
-      label: 'Total Transactions',
+      label: 'Total Transaction Volume',
       value: formatNumber(summary.totalTransactions || 0),
       change: getChange(changePercentages.totalTransactions),
       subtext: `${formatNumber(summary.dailyTransactions || 0)} Last 24 hours`,
     },
     {
-      label: 'Total Transaction Volume',
+      label: 'Total Transaction Value',
       value: formatCurrency(summary.totalTransactionVolume || 0),
       change: getChange(changePercentages.totalTransactionVolume),
       subtext: formatCurrency(summary.dailyVolume || 0) + ' in last 24 hours',

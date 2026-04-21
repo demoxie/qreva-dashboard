@@ -41,15 +41,17 @@ export const PERMISSIONS = {
   [ROLES.AGENT]: [
     'dashboard:view',
     'section:transactions',
-    'airtime:view',
-    'data:view',
+    'softpos:view',
+    'transfers:view',
+    'kyc:view',
   ],
   [ROLES.AGGREGATOR]: [
     'dashboard:view',
     'section:transactions',
     'aggregator:view',
-    'airtime:view',
-    'data:view',
+    'softpos:view',
+    'transfers:view',
+    'kyc:view',
   ],
   [ROLES.AGGREGATORMANAGER]: [
     'dashboard:view',
@@ -58,8 +60,9 @@ export const PERMISSIONS = {
     'agents:view',
     'aggregator:view',
     'users:view',
-    'airtime:view',
-    'data:view',
+    'softpos:view',
+    'transfers:view',
+    'kyc:view',
   ],
 };
 

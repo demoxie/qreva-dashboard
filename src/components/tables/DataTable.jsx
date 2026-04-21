@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataGrid } from "@mui/x-data-grid";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Download } from "lucide-react";
 import SearchFilterBar from "../common/SearchFilterBar";
 import CustomPagination from "../common/Pagination";
 import { Skeleton, Box } from "@mui/material";
@@ -14,8 +14,10 @@ const DataTable = ({
   actions = [], // Array of action objects: [{ label, icon, onClick }]
   onSearch,
   onFilter,
+  onExport,
   showSearch = true,
   showCheckbox = true,
+  showExport = true,
   pageSize = 5,
   pageSizeOptions = [5, 10, 25],
   getRowId,
@@ -36,6 +38,38 @@ const DataTable = ({
     y: 0,
   });
   const [searchQuery, setSearchQuery] = useState("");
+
+  // CSV Export utility
+  const handleExport = useCallback(() => {
+    if (onExport) {
+      onExport(data);
+      return;
+    }
+
+    // Default: export visible columns + rows as CSV
+    const exportColumns = columns.filter(col => col.field !== 'actions');
+    const headers = exportColumns.map(col => col.headerName || col.field).join(',');
+    const rows = data.map(row =>
+      exportColumns.map(col => {
+        const value = row[col.field];
+        // Escape commas and quotes in CSV values
+        const strVal = value !== undefined && value !== null ? String(value) : '';
+        return strVal.includes(',') || strVal.includes('"')
+          ? `"${strVal.replace(/"/g, '""')}"`
+          : strVal;
+      }).join(',')
+    );
+    const csv = [headers, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_report_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [data, columns, title, onExport]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -133,12 +167,24 @@ const DataTable = ({
             <CardTitle className="text-lg font-urbanist font-semibold text-[#1E1E1E]">
               {title}
             </CardTitle>
-            {showSearch && (
-              <SearchFilterBar
-                onSearch={handleSearch}
-                onFilter={onFilter || (() => console.log("Filter clicked"))}
-              />
-            )}
+            <div className="flex items-center gap-3">
+              {showSearch && (
+                <SearchFilterBar
+                  onSearch={handleSearch}
+                  onFilter={onFilter || (() => console.log("Filter clicked"))}
+                />
+              )}
+              {showExport && (
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-general font-medium text-[#1E1E1E] bg-white border border-[#E8EBED] rounded-lg hover:bg-[#F5F6F7] transition-colors"
+                  title="Download Report"
+                >
+                  <Download size={16} className="text-[#7C8D96]" />
+                  <span className="hidden sm:inline">Download Report</span>
+                </button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="px-0 h-full">

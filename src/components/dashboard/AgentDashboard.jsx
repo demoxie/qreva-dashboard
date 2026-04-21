@@ -1,9 +1,12 @@
+import { useMemo } from 'react';
 import TopTransactionValueCard from '@/components/cards/TopTransactionValueCard';
 import TransactionVolumeChart from '@/components/charts/TransactionVolumeChart';
 import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import DashboardStats from '@/components/base/DashboardStats';
+
+const EXCLUDED_CATEGORIES = ['airtime', 'data', 'bills', 'bill', 'bill payment', 'data purchase', 'airtime purchase'];
 
 const AgentDashboard = ({ 
   formattedStats, 
@@ -15,6 +18,13 @@ const AgentDashboard = ({
   handleFilter,
   isTransactionsLoading
 }) => {
+  // Filter out airtime, data, bills from pie chart data (Observation #09)
+  const filteredPurchasePercentages = useMemo(() => {
+    return (metrics.topPurchasePercentages || []).filter(
+      item => !EXCLUDED_CATEGORIES.includes((item.label || item.provider || '').toLowerCase())
+    );
+  }, [metrics.topPurchasePercentages]);
+
   return (
     <>
       <DashboardStats stats={formattedStats} route="dashboard" />
@@ -25,11 +35,11 @@ const AgentDashboard = ({
           <TopTransactionValueCard data={metrics.topTransactionValues} />
         </div>
         <div className="lg:col-span-3">
-          <TransactionPercentagePie data={metrics.topPurchasePercentages} />
+          <TransactionPercentagePie data={filteredPurchasePercentages} />
         </div>
       </div>
 
-      {/* Daily Transaction Volume */}
+      {/* Daily Transaction Value */}
       <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

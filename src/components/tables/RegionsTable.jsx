@@ -34,7 +34,7 @@ const RegionsTable = ({
     },
     {
       field: "total",
-      headerName: "Total Transactions",
+      headerName: "Total Transaction Volume",
       flex: 1,
       minWidth: 180,
       renderCell: (params) => (
@@ -59,7 +59,7 @@ const RegionsTable = ({
     },
     {
       field: "volume",
-      headerName: "Total Transaction Volume(₦)",
+      headerName: "Total Transaction Value (₦)",
       flex: 1,
       minWidth: 220,
       renderCell: (params) => (
