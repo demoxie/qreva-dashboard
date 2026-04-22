@@ -60,6 +60,17 @@ const TransactionHistoryTable = ({
       ),
     },
     {
+      field: "location",
+      headerName: "Location",
+      width: 140,
+      flex: 0.8,
+      renderCell: (params) => (
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {params.value || params.row.state || params.row.region || "-"}
+        </span>
+      ),
+    },
+    {
       field: "status",
       headerName: "Status",
       width: 130,

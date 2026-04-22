@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart } from '@mui/x-charts/LineChart';
 
-const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Volume" }) => {
+const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Value" }) => {
   // Format labels for x-axis
   const getXAxisLabel = (index) => {
     if (index === 0) return 'Today';
