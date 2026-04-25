@@ -53,6 +53,7 @@ const DataPurchase = () => {
       changePercentages: data.data.changePercentages || {},
       topTransactionValues: data.data.topTransactionValues || [],
       topCustomers: data.data.topCustomers || [],
+      topAgents: data.data.topAgents || [],
       dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
         label: d.label,
         value: d.amount
@@ -68,14 +69,14 @@ const DataPurchase = () => {
   // Format stats for DashboardStats component
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary, metrics.changePercentages);
-  }, [metrics]);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages, timeFilter);
+  }, [metrics, timeFilter]);
 
   // Handle time filter change
   const handleTimeFilterChange = (newFilter) => {
     const filterMap = {
       'Today': 'today',
-      'Last 12 Hours': 'last12hours',
+      'Hourly': 'hourly',
       'Weekly': 'weekly',
       'Monthly': 'monthly',
       'Yearly': 'yearly',
@@ -165,7 +166,8 @@ const DataPurchase = () => {
           </div>
           <div className="lg:col-span-3">
             <TopCustomersCard 
-              data={metrics.topCustomers} 
+              data={metrics.topCustomers}
+              agentsData={metrics.topAgents}
               title="Top Customers"
               showAgentToggle={true}
             />

@@ -67,13 +67,13 @@ const SoftPOS = () => {
 
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary, metrics.changePercentages);
-  }, [metrics]);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages, timeFilter);
+  }, [metrics, timeFilter]);
 
   const handleTimeFilterChange = (newFilter) => {
     const filterMap = {
       'Today': 'today',
-      'Last 12 Hours': 'last12hours',
+      'Hourly': 'hourly',
       'Weekly': 'weekly',
       'Monthly': 'monthly',
       'Yearly': 'yearly',
@@ -163,8 +163,8 @@ const SoftPOS = () => {
 
         <MultiLineChart 
           data={metrics.dailyTransactionVolume}
-          series={[{ data: (metrics?.dailyTransactionVolume || []).map(d => d.value), color: '#E85304', label: 'Volume' }]}
-          title="Daily Transaction Volume"
+          series={[{ data: (metrics?.dailyTransactionVolume || []).map(d => d.value), color: '#E85304', label: 'Value' }]}
+          title="Daily Transaction Value"
         />
 
         <RegionsTable 

@@ -12,10 +12,12 @@ const AgentCategory = () => {
     const categories = categoriesResponse?.data || [];
 
     const handleAction = (action, row) => {
+        const id = row._id || row.id;
+        if (!id) return;
         if (action.label === 'View Details') {
-            navigate(`/settings/agent-category/view/${row.id}`);
+            navigate(`/settings/agent-category/view/${id}`);
         } else if (action.label === 'Edit Details') {
-            navigate(`/settings/agent-category/edit/${row.id}`);
+            navigate(`/settings/agent-category/edit/${id}`);
         }
     };
 

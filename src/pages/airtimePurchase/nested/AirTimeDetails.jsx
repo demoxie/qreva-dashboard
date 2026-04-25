@@ -42,8 +42,8 @@ const AirtimeDetails = () => {
   const pagination = txResponse?.pagination || {};
 
   const stats = useMemo(() => [
-    { label: 'Total Transactions', value: (metrics.totalTransactions || 0).toLocaleString(), change: metrics.changePercentages?.totalTransactions || '+0%', subtext: 'in last 24 hours' },
-    { label: 'Total Transactions Volume', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: metrics.changePercentages?.totalVolume || '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Transaction Volume', value: (metrics.totalTransactions || 0).toLocaleString(), change: metrics.changePercentages?.totalTransactions || '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Transaction Value', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: metrics.changePercentages?.totalVolume || '+0%', subtext: 'in last 24 hours' },
     { label: 'Total Revenue', value: `₦${(metrics.totalRevenue || 0).toLocaleString()}`, change: metrics.changePercentages?.totalRevenue || '+0%', subtext: 'in last 24 hours' },
     { label: 'Success Rate', value: `${metrics.successRate || 0}%`, change: metrics.changePercentages?.successRate || '+0%', subtext: 'in last 24 hours' },
   ], [metrics]);
@@ -70,7 +70,7 @@ const AirtimeDetails = () => {
   const handleTimeFilterChange = (newFilter) => {
     const filterMap = {
       'Today': 'today',
-      'Last 12 Hours': 'last12hours',
+      'Hourly': 'hourly',
       'Weekly': 'weekly',
       'Monthly': 'monthly',
       'Yearly': 'yearly',

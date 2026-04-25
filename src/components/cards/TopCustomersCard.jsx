@@ -1,25 +1,102 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+const resolveName = (c) =>
+  c.name || c.clientName || c.fullName || c.userName || c.username ||
+  c.agentName || c.customerName || c.accountName ||
+  [c.firstName, c.lastName].filter(Boolean).join(' ') || '-';
+
+const resolveAmount = (c) =>
+  c.amount ?? c.totalAmount ?? c.totalVolume ?? c.transactionVolume ??
+  c.transactionValue ?? c.volume ?? c.totalTransactions ?? 0;
+
+const resolveSubtitle = (c) =>
+  c.provider || c.agentCategory || c.category || c.tier ||
+  c.role || c.accountType || null;
+
+const resolveAvatar = (c) =>
+  c.avatar || c.profileImage || c.image || c.profilePicture || null;
+
+const CustomerRow = ({ customer: c, idx, getRankBadgeStyle }) => {
+  const name = resolveName(c);
+  const amount = resolveAmount(c);
+  const subtitle = resolveSubtitle(c);
+  const avatar = resolveAvatar(c);
+  const initials = name !== '-' ? name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : '?';
+
+  return (
+    <div className="flex items-center justify-between py-1 border border-[#E9F1F3] rounded-lg p-2 bg-[#FCFDFE]">
+      <div className="flex items-center gap-2">
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-urbanist font-bold ${getRankBadgeStyle(idx)}`}>
+          {c.rank || idx + 1}
+        </div>
+        <div className="w-6 h-6 bg-[#FFE8DC] rounded-full flex items-center justify-center overflow-hidden">
+          {avatar
+            ? <img src={avatar} alt={name} className="w-6 h-6 rounded-full object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+            : <span className="text-[8px] font-bold text-[#FF6B2C]">{initials}</span>
+          }
+        </div>
+        <div>
+          <div className="text-sm font-general text-[#1E1E1E]">{name}</div>
+          {subtitle && <div className="text-xs text-[#7C8D96]">{subtitle}</div>}
+        </div>
+      </div>
+      <div className="text-sm font-general font-semibold text-[#084059]">
+        ₦{Number(amount).toLocaleString()}
+      </div>
+    </div>
+  );
+};
+
 const TopCustomersCard = ({
   data = [],
+  agentsData = [],
   title = "Top Customers",
   showAgentToggle = true,
 }) => {
-  const [selectedType, setSelectedType] = useState("agents"); // 'agents' or 'personal'
+  const [selectedType, setSelectedType] = useState("personal"); // 'agents' or 'personal'
+
+  const displayData = selectedType === "agents" ? agentsData : data;
+  const displayTitle = showAgentToggle
+    ? selectedType === "agents" ? "Top Performing Agents" : "Top Performing Customers"
+    : title;
 
   // Handle empty data
-  if (!data || data.length === 0) {
+  if (!displayData || displayData.length === 0) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader>
-          <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
-            {title}
-          </CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
+              {displayTitle}
+            </CardTitle>
+            {showAgentToggle && (
+              <div className="inline-flex rounded-lg bg-[#F5F6F7] p-1">
+                <button
+                  onClick={() => setSelectedType("agents")}
+                  className={`px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 ${selectedType === "agents" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${selectedType === "agents" ? "bg-[#FF6B2C]" : "bg-[#B0B7C3]"}`}></div>
+                    Agents
+                  </span>
+                </button>
+                <button
+                  onClick={() => setSelectedType("personal")}
+                  className={`px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 ${selectedType === "personal" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <div className={`w-2 h-2 rounded-full ${selectedType === "personal" ? "bg-[#FF6B2C]" : "bg-[#B0B7C3]"}`}></div>
+                    Personal Accounts
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-sm text-gray-500 text-center py-4">
-            No customer data available
+            No {selectedType === "agents" ? "agent" : "customer"} data available
           </div>
         </CardContent>
       </Card>
@@ -45,51 +122,25 @@ const TopCustomersCard = ({
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
-            {title}
+            {displayTitle}
           </CardTitle>
           {showAgentToggle && (
             <div className="inline-flex rounded-lg bg-[#F5F6F7] p-1">
               <button
                 onClick={() => setSelectedType("agents")}
-                className={`
-                  px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200
-                  ${
-                    selectedType === "agents"
-                      ? "bg-white text-[#FF6B2C] shadow-sm"
-                      : "text-[#7C8D96] hover:text-[#1E1E1E]"
-                  }
-                `}
+                className={`px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 ${selectedType === "agents" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
               >
                 <span className="flex items-center gap-1.5">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      selectedType === "agents"
-                        ? "bg-[#FF6B2C]"
-                        : "bg-[#B0B7C3]"
-                    }`}
-                  ></div>
+                  <div className={`w-2 h-2 rounded-full ${selectedType === "agents" ? "bg-[#FF6B2C]" : "bg-[#B0B7C3]"}`}></div>
                   Agents
                 </span>
               </button>
               <button
                 onClick={() => setSelectedType("personal")}
-                className={`
-                  px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200
-                  ${
-                    selectedType === "personal"
-                      ? "bg-white text-[#FF6B2C] shadow-sm"
-                      : "text-[#7C8D96] hover:text-[#1E1E1E]"
-                  }
-                `}
+                className={`px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 ${selectedType === "personal" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
               >
                 <span className="flex items-center gap-1.5">
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      selectedType === "personal"
-                        ? "bg-[#FF6B2C]"
-                        : "bg-[#B0B7C3]"
-                    }`}
-                  ></div>
+                  <div className={`w-2 h-2 rounded-full ${selectedType === "personal" ? "bg-[#FF6B2C]" : "bg-[#B0B7C3]"}`}></div>
                   Personal Accounts
                 </span>
               </button>
@@ -99,81 +150,17 @@ const TopCustomersCard = ({
       </CardHeader>
       <CardContent>
         <div className="flex gap-x-8">
-          {/* First column: first 5 customers */}
+          {/* First column: first 5 */}
           <div className="flex flex-col gap-y-2 flex-1">
-            {data.slice(0, 5).map((customer, idx) => (
-              <div
-                key={customer.id || idx}
-                className="flex items-center justify-between py-1 border border-[#E9F1F3] rounded-lg p-2 bg-[#FCFDFE]"
-              >
-                <div className="flex items-center gap-2">
-                  {/* Rank badge */}
-                  <div
-                    className={`
-                    w-6 h-6 rounded-full flex items-center justify-center 
-                    text-xs font-urbanist font-bold
-                    ${getRankBadgeStyle(idx)}
-                    `}
-                  >
-                    {customer.rank || idx + 1}
-                  </div>
-                  {/* Avatar */}
-                  <div className="w-6 h-6 bg-[#FFE8DC] rounded-full flex items-center justify-center">
-                    <img
-                      src={customer.avatar || "https://placehold.co/600x400"}
-                      alt={customer.name}
-                      className="w-6 h-6 rounded-full"
-                    />
-                  </div>
-                  {/* Name */}
-                  <div className="text-sm font-general text-[#1E1E1E]">
-                    {customer.name}
-                  </div>
-                </div>
-                {/* Amount */}
-                <div className="text-sm font-general font-semibold text-[#084059]">
-                  ₦{customer.amount.toLocaleString()}
-                </div>
-              </div>
+            {displayData.slice(0, 5).map((customer, idx) => (
+              <CustomerRow key={customer._id || customer.id || idx} customer={customer} idx={idx} getRankBadgeStyle={getRankBadgeStyle} />
             ))}
           </div>
-          {/* Second column: rest of the customers */}
-          {data.length > 5 && (
+          {/* Second column: rest */}
+          {displayData.length > 5 && (
             <div className="flex flex-col gap-y-2 flex-1">
-              {data.slice(5).map((customer, idx) => (
-                <div
-                  key={customer.id || idx + 5}
-                  className="flex items-center justify-between py-1 border border-[#E9F1F3] rounded-lg p-2 bg-[#FCFDFE]"
-                >
-                  <div className="flex items-center gap-2">
-                    {/* Rank badge */}
-                    <div
-                      className={`
-                        w-6 h-6 rounded-full flex items-center justify-center 
-                        text-xs font-urbanist font-bold
-                        ${getRankBadgeStyle(idx + 5)}
-                    `}
-                    >
-                      {customer.rank || idx + 6}
-                    </div>
-                    {/* Avatar */}
-                    <div className="w-6 h-6 bg-[#FFE8DC] rounded-full flex items-center justify-center">
-                      <img
-                        src={customer.avatar}
-                        alt={customer.name}
-                        className="w-6 h-6 rounded-full"
-                      />
-                    </div>
-                    {/* Name */}
-                    <div className="text-sm font-general font-medium text-[#1E1E1E]">
-                      {customer.name}
-                    </div>
-                  </div>
-                  {/* Amount */}
-                  <div className="text-sm font-general font-semibold text-[#084059]">
-                    ₦{customer.amount.toLocaleString()}
-                  </div>
-                </div>
+              {displayData.slice(5).map((customer, idx) => (
+                <CustomerRow key={customer._id || customer.id || idx + 5} customer={customer} idx={idx + 5} getRankBadgeStyle={getRankBadgeStyle} />
               ))}
             </div>
           )}

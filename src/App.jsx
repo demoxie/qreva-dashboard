@@ -13,6 +13,7 @@ import ScrollToTop from './components/common/ScrollToTop';
 export const ROLES = {
   SUPER_ADMIN: 'SuperAdmin',
   AGENT: 'agent',
+  MERCHANT: 'Merchant',
   AGGREGATOR: 'aggregator',
   AGGREGATORMANAGER: 'aggregator_manager',
 };
@@ -39,6 +40,13 @@ export const PERMISSIONS = {
     'disputes:view',
   ],
   [ROLES.AGENT]: [
+    'dashboard:view',
+    'section:transactions',
+    'softpos:view',
+    'transfers:view',
+    'kyc:view',
+  ],
+  [ROLES.MERCHANT]: [
     'dashboard:view',
     'section:transactions',
     'softpos:view',

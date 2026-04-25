@@ -30,4 +30,14 @@ export const usersApi = {
     const { data } = await apiClient.patch(`/admin/dashboard/users/${userId}/activate`);
     return data;
   },
+
+  inviteAggregator: async (payload) => {
+    const { data } = await apiClient.post('/admin/aggregators/invite', payload);
+    return data;
+  },
+
+  getAggregatorReferralLink: async () => {
+    const { data } = await apiClient.get('/admin/aggregators/referral-link');
+    return data;
+  },
 };

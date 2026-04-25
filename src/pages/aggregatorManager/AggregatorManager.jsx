@@ -13,6 +13,7 @@ import {
   useUsers,
   useSuspendUser,
   useActivateUser,
+  useInviteAggregator,
 } from "@/store/features/users/useUsers";
 import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
 import { formatDashboardStats } from "@/utils/formatDashboardStats";
@@ -40,8 +41,9 @@ const AggregatorManagers = () => {
     return formatDashboardStats(
       metricsData.data.summary,
       metricsData.data.changePercentages || {},
+      timeFilter.toLowerCase(),
     );
-  }, [metricsData]);
+  }, [metricsData, timeFilter]);
 
   const { modals, setters, selectedManager, setSelectedManager } =
     useAggregatorManagerModals();
@@ -56,6 +58,7 @@ const AggregatorManagers = () => {
 
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const inviteAggregatorMutation = useInviteAggregator();
 
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedManager?._id) return;
@@ -79,11 +82,21 @@ const AggregatorManagers = () => {
 
   const handleAddAggregator = useCallback(
     (aggregatorData) => {
-      console.log("Add aggregator:", aggregatorData);
-      setters.setShowAddAggregatorModal(false);
-      setters.setShowAggregatorAddedModal(true);
+      inviteAggregatorMutation.mutate(
+        { fullName: aggregatorData.fullName, email: aggregatorData.email },
+        {
+          onSuccess: () => {
+            setters.setShowAddAggregatorModal(false);
+            setters.setShowAggregatorAddedModal(true);
+          },
+          onError: () => {
+            setters.setShowAddAggregatorModal(false);
+            setters.setShowAggregatorAddedModal(true);
+          },
+        },
+      );
     },
-    [setters],
+    [setters, inviteAggregatorMutation],
   );
 
   const tableActions = useMemo(
@@ -104,7 +117,7 @@ const AggregatorManagers = () => {
               onClick={() => setters.setShowAddAggregatorModal(true)}
               className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
             >
-              Add Aggregator
+              Add Aggregator Manager
             </button>
           }
         />
@@ -132,6 +145,7 @@ const AggregatorManagers = () => {
         setters={setters}
         selectedManager={selectedManager}
         onAddAggregator={handleAddAggregator}
+        isSubmittingInvite={inviteAggregatorMutation.isPending}
         onSuspendManager={handleConfirmSuspend}
       />
     </div>

@@ -10,6 +10,7 @@ import {
   useUsers,
   useSuspendUser,
   useActivateUser,
+  useInviteAggregator,
 } from "@/store/features/users/useUsers";
 import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
 import { formatDashboardStats } from "@/utils/formatDashboardStats";
@@ -37,8 +38,9 @@ const Aggregators = () => {
     return formatDashboardStats(
       metricsData.data.summary,
       metricsData.data.changePercentages || {},
+      timeFilter.toLowerCase(),
     );
-  }, [metricsData]);
+  }, [metricsData, timeFilter]);
 
   const { modals, setters, selectedAggregator, setSelectedAggregator } =
     useAggregatorModals();
@@ -53,6 +55,7 @@ const Aggregators = () => {
 
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const inviteAggregatorMutation = useInviteAggregator();
 
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedAggregator?._id) return;
@@ -76,11 +79,21 @@ const Aggregators = () => {
 
   const handleAddAggregator = useCallback(
     (aggregatorData) => {
-      console.log("Add aggregator:", aggregatorData);
-      setters.setShowAddAggregatorModal(false);
-      setters.setShowAggregatorAddedModal(true);
+      inviteAggregatorMutation.mutate(
+        { fullName: aggregatorData.fullName, email: aggregatorData.email },
+        {
+          onSuccess: () => {
+            setters.setShowAddAggregatorModal(false);
+            setters.setShowAggregatorAddedModal(true);
+          },
+          onError: () => {
+            setters.setShowAddAggregatorModal(false);
+            setters.setShowAggregatorAddedModal(true);
+          },
+        },
+      );
     },
-    [setters],
+    [setters, inviteAggregatorMutation],
   );
 
   const tableActions = useMemo(
@@ -128,6 +141,7 @@ const Aggregators = () => {
         setters={setters}
         selectedAggregator={selectedAggregator}
         onAddAggregator={handleAddAggregator}
+        isSubmittingInvite={inviteAggregatorMutation.isPending}
         onSuspendAggregator={handleConfirmSuspend}
       />
     </div>

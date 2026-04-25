@@ -2,12 +2,13 @@ import AddAggregatorModal from '@/components/modals/AddAggregatorModal';
 import AggregatorAddedModal from '@/components/modals/AggregatorAddedModal';
 import ConfirmDialog from '@/components/modals/ConfirmDialogComponent';
 
-const AggregatorModals = ({ 
-  modals, 
-  setters, 
-  selectedAggregator, 
-  onAddAggregator, 
-  onSuspendAggregator 
+const AggregatorModals = ({
+  modals,
+  setters,
+  selectedAggregator,
+  onAddAggregator,
+  isSubmittingInvite,
+  onSuspendAggregator
 }) => {
   return (
     <>
@@ -15,6 +16,7 @@ const AggregatorModals = ({
         isOpen={modals.showAddAggregatorModal}
         onClose={() => setters.setShowAddAggregatorModal(false)}
         onSubmit={onAddAggregator}
+        isSubmitting={isSubmittingInvite}
       />
 
       <AggregatorAddedModal

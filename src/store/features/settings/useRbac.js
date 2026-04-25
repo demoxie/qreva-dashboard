@@ -38,3 +38,15 @@ export const useUpdateRole = () => {
     },
   });
 };
+
+export const useAssignRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: settingsApi.assignRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+  });
+};

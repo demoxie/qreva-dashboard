@@ -36,6 +36,7 @@ import EditCommission from "@/pages/settings/nested/commissionManagement/EditCom
 import ViewCommissionDetails from "@/pages/settings/nested/commissionManagement/ViewCommissionDetails";
 
 //Nested Details Pages
+import DashboardRegionDetails from "@/pages/dashboard/nested/DashboardRegionDetails";
 import AirtimeDetails from "@/pages/airtimePurchase/nested/AirTimeDetails";
 import DataDetails from "@/pages/dataPurchase/nested/DataDetails";
 import BillsDetails from "@/pages/billsPayment/nested/BillsDetails";
@@ -71,6 +72,7 @@ export const RouteComponentMap = {
   SETTINGS: Settings,
 
   // Nested Details Pages
+  DASHBOARD_DETAILS: DashboardRegionDetails,
   AIRTIME_DETAILS: AirtimeDetails,
   DATA_DETAILS: DataDetails,
   BILLS_DETAILS: BillsDetails,

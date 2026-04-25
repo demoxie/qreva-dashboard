@@ -4,17 +4,17 @@ import CustomHistory from '@/components/icons/CustomHistory';
 
 // Custom stats for transaction/customer view
 export const customerStats = [
-  { 
-    label: 'Total Transactions', 
-    value: '48,920', 
-    change: '+22%', 
-    subtext: '55,000 in last 24 hours' 
+  {
+    label: 'Total Transaction Volume',
+    value: '48,920',
+    change: '+22%',
+    subtext: '55,000 in last 24 hours'
   },
-  { 
-    label: 'Total Transaction Volume', 
-    value: '₦3,980,500', 
-    change: '-12%', 
-    subtext: '₦60,000 in last 24 hours' 
+  {
+    label: 'Total Transaction Value',
+    value: '₦3,980,500',
+    change: '-12%',
+    subtext: '₦60,000 in last 24 hours'
   },
   { 
     label: 'Highest One Time Purchase', 
@@ -46,7 +46,7 @@ export const createCustomerTransactionActions = ({
     }
   },
   {
-    label: 'Share Receipt',
+    label: 'Download Receipt',
     type: 'share',
     icon: CustomShare,
     onClick: (tx) => {
@@ -58,11 +58,11 @@ export const createCustomerTransactionActions = ({
 
 // Factory function for region stats
 export const createRegionStats = (region) => [
-  { 
-    label: 'Total Transactions', 
-    value: region.total?.toLocaleString() || '0', 
-    change: '+15%', 
-    subtext: '60,000 in last 24 hours' 
+  {
+    label: 'Total Transaction Volume',
+    value: region.total?.toLocaleString() || '0',
+    change: '+15%',
+    subtext: '60,000 in last 24 hours'
   },
   { 
     label: 'Total Revenue (₦)', 
@@ -100,7 +100,7 @@ export const createRegionTransactionActions = ({
     }
   },
   {
-    label: 'Share Receipt',
+    label: 'Download Receipt',
     type: 'share',
     icon: CustomShare,
     onClick: (transaction) => {

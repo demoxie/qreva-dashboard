@@ -19,19 +19,22 @@ const TransactionHistoryTable = ({
       renderCell: (params) => {
         const name =
           params.row.senderName ||
-          params.row.utilityId?.phoneNumber ||
           params.row.transferId?.nameEnquiryId?.accountName ||
           params.row.utilityId?.vasVerificationId?.name ||
           params.row.narration ||
+          params.row.utilityId?.narration ||
           params.row.typeCategory ||
           params.row.title ||
           "-";
         const acc =
           params.row.senderPhone ||
           params.row.phoneNumber ||
+          params.row.utilityId?.phoneNumber ||
           params.row.meterNumber ||
+          params.row.utilityId?.meterNumber ||
           params.row.creditAccountNumber ||
           params.row.accountNumber ||
+          params.row.utilityId?.accountNumber ||
           params.row.acc ||
           "";
         return (
@@ -159,7 +162,7 @@ const TransactionHistoryTable = ({
       onClick: (row) => console.log("View:", row),
     },
     {
-      label: "Share Transaction",
+      label: "Download Receipt",
       icon: CustomShare,
       onClick: (row) => console.log("Share:", row),
     },

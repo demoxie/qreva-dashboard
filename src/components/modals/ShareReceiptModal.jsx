@@ -1,7 +1,11 @@
-import { X, ExternalLink } from 'lucide-react';
+import { useState } from 'react';
+import { X, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import logo from '../../assets/images/logo.png';
 
 const ShareReceiptModal = ({ isOpen, onClose, transaction }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+
   if (!isOpen || !transaction) return null;
 
   const statusColor = {
@@ -14,27 +18,169 @@ const ShareReceiptModal = ({ isOpen, onClose, transaction }) => {
   const statusLabel = transaction.status || 'Successful';
   const statusClass = statusColor[statusLabel] || statusColor.Successful;
 
-  const handleShareReceipt = () => {
-    console.log('Share receipt:', transaction);
+  const txDate = transaction.createdAt
+    ? new Date(transaction.createdAt).toLocaleDateString('en-NG', {
+        day: 'numeric', month: 'long', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+      })
+    : transaction.date || '—';
+
+  const recipientName =
+    transaction.recipient ||
+    transaction.clientName ||
+    transaction.transferId?.nameEnquiryId?.accountName ||
+    transaction.utilityId?.phoneNumber ||
+    transaction.title ||
+    null;
+
+  const txId = transaction._id || transaction.id || '—';
+  const category = transaction.typeCategory || transaction.category || transaction.type || '—';
+  const amount = transaction.amount != null ? `NGN ${Number(transaction.amount).toLocaleString()}` : '—';
+
+  const handleDownload = async () => {
+    setIsDownloading(true);
+    try {
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a5' });
+      const pageW = doc.internal.pageSize.getWidth();
+      const margin = 40;
+      const contentW = pageW - margin * 2;
+      let y = 40;
+
+      // Header bar
+      doc.setFillColor(255, 91, 4);
+      doc.rect(0, 0, pageW, 8, 'F');
+
+      // Try to add logo
+      try {
+        const img = new Image();
+        img.src = logo;
+        await new Promise((res) => { img.onload = res; img.onerror = res; });
+        if (img.complete && img.naturalWidth) {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          doc.addImage(canvas.toDataURL('image/png'), 'PNG', margin, y, 28, 28);
+        }
+      } catch { /* skip logo */ }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.setTextColor(30, 30, 30);
+      doc.text('qreva', margin + 34, y + 18);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(128, 140, 145);
+      doc.text('Transaction Receipt', pageW - margin, y + 18, { align: 'right' });
+
+      y += 52;
+
+      // Divider
+      doc.setDrawColor(232, 235, 237);
+      doc.line(margin, y, pageW - margin, y);
+      y += 24;
+
+      // Amount
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(28);
+      doc.setTextColor(255, 91, 4);
+      doc.text(amount, pageW / 2, y, { align: 'center' });
+      y += 20;
+
+      // Status badge
+      const badgeColors = {
+        Successful: [233, 249, 239], Completed: [233, 249, 239],
+        Pending: [255, 248, 230], Failed: [252, 236, 236],
+      };
+      const badgeTextColors = {
+        Successful: [24, 140, 67], Completed: [24, 140, 67],
+        Pending: [181, 130, 2], Failed: [158, 45, 45],
+      };
+      const bgColor = badgeColors[statusLabel] || [245, 246, 247];
+      const textColor = badgeTextColors[statusLabel] || [80, 92, 97];
+      const badgeText = `Transaction ${statusLabel}!`;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      const badgeW = doc.getTextWidth(badgeText) + 20;
+      doc.setFillColor(...bgColor);
+      doc.roundedRect((pageW - badgeW) / 2, y, badgeW, 20, 10, 10, 'F');
+      doc.setTextColor(...textColor);
+      doc.text(badgeText, pageW / 2, y + 13, { align: 'center' });
+      y += 36;
+
+      // Date under amount
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(128, 140, 145);
+      doc.text(txDate, pageW / 2, y, { align: 'center' });
+      y += 24;
+
+      // Divider
+      doc.setDrawColor(232, 235, 237);
+      doc.line(margin, y, pageW - margin, y);
+      y += 20;
+
+      // Detail rows
+      const rows = [
+        recipientName && ['Recipient', recipientName],
+        transaction.senderName && ['Sender', transaction.senderName],
+        ['Transaction ID', txId.length > 30 ? txId.slice(0, 30) + '…' : txId],
+        ['Category', category],
+        ['Date', txDate],
+        ['Status', statusLabel],
+        transaction.externalReferenceId && ['Reference', transaction.externalReferenceId],
+        transaction.utilityId?.phoneNumber && ['Phone', transaction.utilityId.phoneNumber],
+      ].filter(Boolean);
+
+      doc.setFontSize(10);
+      rows.forEach(([label, value]) => {
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(128, 140, 145);
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 30, 30);
+        doc.text(String(value), pageW - margin, y, { align: 'right' });
+        y += 20;
+
+        // Light row separator
+        doc.setDrawColor(245, 246, 247);
+        doc.line(margin, y - 6, pageW - margin, y - 6);
+      });
+
+      y += 12;
+      // Footer
+      doc.setDrawColor(232, 235, 237);
+      doc.line(margin, y, pageW - margin, y);
+      y += 16;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(128, 140, 145);
+      doc.text('Powered by Qreva · www.qreva.com', pageW / 2, y, { align: 'center' });
+
+      // Footer bar
+      doc.setFillColor(255, 91, 4);
+      doc.rect(0, doc.internal.pageSize.getHeight() - 8, pageW, 8, 'F');
+
+      doc.save(`receipt-${txId.slice(0, 16)}.pdf`);
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/50 bg-opacity-50"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
 
       <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full mx-4">
         <div className="flex items-center justify-between p-6 pb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Share Receipt</h2>
-            <p className="text-sm text-gray-500 mt-1">Here are the receipts of this transaction</p>
+            <h2 className="text-xl font-semibold font-urbanist text-gray-900">Download Receipt</h2>
+            <p className="text-sm text-gray-500 font-general mt-1">Here are the details of this transaction</p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
-          >
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
             <X size={20} className="text-gray-500" />
           </button>
         </div>
@@ -43,7 +189,7 @@ const ShareReceiptModal = ({ isOpen, onClose, transaction }) => {
           <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 bg-white">
             <div className="flex justify-between mb-6">
               {[...Array(7)].map((_, i) => (
-                <div key={i} className="w-6 h-6 rounded-full border-2 border-gray-200"></div>
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-gray-200" />
               ))}
             </div>
 
@@ -62,83 +208,45 @@ const ShareReceiptModal = ({ isOpen, onClose, transaction }) => {
               <div className={`inline-flex items-center gap-2 px-3 py-1 ${statusClass} rounded-full text-sm font-medium`}>
                 Transaction {statusLabel}!
               </div>
-              {transaction.date && (
-                <div className="text-xs text-gray-500 mt-2">
-                  {transaction.date}
-                </div>
-              )}
+              <div className="text-xs text-gray-500 mt-2">{txDate}</div>
             </div>
 
             <div className="space-y-3 text-sm mb-6">
-              {(transaction.recipient || transaction.clientName || transaction.title) && (
+              {recipientName && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Recipient Details</span>
-                  <div className="text-right">
-                    <div className="font-medium text-gray-900">
-                      {transaction.recipient || transaction.clientName || transaction.title}
-                    </div>
-                    {(transaction.location || transaction.accountId) && (
-                      <div className="text-xs text-gray-500">
-                        {transaction.location || transaction.accountId}
-                      </div>
-                    )}
-                  </div>
+                  <span className="text-gray-500">Recipient</span>
+                  <span className="font-medium text-gray-900">{recipientName}</span>
                 </div>
               )}
-
-              {(transaction.sender || transaction.senderName) && (
+              {transaction.senderName && (
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Sender Details</span>
-                  <div className="text-right">
-                    <div className="font-medium text-gray-900">
-                      {transaction.sender || transaction.senderName}
-                    </div>
-                    {transaction.senderInfo && (
-                      <div className="text-xs text-gray-500">
-                        {transaction.senderInfo}
-                      </div>
-                    )}
-                  </div>
+                  <span className="text-gray-500">Sender</span>
+                  <span className="font-medium text-gray-900">{transaction.senderName}</span>
                 </div>
               )}
-
               <div className="flex justify-between">
-                <span className="text-gray-600">Transaction ID</span>
-                <span className="font-medium text-gray-900 font-mono text-xs">
-                  {transaction._id || transaction.id || '—'}
-                </span>
+                <span className="text-gray-500">Transaction ID</span>
+                <span className="font-medium text-gray-900 font-mono text-xs truncate max-w-[180px]">{txId}</span>
               </div>
-
-              {(transaction.category || transaction.typeCategory || transaction.type) && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Category</span>
-                  <span className="font-medium text-gray-900">
-                    {transaction.category || transaction.typeCategory || transaction.type}
-                  </span>
-                </div>
-              )}
-
-              {transaction.date && (
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Transaction Date</span>
-                  <span className="font-medium text-gray-900">{transaction.date}</span>
-                </div>
-              )}
-
+              <div className="flex justify-between">
+                <span className="text-gray-500">Category</span>
+                <span className="font-medium text-gray-900">{category}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Date</span>
+                <span className="font-medium text-gray-900">{txDate}</span>
+              </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Status</span>
-                <div className="flex items-center gap-2">
-                  <span className={`font-medium ${statusLabel === 'Failed' ? 'text-red-600' : statusLabel === 'Pending' ? 'text-yellow-600' : 'text-green-600'}`}>
-                    {statusLabel}
-                  </span>
-                  <ExternalLink size={14} className="text-gray-400" />
-                </div>
+                <span className="text-gray-500">Status</span>
+                <span className={`font-medium ${statusLabel === 'Failed' ? 'text-red-600' : statusLabel === 'Pending' ? 'text-yellow-600' : 'text-green-600'}`}>
+                  {statusLabel}
+                </span>
               </div>
             </div>
 
             <div className="flex justify-between mt-6">
               {[...Array(7)].map((_, i) => (
-                <div key={i} className="w-6 h-6 rounded-full border-2 border-gray-200"></div>
+                <div key={i} className="w-6 h-6 rounded-full border-2 border-gray-200" />
               ))}
             </div>
           </div>
@@ -146,14 +254,16 @@ const ShareReceiptModal = ({ isOpen, onClose, transaction }) => {
 
         <div className="px-6 pb-6 space-y-3">
           <button
-            onClick={handleShareReceipt}
-            className="w-full py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-600 transition-colors"
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="w-full py-3 bg-[#FF5B04] text-white font-medium font-general rounded-lg hover:bg-[#E54F03] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Share Receipt
+            <Download size={18} />
+            {isDownloading ? 'Downloading...' : 'Download Receipt'}
           </button>
           <button
             onClick={onClose}
-            className="w-full py-3 bg-orange-50 text-orange-500 font-medium rounded-lg hover:bg-orange-100 transition-colors"
+            className="w-full py-3 bg-orange-50 text-orange-500 font-medium font-general rounded-lg hover:bg-orange-100 transition-colors"
           >
             Dismiss
           </button>

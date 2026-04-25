@@ -114,7 +114,7 @@ const chartSeries = [
       }
     },
     {
-      label: 'Share Receipt',
+      label: 'Download Receipt',
       type: 'share',
       icon: CustomShare,
       onClick: (transaction) => {
@@ -147,7 +147,7 @@ const chartSeries = [
         }
       },
       {
-        label: 'Share Receipt',
+        label: 'Download Receipt',
         type: 'share',
         onClick: (transaction) => {
           setSelectedTransaction(transaction);
@@ -178,7 +178,7 @@ const chartSeries = [
         }
       },
       {
-        label: 'Share Receipt',
+        label: 'Download Receipt',
         type: 'share',
         icon: CustomShare,
         onClick: (tx) => {

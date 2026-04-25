@@ -13,7 +13,7 @@ export const createTransactionActions = (setSelectedTransaction, setShowDetailsM
     }
   },
   {
-    label: 'Share Receipt',
+    label: 'Download Receipt',
     type: 'share',
     icon: CustomShare,
     onClick: (transaction) => {
@@ -23,8 +23,15 @@ export const createTransactionActions = (setSelectedTransaction, setShowDetailsM
   }
 ];
 
-export const createUserActions = (userData, setShowSuspendModal, setShowPromoteModal, setPromotionType, setShowActionsMenu) => {
+export const createUserActions = (userData, setShowSuspendModal, setShowPromoteModal, setPromotionType, setShowActionsMenu, setShowAssignRoleModal) => {
   const actions = [
+    {
+      label: 'Assign Role',
+      onClick: () => {
+        setShowActionsMenu(false);
+        setShowAssignRoleModal?.(true);
+      }
+    },
     {
       label: 'Suspend User',
       onClick: () => {

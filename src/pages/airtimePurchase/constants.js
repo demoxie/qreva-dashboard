@@ -10,7 +10,7 @@ export const createTransactionActions = (onView, onShare) => [
     onClick: (transaction) => onView(transaction),
   },
   {
-    label: "Share Receipt",
+    label: "Download Receipt",
     icon: CustomShare,
     type: "share",
     onClick: (transaction) => onShare(transaction),
@@ -20,7 +20,7 @@ export const createTransactionActions = (onView, onShare) => [
 // Custom stats for region view
 export const getRegionStats = (region) => [
   {
-    label: "Total Transactions",
+    label: "Total Transaction Volume",
     value: region.total?.toLocaleString() || "-",
     change: "%",
     subtext: "-",
@@ -56,7 +56,7 @@ export const regionTransactionActions = [
     },
   },
   {
-    label: "Share Receipt",
+    label: "Download Receipt",
     type: "share",
     onClick: (transaction) => {
       setSelectedTransaction(transaction);
@@ -67,13 +67,13 @@ export const regionTransactionActions = [
 
 export const createCustomerStats = (customer) => [
   {
-    label: "Total Transactions",
+    label: "Total Transaction Volume",
     value: customer.totalTransactions?.toLocaleString() || "0",
     change: "+20%",
     subtext: "Last 24 hours",
   },
   {
-    label: "Total Transaction Volume",
+    label: "Total Transaction Value",
     value: `₦${customer.totalVolume?.toLocaleString() || "0"}`,
     change: "-10%",
     subtext: "Last 24 hours",
@@ -100,7 +100,7 @@ export const createCustomerTransactionActions = (onView, onShare) => [
     onClick: (row) => onView(row),
   },
   {
-    label: "Share Receipt",
+    label: "Download Receipt",
     type: "share",
     icon: CustomShare,
     onClick: (row) => onShare(row),

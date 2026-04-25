@@ -6,18 +6,20 @@ const PageHeader = ({
   actionButton, 
   hidden 
 }) => {
-  const filters = ['Today', 'Last 12 Hours', 'Weekly', 'Monthly', 'Yearly'];
-  
+  const filters = ['Today', 'Hourly', 'Weekly', 'Monthly', 'Yearly'];
+
   // Normalize filter for comparison
   const normalizeFilter = (filter) => {
     const map = {
       'today': 'Today',
-      'last12hours': 'Last 12 Hours',
+      'last12hours': 'Hourly',
+      'hourly': 'Hourly',
       'weekly': 'Weekly',
       'monthly': 'Monthly',
       'yearly': 'Yearly',
       'Today': 'Today',
-      'Last 12 Hours': 'Last 12 Hours',
+      'Hourly': 'Hourly',
+      'Last 12 Hours': 'Hourly',
       'Weekly': 'Weekly',
       'Monthly': 'Monthly',
       'Yearly': 'Yearly'

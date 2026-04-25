@@ -121,18 +121,20 @@ export const AGENT_CATEGORY_COLUMNS = [
     flex: 1.5,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.value.join(", ")}
+        {(params.row.appliesTo || []).join(", ") || '-'}
       </span>
     ),
   },
   {
-    field: "updated",
+    field: "updatedAt",
     headerName: "Last Updated",
     width: 200,
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.value || new Date(params.row.updatedAt).toLocaleDateString()}
+        {params.row.updatedAt
+          ? new Date(params.row.updatedAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
+          : '-'}
       </span>
     ),
   },

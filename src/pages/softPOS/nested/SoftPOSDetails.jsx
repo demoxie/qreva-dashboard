@@ -31,8 +31,8 @@ const SoftPOSDetails = () => {
   const transactions = txResponse?.data || [];
 
   const stats = useMemo(() => [
-    { label: 'Total Transactions', value: (metrics.totalTransactions || 0).toLocaleString(), change: '+0%', subtext: 'in last 24 hours' },
-    { label: 'Total Volume', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Transaction Volume', value: (metrics.totalTransactions || 0).toLocaleString(), change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Transaction Value', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
     { label: 'Success Rate', value: `${metrics.successRate || 0}%`, change: '+0%', subtext: 'in last 24 hours' },
     { label: 'Average Value', value: `₦${(metrics.averageValue || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
   ], [metrics]);
@@ -72,7 +72,7 @@ const SoftPOSDetails = () => {
             <TransactionPercentagePie data={cardVsQrData} title="Card Payments vs QR Payments %" wrapped={true} />
             <TopCustomersCard data={topCustomers} title="Top Customers" />
           </div>
-          <MultiLineChart data={chartData} series={chartSeries} title="Daily Transaction Volume" />
+          <MultiLineChart data={chartData} series={chartSeries} title="Daily Transaction Value" />
           <TransactionHistoryTable data={transactions} title="Transactions" actions={regionTransactionActions} />
         </div>
         <TransactionDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} transaction={selectedTransaction} />
@@ -110,7 +110,7 @@ const SoftPOSDetails = () => {
             <TransactionPercentagePie data={cardVsQrData} title="Payment Distribution" wrapped={true} />
             <TopCustomersCard data={topCustomers} title="Related Agents" />
           </div>
-          <MultiLineChart data={chartData} series={chartSeries} title="Daily Transaction Volume" />
+          <MultiLineChart data={chartData} series={chartSeries} title="Daily Transaction Value" />
           <TransactionHistoryTable data={transactions} title="Transactions" actions={agentTransactionActions} />
         </div>
         <TransactionDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} transaction={selectedTransaction} />

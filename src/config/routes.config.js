@@ -108,6 +108,7 @@ export const ROUTES = {
     label: 'Settings',
     icon: 'settings',
     permission: 'settings:view',
+    parent: '/dashboard',
   },
   SETTINGS_PROFILE: {
     path: '/settings/profile',
@@ -275,6 +276,14 @@ export const ROUTES = {
     parent: '/dashboard',
     icon: null,
     permission: 'transactions',
+    dynamic: true,
+  },
+  DASHBOARD_DETAILS: {
+    path: '/dashboard/details/:type/:id',
+    label: 'View Details',
+    parent: '/dashboard',
+    icon: null,
+    permission: 'dashboard:view',
     dynamic: true,
   },
   AIRTIME_DETAILS: {

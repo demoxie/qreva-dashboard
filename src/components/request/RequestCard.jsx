@@ -5,6 +5,9 @@ const RequestCard = ({ request, onViewDetails }) => {
     ? new Date(request.createdAt).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' })
     : '-';
 
+  const receiverName = request.receiverName || request.recipientName || request.receiver?.name || null;
+  const receiverEmail = request.receiverEmail || request.recipientEmail || request.receiver?.email || null;
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
@@ -23,27 +26,37 @@ const RequestCard = ({ request, onViewDetails }) => {
         {request.reason}
       </p>
 
-      <div className="space-y-2 mb-4">
-        <div className="flex items-center gap-2 text-sm font-general text-[#475367]">
-          <User size={16} />
-          <span>Requester: {request.requesterName}</span>
+      <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+        <div>
+          <p className="text-xs font-general text-[#808C91] mb-0.5">Sender</p>
+          <div className="flex items-center gap-1.5 text-sm font-general text-[#475367]">
+            <User size={14} />
+            <span>{request.requesterName || 'N/A'}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-general text-[#808C91] mt-0.5">
+            <Mail size={12} />
+            <span>{request.requesterEmail || 'N/A'}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 text-sm font-general text-[#475367]">
-          <Mail size={16} />
-          <span>Email: {request.requesterEmail || 'N/A'}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-general text-[#475367]">
-          <User size={16} />
-          <span>Role: {request.requesterRole}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm font-general text-[#475367]">
-          <Calendar size={16} />
-          <span>Date: {formattedDate}</span>
+        <div>
+          <p className="text-xs font-general text-[#808C91] mb-0.5">Receiver</p>
+          <div className="flex items-center gap-1.5 text-sm font-general text-[#475367]">
+            <User size={14} />
+            <span>{receiverName || 'N/A'}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-general text-[#808C91] mt-0.5">
+            <Mail size={12} />
+            <span>{receiverEmail || 'N/A'}</span>
+          </div>
         </div>
       </div>
 
-      <div className="text-right">
-        <span className="text-2xl font-general font-bold text-[#1E1E1E]">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm font-general text-[#808C91]">
+          <Calendar size={14} />
+          <span>{formattedDate}</span>
+        </div>
+        <span className="text-xl font-general font-bold text-[#1E1E1E]">
           ₦{(request.amount || 0).toLocaleString()}
         </span>
       </div>
