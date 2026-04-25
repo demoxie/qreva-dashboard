@@ -38,7 +38,7 @@ const APPLIES_TO_OPTIONS = [
 ];
 
 const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create Category', isSubmitting = false }) => {
-    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'AgentMerchant');
+    const [userAccountType, setUserAccountType] = useState(initialData.userAccountType || 'Agent');
     const [categoryName, setCategoryName] = useState(initialData.name || '');
     const [description, setDescription] = useState(initialData.description || '');
     const [monthlyVolume, setMonthlyVolume] = useState(
@@ -134,8 +134,8 @@ const AgentCategoryForm = ({ initialData = {}, onSubmit, submitLabel = 'Create C
                             label="Personal Account"
                         />
                         <GreenRadio
-                            checked={userAccountType === 'AgentMerchant'}
-                            onChange={() => setUserAccountType('AgentMerchant')}
+                            checked={userAccountType === 'Agent'}
+                            onChange={() => setUserAccountType('Agent')}
                             label="Agents/Merchants"
                         />
                     </div>

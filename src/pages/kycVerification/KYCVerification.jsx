@@ -71,8 +71,8 @@ const KYCVerification = () => {
 
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary, metrics.changePercentages);
-  }, [metrics]);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages, timeFilter);
+  }, [metrics, timeFilter]);
 
 
 
@@ -118,7 +118,7 @@ const KYCVerification = () => {
         <MultiLineChart 
           data={metrics?.dailyTransactionVolume || []}
           series={[{ data: (metrics?.dailyTransactionVolume || []).map(d => d.value), color: '#26C8B9', label: 'Volume' }]}
-          title="Daily Transaction Volume"
+          title="Daily Transaction Value"
         />
 
         <RegionsTable

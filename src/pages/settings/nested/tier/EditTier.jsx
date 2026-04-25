@@ -69,7 +69,7 @@ const EditTier = () => {
 
     const { data: tierResponse, isLoading } = useTier(id);
     const updateTier = useUpdateTier();
-    const tier = tierResponse?.data || {};
+    const tier = tierResponse?.data ?? tierResponse ?? {};
 
     const [activeTab, setActiveTab] = useState('personal');
     const [tierName, setTierName] = useState('');
@@ -122,7 +122,7 @@ const EditTier = () => {
 
     const handleSave = () => {
         const payload = {
-            tierId: id,
+            tierId: tier.id ?? tier.tierId ?? id,
             level: tierName,
             accountType: activeTab === 'personal' ? 'PersonalAccount' : 'AgentAccount',
             tierDescription: tierDesc,
@@ -172,6 +172,7 @@ const EditTier = () => {
 
             {/* Tabs */}
             <div className="border-b border-[#E8EBED] mb-8">
+                <p className="text-xs text-[#808C91] mb-3">Select the account type this tier applies to</p>
                 <div className="flex gap-8">
                     <button
                         onClick={() => setActiveTab('personal')}

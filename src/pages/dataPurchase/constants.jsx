@@ -26,7 +26,7 @@ export const createCustomerTransactionActions = ({
       }
     },
     {
-      label: 'Share Receipt',
+      label: 'Download Receipt',
       type: 'share',
       icon: CustomShare,
       onClick: (tx) => {
@@ -39,11 +39,11 @@ export const createCustomerTransactionActions = ({
 
 // Custom stats for region view
 export const createRegionStats = (region) => [
-    { 
-    label: 'Total Transactions', 
-    value: region.total?.toLocaleString() || '0', 
-    change: '+12%', 
-    subtext: '55,000 in last 24 hours' 
+    {
+    label: 'Total Transaction Volume',
+    value: region.total?.toLocaleString() || '0',
+    change: '+12%',
+    subtext: '55,000 in last 24 hours'
     },
     { 
     label: 'Total Revenue (₦)', 
@@ -80,7 +80,7 @@ export const createRegionTransactionActions = ({
     }
     },
     {
-    label: 'Share Receipt',
+    label: 'Download Receipt',
     type: 'share',
     onClick: (transaction) => {
         setSelectedTransaction(transaction);
@@ -92,17 +92,17 @@ export const createRegionTransactionActions = ({
 
   // Custom stats for transaction/customer view
 export const customerStats = [
-    { 
-    label: 'Total Transactions', 
-    value: '52,145', 
-    change: '+25%', 
-    subtext: '60,000 in last 24 hours' 
+    {
+    label: 'Total Transaction Volume',
+    value: '52,145',
+    change: '+25%',
+    subtext: '60,000 in last 24 hours'
     },
-    { 
-    label: 'Total Transaction Volume', 
-    value: '₦4,250,000', 
-    change: '-8%', 
-    subtext: '₦55,000 in last 24 hours' 
+    {
+    label: 'Total Transaction Value',
+    value: '₦4,250,000',
+    change: '-8%',
+    subtext: '₦55,000 in last 24 hours'
     },
     { 
     label: 'Highest One Time Purchase', 

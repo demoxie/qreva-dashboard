@@ -69,6 +69,11 @@ export const settingsApi = {
     return data;
   },
 
+  assignRole: async ({ userId, roleId }) => {
+    const { data } = await apiClient.patch(`/admin/settings/rbac/users/${userId}/assign-role`, { roleId });
+    return data;
+  },
+
   // ── Commission Rules ───────────────────────────────────────────────
   listCommissions: async (params = {}) => {
     const { data } = await apiClient.get('/admin/settings/commissions', { params });
@@ -92,6 +97,11 @@ export const settingsApi = {
 
   duplicateCommission: async (commissionRuleId) => {
     const { data } = await apiClient.post(`/admin/settings/commissions/${commissionRuleId}/duplicate`);
+    return data;
+  },
+
+  deleteCommission: async (commissionRuleId) => {
+    const { data } = await apiClient.delete(`/admin/settings/commissions/${commissionRuleId}`);
     return data;
   },
 

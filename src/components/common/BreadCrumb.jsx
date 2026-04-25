@@ -1,11 +1,19 @@
+import { useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { ChevronLeft, Bell, Settings } from 'lucide-react';
 import { getRouteConfig, ROUTES } from '@/config/routes.config';
+import NotificationsPanel from '@/components/common/NotificationsPanel';
+import { useNotifications } from '@/store/features/notifications/useNotifications';
 
 const Breadcrumb = ({ user }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  const { data: notifResponse } = useNotifications({ limit: 20 });
+  const notifications = notifResponse?.data || notifResponse?.notifications || [];
+  const unreadCount = notifications.filter(n => !n.read && !n.isRead).length;
 
   const currentRoute = getRouteConfig(location.pathname);
   const path = location.pathname;
@@ -147,13 +155,23 @@ const Breadcrumb = ({ user }) => {
 
       {/* Right side - Notifications, Settings, User Badge */}
       <div className="flex items-center gap-4">
-        <button
-          className="p-3 hover:bg-gray-100  transition-colors relative border border-[#D9D9D9] rounded-full"
-          aria-label="Notifications"
-        >
-          <Bell size={20} className="text-[#7C8D96]" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-[#FF6B2C] rounded-full "></span>
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setNotifOpen((v) => !v)}
+            className="p-3 hover:bg-gray-100 transition-colors relative border border-[#D9D9D9] rounded-full"
+            aria-label="Notifications"
+          >
+            <Bell size={20} className="text-[#7C8D96]" />
+            {unreadCount > 0 ? (
+              <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-[#FF6B2C] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-0.5">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            ) : (
+              <span className="absolute top-2 right-2 w-2 h-2 bg-[#FF6B2C] rounded-full" />
+            )}
+          </button>
+          {notifOpen && <NotificationsPanel onClose={() => setNotifOpen(false)} />}
+        </div>
 
         <button
           className="p-3 hover:bg-gray-100 transition-colors border border-[#D9D9D9] rounded-full"
@@ -164,11 +182,13 @@ const Breadcrumb = ({ user }) => {
         </button>
         <hr className="h-8 border-l border-gray-300" />
 
-        <div className="flex items-center gap-2 h-11 w-[87px] bg-[#F7FAFA] border border-[#D9D9D9] rounded-[36px] px-1">
+        <div className={`flex items-center gap-2 h-11 bg-[#F7FAFA] border border-[#D9D9D9] rounded-[36px] px-1 ${user?.role === 'SuperAdmin' ? 'w-10' : 'w-[87px]'}`}>
           <span className="text-[12.8px] font-urbanist font-semibold text-[#1E1E1E]  bg-[#CEEBF5] w-8 h-8 rounded-full flex items-center justify-center">
             {user?.username?.split(' ').map(n => n[0]).join('').toUpperCase() || 'JFD'}
           </span>
-          <span className="text-[14px] font-general font-medium text-[#808C91] leading-[148px]">Tier 1</span>
+          {user?.role !== 'SuperAdmin' && (
+            <span className="text-[14px] font-general font-medium text-[#808C91] leading-[148px]">Tier 1</span>
+          )}
         </div>
       </div>
     </div>

@@ -13,6 +13,14 @@ const PaymentComparisonPie = ({
         <CardTitle className="text-lg text-[#1E1E1E] font-urbanist font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
+        {(!data || data.length === 0 || data.every(d => !d.value)) ? (
+          <div className="flex flex-col items-center justify-center h-[200px] text-[#7C8D96]">
+            <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#D0D5DD] flex items-center justify-center mb-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+            </div>
+            <p className="text-sm font-general">No data available</p>
+          </div>
+        ) : (
         <div className="flex flex-col items-center">
           <PieChart
             series={[{
@@ -40,6 +48,7 @@ const PaymentComparisonPie = ({
             ))}
           </div>
         </div>
+        )}
       </CardContent>
     </Card>
   );

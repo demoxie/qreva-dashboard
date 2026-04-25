@@ -2,6 +2,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import { useTransactionSearch } from '@/hooks/useTransactionSearch';
 import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useAssignRole } from '@/store/features/settings/useRbac';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -25,6 +26,7 @@ const UserProfileDetails = () => {
   const userTransactions = txResponse?.data || [];
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const assignRoleMutation = useAssignRole();
 
   const data = userData?.[currentTab.dataKey] || userTransactions;
 
@@ -48,6 +50,14 @@ const UserProfileDetails = () => {
     });
   };
 
+  const handleAssignRole = (roleId) => {
+    if (!userData?._id) return;
+    assignRoleMutation.mutate(
+      { userId: userData._id, roleId },
+      { onSettled: () => setters.setShowAssignRoleModal(false) }
+    );
+  };
+
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
   };
@@ -58,7 +68,8 @@ const UserProfileDetails = () => {
     setters.setShowSuspendModal,
     setters.setShowPromoteModal,
     setPromotionType,
-    setters.setShowActionsMenu
+    setters.setShowActionsMenu,
+    setters.setShowAssignRoleModal
   );
 
   if (loading) return <LoadingState />;
@@ -92,6 +103,9 @@ const UserProfileDetails = () => {
         selectedTransaction={selectedTransaction}
         promotionType={promotionType}
         onSuspend={handleSuspend}
+        onAssignRole={handleAssignRole}
+        currentRoleId={userData?.roleId || userData?.role?._id || userData?.role?.id}
+        isAssigningRole={assignRoleMutation.isPending}
       />
     </ProfileLayout>
   );

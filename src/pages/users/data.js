@@ -177,8 +177,8 @@ const mockUser = {
   
   // Transaction stats
   stats: [
-    { label: 'Total Transactions', value: '45,823', change: '+20%', subtext: '50,000 in last 24 hours' },
-    { label: 'Total Transaction Volume', value: '₦4,005,823', change: '-10%', subtext: '₦50,000 in last 24 hours' },
+    { label: 'Total Transaction Volume', value: '45,823', change: '+20%', subtext: '50,000 in last 24 hours' },
+    { label: 'Total Transaction Value', value: '₦4,005,823', change: '-10%', subtext: '₦50,000 in last 24 hours' },
     { label: 'Total Revenue', value: '₦1,070,823', change: '-10%', subtext: '₦80,000 in last 24 hours' },
     { label: 'Success Rate', value: '90%', change: '+2%', subtext: '2% in last 24 hours' }
   ],

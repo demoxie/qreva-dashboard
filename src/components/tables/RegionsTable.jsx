@@ -11,7 +11,7 @@ const RegionsTable = ({
 }) => {
   const handleViewDetails = (region) => {
     if (onViewDetails) {
-      onViewDetails(region._id || region.id || region.location);
+      onViewDetails(region._id || region.id || region.location || region.region || region.name || region.state);
     }
   };
 
@@ -27,7 +27,7 @@ const RegionsTable = ({
             {params.api.getRowIndexRelativeToVisibleRows(params.id) + 1}
           </p>{" "}
           <p className="font-medium leading-[148%] text-[#1E1E1E]">
-            {params.row.location}
+            {params.row.location || params.row.region || params.row.name || params.row.state || '-'}
           </p>
         </span>
       ),
@@ -112,11 +112,19 @@ const RegionsTable = ({
         </div>
       </CardHeader>
       <CardContent className="px-0">
+        {data.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-48 text-[#7C8D96]">
+            <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#D0D5DD] flex items-center justify-center mb-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </div>
+            <p className="text-sm font-general">No region data available</p>
+          </div>
+        ) : (
         <DataGrid
           rows={data}
           columns={tableColumns}
           getRowId={(row) =>
-            row._id || row.id || row.location || row.name || Math.random()
+            row._id || row.id || row.location || row.region || row.name || row.state || Math.random()
           }
           disableRowSelectionOnClick
           disableColumnMenu
@@ -206,6 +214,7 @@ const RegionsTable = ({
             pagination: CustomPagination,
           }}
         />
+        )}
       </CardContent>
     </Card>
   );

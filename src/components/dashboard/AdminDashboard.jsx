@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import TopTransactionValueCard from '@/components/cards/TopTransactionValueCard';
 import TopCustomersCard from '@/components/cards/TopCustomersCard';
 import TransactionVolumeChart from '@/components/charts/TransactionVolumeChart';
@@ -24,6 +25,12 @@ const AdminDashboard = ({
   selectedTransaction,
   isTransactionsLoading
 }) => {
+  const navigate = useNavigate();
+
+  const handleViewRegionDetails = (regionId) => {
+    navigate(`/dashboard/details/region/${regionId}`);
+  };
+
   return (
     <>
       <DashboardStats stats={formattedStats} route="dashboard" />
@@ -34,7 +41,7 @@ const AdminDashboard = ({
           <TopTransactionValueCard data={metrics.topTransactionValues} />
         </div>
         <div className="lg:col-span-3">
-          <TopCustomersCard data={metrics.topCustomers} title="Top Performing Agents" />
+          <TopCustomersCard data={metrics.topCustomers} agentsData={metrics.topAgents} />
         </div>
       </div>
 
@@ -47,7 +54,7 @@ const AdminDashboard = ({
       <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
 
       {/* Top Regions Table */}
-      <RegionsTable data={metrics.topRegions} />
+      <RegionsTable data={metrics.topRegions} onViewDetails={handleViewRegionDetails} />
 
       {/* Transaction History */}
       <TransactionHistoryTable

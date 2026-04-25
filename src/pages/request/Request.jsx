@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import DashboardStats from '@/components/base/DashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import RequestTabs from '@/components/request/RequestTabs';
@@ -12,12 +12,26 @@ import { requestTabs } from './constants';
 export default function Request() {
   const [activeTab, setActiveTab] = useState('pending');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [fromFilter, setFromFilter] = useState('');
+  const [toFilter, setToFilter] = useState('');
+  const searchDebounceRef = useRef(null);
 
   const statusMap = { pending: 'Pending', accepted: 'Approved', declined: 'Rejected' };
 
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => setDebouncedSearch(searchQuery), 400);
+    return () => clearTimeout(searchDebounceRef.current);
+  }, [searchQuery]);
+
   const { data: requestsResponse, isLoading } = useRequests({
     status: statusMap[activeTab],
-    search: searchQuery || undefined,
+    search: debouncedSearch || undefined,
+    type: typeFilter || undefined,
+    from: fromFilter || undefined,
+    to: toFilter || undefined,
     page: 1,
     limit: 50,
   });
@@ -47,7 +61,7 @@ export default function Request() {
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
-      <div className="p-6">
+      <div className="p-6 pb-16 min-h-full">
         <PageHeader
           title="Requests"
           subtitle="View all your earnings and withdraw earnings here"
@@ -66,6 +80,11 @@ export default function Request() {
         <RequestsSearch
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          onFilter={({ type, from, to }) => {
+            setTypeFilter(type);
+            setFromFilter(from);
+            setToFilter(to);
+          }}
         />
 
         <RequestsGrid

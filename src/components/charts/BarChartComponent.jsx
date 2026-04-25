@@ -37,6 +37,14 @@ const BarChartComponent = ({
         </div>
       </CardHeader>
       <CardContent>
+        {(!data || data.length === 0 || data.every(d => !d.value && !d.count)) ? (
+          <div className="flex flex-col items-center justify-center h-[300px] text-[#7C8D96]">
+            <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#D0D5DD] flex items-center justify-center mb-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="12" width="4" height="9"/><rect x="10" y="7" width="4" height="14"/><rect x="17" y="3" width="4" height="18"/></svg>
+            </div>
+            <p className="text-sm font-general">No data available</p>
+          </div>
+        ) : (
         <BarChart
           xAxis={[{ 
             data: data.map((d, idx) => d.label || getXAxisLabel(idx)),
@@ -78,6 +86,7 @@ const BarChartComponent = ({
             },
           }}
         />
+        )}
       </CardContent>
     </Card>
   );

@@ -279,19 +279,17 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
       const meta = transaction.metadata || {};
       const utility = transaction.utilityId || {};
       const verification = utility.vasVerificationId || {};
+      const phoneNumber = transaction.phoneNumber || utility.phoneNumber || meta.phoneNumber;
+      const meterNumber = transaction.meterNumber || utility.meterNumber || meta.meterNumber;
+      const narration = transaction.narration || utility.narration || meta.narration;
+      const account = transaction.debitAccountNumber || transaction.accountNumber || utility.accountNumber;
       return (
         <div className="grid grid-cols-2 gap-6 text-sm font-general">
-          {(transaction.phoneNumber || meta.phoneNumber) && (
-            <DetailRow
-              label="Phone Number"
-              value={transaction.phoneNumber || meta.phoneNumber}
-            />
+          {phoneNumber && (
+            <DetailRow label="Phone Number" value={phoneNumber} />
           )}
-          {(transaction.meterNumber || utility.meterNumber) && (
-            <DetailRow
-              label="Meter Number"
-              value={transaction.meterNumber || utility.meterNumber}
-            />
+          {meterNumber && (
+            <DetailRow label="Meter Number" value={meterNumber} />
           )}
           {verification.name && (
             <DetailRow label="Customer Name" value={verification.name} />
@@ -300,10 +298,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
             <DetailRow label="Address" value={verification.address} />
           )}
           {(meta.provider || utility.utilityType) && (
-            <DetailRow
-              label="Provider"
-              value={meta.provider || utility.utilityType}
-            />
+            <DetailRow label="Provider" value={meta.provider || utility.utilityType} />
           )}
           {(meta.planName || utility.validity) && (
             <DetailRow label="Plan" value={meta.planName || utility.validity} />
@@ -315,22 +310,14 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
           {utility.units > 0 && (
             <DetailRow label="Units" value={utility.units} />
           )}
-          {transaction.narration && (
-            <DetailRow label="Narration" value={transaction.narration} />
+          {narration && (
+            <DetailRow label="Narration" value={narration} />
           )}
-          <DetailRow
-            label="Account"
-            value={
-              transaction.debitAccountNumber ||
-              transaction.accountNumber ||
-              transaction?.utilityId?.accountNumber
-            }
-          />
+          {account && (
+            <DetailRow label="Account" value={account} />
+          )}
           {transaction.externalReferenceId && (
-            <DetailRow
-              label="Reference ID"
-              value={transaction.externalReferenceId}
-            />
+            <DetailRow label="Reference ID" value={transaction.externalReferenceId} />
           )}
           {commonDetails}
         </div>
@@ -378,6 +365,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
     transaction.transferId?.nameEnquiryId?.accountName ||
     transaction.utilityId?.vasVerificationId?.name ||
     transaction.narration ||
+    transaction.utilityId?.narration ||
     transaction.typeCategory ||
     transaction.title ||
     "Transaction";

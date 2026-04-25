@@ -57,52 +57,132 @@ export const ACTIVITY_LOGS_DATA = [
   },
 ];
 
+const splitCamelCase = (str) =>
+  str ? str.replace(/([A-Z])/g, ' $1').trim() : '-';
+
+const formatDate = (val) => {
+  if (!val) return null;
+  const d = new Date(val);
+  return {
+    date: d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }),
+    time: d.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: true }),
+  };
+};
+
 export const ACTIVITY_LOGS_COLUMNS = [
   {
-    field: "user",
-    headerName: "User Name",
-    width: 250,
+    field: "actorAdminId",
+    headerName: "Actor",
+    width: 220,
     flex: 1.5,
-    renderCell: (params) => (
-      <div className="flex flex-col justify-center h-full">
-        <div className="text-sm font-medium text-[#1E1E1E]">
-          {params.row.user}
+    renderCell: (params) => {
+      const name = params.row.actorName || params.row.user || null;
+      const email = params.row.actorEmail || params.row.email || null;
+      const id = params.row.actorAdminId || '-';
+      return (
+        <div className="flex flex-col justify-center h-full">
+          <div className="text-sm font-medium text-[#1E1E1E]">{name || id}</div>
+          {email && <div className="text-xs text-[#808C91]">{email}</div>}
+          {name && <div className="text-xs text-[#808C91]">{id}</div>}
         </div>
-        <div className="text-xs text-[#808C91]">{params.row.actorAdminId}</div>
-      </div>
-    ),
+      );
+    },
   },
   {
     field: "role",
     headerName: "Role",
-    width: 150,
+    width: 160,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#505C61] flex items-center h-full whitespace-normal leading-snug">
+        {params.row.actorRole || params.row.role || '-'}
+      </span>
+    ),
+  },
+  {
+    field: "resource",
+    headerName: "Resource",
+    width: 160,
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.row.resource}
+        {splitCamelCase(params.row.resource)}
       </span>
     ),
   },
   {
     field: "action",
-    headerName: "Action Performed",
-    width: 300,
-    flex: 2,
+    headerName: "Action",
+    width: 180,
+    flex: 1.2,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.row.action || params.value}
+        {splitCamelCase(params.row.action)}
       </span>
     ),
   },
   {
-    field: "date",
-    headerName: "Action Date",
-    width: 200,
+    field: "description",
+    headerName: "Description",
+    width: 280,
+    flex: 2,
+    renderCell: (params) => {
+      const description = params.row.description || params.row.details || null;
+      const action = splitCamelCase(params.row.action);
+      const resource = splitCamelCase(params.row.resource);
+      const updatedFields = params.row.metadata?.updatedFields;
+      const generated = updatedFields?.length
+        ? `${action} on ${resource} — Fields: ${updatedFields.map(splitCamelCase).join(', ')}`
+        : `${action} on ${resource}`;
+      return (
+        <span className="text-sm text-[#505C61] flex items-center h-full whitespace-normal leading-snug">
+          {description || generated}
+        </span>
+      );
+    },
+  },
+  {
+    field: "location",
+    headerName: "Location",
+    width: 160,
     flex: 1,
     renderCell: (params) => (
-      <span className="text-sm text-[#505C61] flex items-center h-full">
-        {new Date(params.row.updatedAt).toLocaleDateString() || params.value}
-      </span>
+      <div className="flex flex-col justify-center h-full">
+        <span className="text-sm text-[#505C61]">{params.row.location || params.row.city || '-'}</span>
+        {params.row.ipAddress && <span className="text-xs text-[#808C91]">{params.row.ipAddress}</span>}
+      </div>
     ),
+  },
+  {
+    field: "lastLogin",
+    headerName: "Last Login",
+    width: 160,
+    flex: 1,
+    renderCell: (params) => {
+      const f = formatDate(params.row.lastLogin || params.row.lastLoginAt);
+      if (!f) return <span className="text-sm text-[#808C91] flex items-center h-full">-</span>;
+      return (
+        <div className="flex flex-col justify-center h-full">
+          <span className="text-sm text-[#505C61]">{f.date}</span>
+          <span className="text-xs text-[#808C91]">{f.time}</span>
+        </div>
+      );
+    },
+  },
+  {
+    field: "createdAt",
+    headerName: "Timestamp",
+    width: 160,
+    flex: 1,
+    renderCell: (params) => {
+      const f = formatDate(params.row.timestamp || params.row.createdAt);
+      if (!f) return <span className="text-sm text-[#808C91] flex items-center h-full">-</span>;
+      return (
+        <div className="flex flex-col justify-center h-full">
+          <span className="text-sm text-[#505C61]">{f.date}</span>
+          <span className="text-xs text-[#808C91]">{f.time}</span>
+        </div>
+      );
+    },
   },
 ];

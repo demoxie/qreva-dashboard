@@ -29,7 +29,7 @@ const BillsPayment = () => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
   // TODO: API needs 'bills' category or combined electricity+cabletv
-  const { data, isLoading, isError, refetch } = useCategoryMetrics('all', {
+  const { data, isLoading, isError, refetch } = useCategoryMetrics('bills', {
     range: timeFilter,
   });
 
@@ -38,7 +38,7 @@ const BillsPayment = () => {
     data: transactionData, 
     isLoading: isTransactionsLoading 
   } = useTransactions({
-    typeCategory: 'Bills',
+    category: 'bills',
     page,
     limit,
   });
@@ -50,6 +50,7 @@ const BillsPayment = () => {
       changePercentages: data.data.changePercentages || {},
       topTransactionValues: data.data.topTransactionValues || [],
       topCustomers: data.data.topCustomers || [],
+      topAgents: data.data.topAgents || [],
       dailyTransactionVolume: (data.data.dailyTransactionVolume || []).map(d => ({
         label: d.label,
         value: d.amount
@@ -59,18 +60,25 @@ const BillsPayment = () => {
     };
   }, [data]);
 
-  const transactions = useMemo(() => transactionData?.data || [], [transactionData]);
+  const transactions = useMemo(() => {
+    return (transactionData?.data || []).filter(tx => 
+      tx.typeCategory !== 'Airtime' && 
+      tx.typeCategory !== 'Data' &&
+      tx.category !== 'airtime' &&
+      tx.category !== 'data'
+    );
+  }, [transactionData]);
   const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
 
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
-    return formatDashboardStats(metrics.summary, metrics.changePercentages);
-  }, [metrics]);
+    return formatDashboardStats(metrics.summary, metrics.changePercentages, timeFilter);
+  }, [metrics, timeFilter]);
 
   const handleTimeFilterChange = (newFilter) => {
     const filterMap = {
       'Today': 'today',
-      'Last 12 Hours': 'last12hours',
+      'Hourly': 'hourly',
       'Weekly': 'weekly',
       'Monthly': 'monthly',
       'Yearly': 'yearly',
@@ -141,7 +149,8 @@ const BillsPayment = () => {
           </div>
           <div className="lg:col-span-3">
             <TopCustomersCard 
-              data={metrics.topCustomers} 
+              data={metrics.topCustomers}
+              agentsData={metrics.topAgents}
               title="Top Customers"
               showAgentToggle={true}
             />

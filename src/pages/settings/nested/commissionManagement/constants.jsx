@@ -1,4 +1,4 @@
-import { Eye, Edit, Copy } from "lucide-react";
+import { Eye, Edit, Copy, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 export const COMMISSION_DATA = [
@@ -57,7 +57,7 @@ export const COMMISSION_COLUMNS = [
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm font-medium text-[#1E1E1E] flex items-center h-full">
-        {params.value}
+        {params.row.transactionType || '-'}
       </span>
     ),
   },
@@ -68,40 +68,48 @@ export const COMMISSION_COLUMNS = [
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.value}
+        {params.row.feeType || '-'}
       </span>
     ),
   },
   {
-    field: "feeValue",
+    field: "percentageFee",
     headerName: "Fee Value",
     width: 100,
     flex: 1,
-    renderCell: (params) => (
-      <span className="text-sm font-bold text-[#1E1E1E] flex items-center h-full">
-        {params.value}
-      </span>
-    ),
+    renderCell: (params) => {
+      const { feeType, percentageFee, flatFee } = params.row;
+      const value = feeType === 'Percentage'
+        ? `${percentageFee ?? 0}%`
+        : `₦${(flatFee ?? 0).toLocaleString()}`;
+      return (
+        <span className="text-sm font-bold text-[#1E1E1E] flex items-center h-full">
+          {value}
+        </span>
+      );
+    },
   },
   {
     field: "appliesTo",
     headerName: "Applies To",
-    width: 180,
-    flex: 1,
+    width: 200,
+    flex: 1.2,
     renderCell: (params) => (
-      <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.value}
+      <span className="text-sm text-[#505C61] flex items-center h-full whitespace-normal leading-snug">
+        {(params.row.appliesTo || []).join(', ') || '-'}
       </span>
     ),
   },
   {
-    field: "updated",
+    field: "updatedAt",
     headerName: "Last Updated",
     width: 180,
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
-        {params.value || new Date(params.row.updatedAt).toLocaleDateString()}
+        {params.row.updatedAt
+          ? new Date(params.row.updatedAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' })
+          : '-'}
       </span>
     ),
   },
@@ -113,7 +121,7 @@ export const COMMISSION_COLUMNS = [
     renderCell: (params) => (
       <div className="flex items-center h-full">
         <Switch
-          checked={params.value}
+          checked={params.row.active}
           className="data-[state=checked]:bg-green-500"
         />
       </div>
@@ -133,6 +141,11 @@ export const COMMISSION_ACTIONS = [
   {
     label: "Duplicate",
     icon: Copy,
+  },
+  {
+    label: "Delete",
+    icon: Trash2,
+    danger: true,
   },
 ];
 

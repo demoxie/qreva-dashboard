@@ -28,6 +28,8 @@ const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Value" }
     }
   };
 
+  const isEmpty = !data || data.length === 0 || data.every(d => !d.value);
+
   return (
     <Card className="mb-6 h-full">
       <CardHeader>
@@ -36,6 +38,14 @@ const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Value" }
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {isEmpty ? (
+          <div className="flex flex-col items-center justify-center h-[300px] text-[#7C8D96]">
+            <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#D0D5DD] flex items-center justify-center mb-3">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <p className="text-sm font-general">No data available</p>
+          </div>
+        ) : (
         <LineChart
           xAxis={[{ 
             data: data.map((d, idx) => d.label || getXAxisLabel(idx)),
@@ -111,6 +121,7 @@ const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Value" }
             }
           }}
         />
+        )}
       </CardContent>
     </Card>
   );

@@ -16,13 +16,15 @@ const TierManagement = () => {
 
     const tiers = tiersResponse?.data || [];
 
+    const getTierId = (row) => row.id ?? row.tierId ?? row._id;
+
     const handleAction = (action, row) => {
         if (action.label === 'Edit Details') {
-            navigate(`/settings/tier/edit/${row.id}`);
+            navigate(`/settings/tier/edit/${getTierId(row)}`);
         } else if (action.label === 'View Details') {
             setViewTier(row);
         } else if (action.label === 'Delete Tier') {
-            deleteTier.mutate(row.id, {
+            deleteTier.mutate(getTierId(row), {
                 onSuccess: () => handleSuccess('Tier deleted successfully'),
                 onError: (error) => handleError(error),
             });

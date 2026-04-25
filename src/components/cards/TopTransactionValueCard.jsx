@@ -52,7 +52,7 @@ const TopTransactionValueCard = ({
 
               {/* Transaction name */}
               <span className="text-sm font-general font-medium text-[#808C91] flex-1">
-                {item.name || item.provider || "Unknown"}
+                {item.name || item.provider || item.typeCategory || item.category || item.type || item.channel || "Unknown"}
               </span>
 
               {/* Progress bar */}
@@ -61,14 +61,14 @@ const TopTransactionValueCard = ({
                   className="h-full rounded-full transition-all duration-300"
                   style={{
                     backgroundColor: "#084059",
-                    width: `${item.percentage || 60}%`,
+                    width: `${item.percentage || item.percentageShare || item.percent || 60}%`,
                   }}
                 ></div>
               </div>
 
               {/* Amount */}
               <span className="text-sm font-general font-medium leading-[124%] text-[#084059] w-24 text-right">
-                N{(item.value || item.amount || 0).toLocaleString()}
+                N{(item.value || item.amount || item.totalVolume || item.totalAmount || item.total || 0).toLocaleString()}
               </span>
             </div>
           ))}

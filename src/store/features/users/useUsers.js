@@ -64,3 +64,25 @@ export const useActivateUser = () => {
     },
   });
 };
+
+export const useAggregatorReferralLink = () => {
+  return useQuery({
+    queryKey: ['aggregator-referral-link'],
+    queryFn: () => usersApi.getAggregatorReferralLink(),
+    staleTime: 30 * 1000,
+    retry: false,
+  });
+};
+
+export const useInviteAggregator = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => usersApi.inviteAggregator(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to send invite.');
+    },
+  });
+};

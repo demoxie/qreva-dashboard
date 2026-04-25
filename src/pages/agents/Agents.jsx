@@ -39,8 +39,9 @@ const Agents = () => {
     return formatDashboardStats(
       metricsData.data.summary,
       metricsData.data.changePercentages || {},
+      timeFilter.toLowerCase(),
     );
-  }, [metricsData]);
+  }, [metricsData, timeFilter]);
 
   const { modals, setters, selectedAgent, setSelectedAgent } = useAgentModals();
 

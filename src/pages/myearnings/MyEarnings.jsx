@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import DashboardStats from '@/components/base/DashboardStats';
 import WithdrawModal from '@/components/modals/WithdrawalModal';
 import ProcessingModal from '@/components/modals/ProccessingModal';
@@ -16,7 +17,11 @@ import {
   useCreateBeneficiary,
 } from '@/store/features/earnings/useEarnings';
 
+const WITHDRAW_ROLES = ['agent', 'aggregator', 'aggregator_manager'];
+
 const MyEarnings = () => {
+  const { user } = useAuth();
+  const canWithdraw = WITHDRAW_ROLES.includes(user?.role);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [showSaveBeneficiaryModal, setShowSaveBeneficiaryModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -233,12 +238,14 @@ const MyEarnings = () => {
             <h1 className="text-2xl font-semibold text-[#1E1E1E] mb-1">My Earnings</h1>
             <p className="text-sm text-[#808C91]">View all your earnings and withdraw earnings here</p>
           </div>
-          <button
-            onClick={() => setShowWithdrawModal(true)}
-            className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
-          >
-            Withdraw Now
-          </button>
+          {canWithdraw && (
+            <button
+              onClick={() => setShowWithdrawModal(true)}
+              className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
+            >
+              Withdraw Now
+            </button>
+          )}
         </div>
 
         {/* Earnings Stats */}

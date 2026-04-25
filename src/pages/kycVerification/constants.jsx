@@ -72,7 +72,7 @@ const createAgentTransactionActions = ({
     }
     },
     {
-    label: 'Share Receipt',
+    label: 'Download Receipt',
     type: 'share',
     icon: CustomShare,
     onClick: (tx) => {
@@ -98,7 +98,7 @@ const createRegionTransactionActions = ({
         }
     },
     {
-        label: 'Share Receipt',
+        label: 'Download Receipt',
         type: 'share',
         onClick: (transaction) => {
             setSelectedTransaction(transaction);
@@ -202,7 +202,7 @@ const createRegionTransactionActions = ({
       }
     },
     {
-      label: 'Share Receipt',
+      label: 'Download Receipt',
       type: 'share',
       icon: CustomShare,
       onClick: (transaction) => {

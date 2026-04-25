@@ -6,6 +6,7 @@ export const useProfileModals = () => {
   const [showSuspendModal, setShowSuspendModal] = useState(false);
   const [showPromoteModal, setShowPromoteModal] = useState(false);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
+  const [showAssignRoleModal, setShowAssignRoleModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [promotionType, setPromotionType] = useState('');
 
@@ -16,6 +17,7 @@ export const useProfileModals = () => {
       showSuspendModal,
       showPromoteModal,
       showActionsMenu,
+      showAssignRoleModal,
     },
     setters: {
       setShowDetailsModal,
@@ -23,6 +25,7 @@ export const useProfileModals = () => {
       setShowSuspendModal,
       setShowPromoteModal,
       setShowActionsMenu,
+      setShowAssignRoleModal,
     },
     selectedTransaction,
     setSelectedTransaction,

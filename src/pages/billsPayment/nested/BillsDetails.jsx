@@ -39,11 +39,18 @@ const BillsDetails = () => {
   });
 
   const metrics = metricsResponse?.data || {};
-  const transactions = txResponse?.data || [];
+  const transactions = useMemo(() => {
+    return (txResponse?.data || []).filter(tx => 
+      tx.typeCategory !== 'Airtime' && 
+      tx.typeCategory !== 'Data' &&
+      tx.category !== 'airtime' &&
+      tx.category !== 'data'
+    );
+  }, [txResponse]);
 
   const regionStats = useMemo(() => [
-    { label: 'Total Transactions', value: (metrics.totalTransactions || 0).toLocaleString(), change: '+0%', subtext: 'in last 24 hours' },
-    { label: 'Total Volume', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Transaction Volume', value: (metrics.totalTransactions || 0).toLocaleString(), change: '+0%', subtext: 'in last 24 hours' },
+    { label: 'Total Transaction Value', value: `₦${(metrics.totalVolume || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
     { label: 'Success Rate', value: `${metrics.successRate || 0}%`, change: '+0%', subtext: 'in last 24 hours' },
     { label: 'Average Value', value: `₦${(metrics.averageValue || 0).toLocaleString()}`, change: '+0%', subtext: 'in last 24 hours' },
   ], [metrics]);

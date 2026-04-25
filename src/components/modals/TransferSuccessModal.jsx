@@ -70,7 +70,7 @@ const TransferSuccessModal = ({ isOpen, onClose, handleSaveBeneficiary }) => {
             <path d="M16 15C16 15 18.1958 12.2839 19.4044 11.2389C19.5987 11.0709 19.8169 10.9915 20.0337 11.0007C20.2282 11.009 20.4215 11.0884 20.5958 11.2391C21.8041 12.2843 24 15 24 15M20.0337 12V23" stroke="#B0B7C3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M16 19C14.5999 19 13.8998 19 13.365 19.2725C12.8946 19.5122 12.5122 19.8946 12.2725 20.365C12 20.8998 12 21.5999 12 23V24C12 26.357 12 27.5355 12.7322 28.2678C13.4645 29 14.643 29 17 29H23C25.357 29 26.5355 29 27.2678 28.2678C28 27.5355 28 26.357 28 24V23C28 21.5999 28 20.8998 27.7275 20.365C27.4878 19.8946 27.1054 19.5122 26.635 19.2725C26.1002 19 25.4001 19 24 19" stroke="#B0B7C3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span className="text-sm text-[#1E1E1E] font-general">Share Receipt</span>
+            <span className="text-sm text-[#1E1E1E] font-general">Download Receipt</span>
           </button>
         </div>
 

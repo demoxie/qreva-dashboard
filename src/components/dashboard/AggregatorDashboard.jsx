@@ -45,7 +45,7 @@ const AggregatorDashboard = ({
           <TopTransactionValueCard data={metrics.topTransactionValues} />
         </div>
         <div className="lg:col-span-3">
-          <TransactionPercentagePie data={filteredPurchasePercentages} />
+          <TransactionPercentagePie data={filteredPurchasePercentages} title="Top % Purchase from Customers" />
         </div>
       </div>
 
@@ -54,10 +54,11 @@ const AggregatorDashboard = ({
 
       {/* Top Customers + Card vs QR Payments - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <TopCustomersCard 
-          data={metrics.topCustomers} 
+        <TopCustomersCard
+          data={metrics.topCustomers}
+          agentsData={metrics.topAgents}
           title="Top Customers"
-          showTabs={true}
+          showAgentToggle={true}
         />
         <PaymentComparisonPie
           data={metrics.softPosPaymentBreakdown}

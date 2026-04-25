@@ -1,6 +1,7 @@
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import ConfirmDialog from '@/components/modals/ConfirmDialogComponent';
+import AssignRoleModal from '@/components/modals/AssignRoleModal';
 
 const ProfileModals = ({
   modals,
@@ -8,7 +9,10 @@ const ProfileModals = ({
   selectedTransaction,
   onSuspend,
   onPromote,
+  onAssignRole,
   promotionType,
+  currentRoleId,
+  isAssigningRole,
   suspendTitle = 'Suspend User',
   suspendMessage = 'Are you sure you want to suspend this user?'
 }) => {
@@ -47,6 +51,14 @@ const ProfileModals = ({
           confirmStyle="primary"
         />
       )}
+
+      <AssignRoleModal
+        isOpen={!!modals.showAssignRoleModal}
+        onClose={() => setters.setShowAssignRoleModal(false)}
+        onAssign={onAssignRole}
+        currentRoleId={currentRoleId}
+        isSubmitting={isAssigningRole}
+      />
     </>
   );
 };

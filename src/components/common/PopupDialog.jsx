@@ -213,7 +213,7 @@ const PopupDialog = ({
             <Button 
               className="bg-[#FF6B2C] hover:bg-[#E55A1B] font-general text-white"
             >
-              Share Receipt
+              Download Receipt
             </Button>
           )}
         </div>

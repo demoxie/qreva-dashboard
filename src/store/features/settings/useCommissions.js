@@ -49,3 +49,14 @@ export const useDuplicateCommission = () => {
     },
   });
 };
+
+export const useDeleteCommission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: settingsApi.deleteCommission,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['commissions'] });
+    },
+  });
+};

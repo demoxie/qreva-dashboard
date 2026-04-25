@@ -35,7 +35,7 @@ const AgentDashboard = ({
           <TopTransactionValueCard data={metrics.topTransactionValues} />
         </div>
         <div className="lg:col-span-3">
-          <TransactionPercentagePie data={filteredPurchasePercentages} />
+          <TransactionPercentagePie data={filteredPurchasePercentages} title="Top % Purchase from Customers" />
         </div>
       </div>
 
