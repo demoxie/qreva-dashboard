@@ -15,8 +15,7 @@ import {
   useActivateUser,
   useInviteAggregator,
 } from "@/store/features/users/useUsers";
-import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
-import { formatDashboardStats } from "@/utils/formatDashboardStats";
+import { formatUserStats } from "@/utils/formatUserStats";
 
 const AggregatorManagers = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
@@ -33,17 +32,21 @@ const AggregatorManagers = () => {
 
   const managers = usersResponse?.data || [];
 
-  const { data: metricsData } = useCategoryMetrics("aggregator-managers", {
-    range: timeFilter.toLowerCase(),
+  const { data: totalAggregatorsResponse } = useUsers({
+    type: "Aggregator",
+    limit: 1,
   });
-  const metricsStats = useMemo(() => {
-    if (!metricsData?.data?.summary) return null;
-    return formatDashboardStats(
-      metricsData.data.summary,
-      metricsData.data.changePercentages || {},
-      timeFilter.toLowerCase(),
-    );
-  }, [metricsData, timeFilter]);
+
+  const { data: activeAggregatorsResponse } = useUsers({
+    type: "Aggregator",
+    status: "Active",
+    limit: 1,
+  });
+
+  const metricsStats = useMemo(
+    () => formatUserStats(totalAggregatorsResponse, activeAggregatorsResponse, "Aggregators"),
+    [totalAggregatorsResponse, activeAggregatorsResponse],
+  );
 
   const { modals, setters, selectedManager, setSelectedManager } =
     useAggregatorManagerModals();
@@ -122,7 +125,7 @@ const AggregatorManagers = () => {
           }
         />
 
-        <DashboardStats stats={metricsStats} />
+        <DashboardStats stats={metricsStats} route="aggregator-managers" />
 
         <DataTable
           className="font-general"

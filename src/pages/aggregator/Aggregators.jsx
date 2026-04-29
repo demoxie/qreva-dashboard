@@ -12,8 +12,7 @@ import {
   useActivateUser,
   useInviteAggregator,
 } from "@/store/features/users/useUsers";
-import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
-import { formatDashboardStats } from "@/utils/formatDashboardStats";
+import { formatUserStats } from "@/utils/formatUserStats";
 
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
@@ -30,17 +29,21 @@ const Aggregators = () => {
 
   const aggregators = usersResponse?.data || [];
 
-  const { data: metricsData } = useCategoryMetrics("aggregators", {
-    range: timeFilter.toLowerCase(),
+  const { data: totalAgentsResponse } = useUsers({
+    type: "Agent",
+    limit: 1,
   });
-  const metricsStats = useMemo(() => {
-    if (!metricsData?.data?.summary) return null;
-    return formatDashboardStats(
-      metricsData.data.summary,
-      metricsData.data.changePercentages || {},
-      timeFilter.toLowerCase(),
-    );
-  }, [metricsData, timeFilter]);
+
+  const { data: activeAgentsResponse } = useUsers({
+    type: "Agent",
+    status: "Active",
+    limit: 1,
+  });
+
+  const metricsStats = useMemo(
+    () => formatUserStats(totalAgentsResponse, activeAgentsResponse, "Agents"),
+    [totalAgentsResponse, activeAgentsResponse],
+  );
 
   const { modals, setters, selectedAggregator, setSelectedAggregator } =
     useAggregatorModals();
@@ -119,7 +122,7 @@ const Aggregators = () => {
           }
         />
 
-        <DashboardStats stats={metricsStats} />
+        <DashboardStats stats={metricsStats} route="aggregators" />
 
         <DataTable
           data={aggregators}
