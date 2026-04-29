@@ -13,8 +13,7 @@ import {
   useSuspendUser,
   useActivateUser,
 } from "@/store/features/users/useUsers";
-import { useCategoryMetrics } from "@/store/features/dashboard/useDashboard";
-import { formatDashboardStats } from "@/utils/formatDashboardStats";
+import { formatUserStats } from "@/utils/formatUserStats";
 
 const Agents = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
@@ -31,17 +30,16 @@ const Agents = () => {
 
   const agents = usersResponse?.data || [];
 
-  const { data: metricsData } = useCategoryMetrics("agents", {
-    range: timeFilter.toLowerCase(),
+  const { data: activeAgentsResponse } = useUsers({
+    type: "Agent",
+    status: "Active",
+    limit: 1,
   });
-  const metricsStats = useMemo(() => {
-    if (!metricsData?.data?.summary) return null;
-    return formatDashboardStats(
-      metricsData.data.summary,
-      metricsData.data.changePercentages || {},
-      timeFilter.toLowerCase(),
-    );
-  }, [metricsData, timeFilter]);
+
+  const metricsStats = useMemo(
+    () => formatUserStats(usersResponse, activeAgentsResponse, "Agents"),
+    [usersResponse, activeAgentsResponse],
+  );
 
   const { modals, setters, selectedAgent, setSelectedAgent } = useAgentModals();
 
@@ -107,7 +105,7 @@ const Agents = () => {
           // }
         />
 
-        <DashboardStats stats={metricsStats} />
+        <DashboardStats stats={metricsStats} route="agents" />
 
         <DataTable
           className="font-general"

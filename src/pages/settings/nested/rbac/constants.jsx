@@ -58,27 +58,41 @@ export const ROLES_DATA = [
     updated: "10:00 AM | 25th March, 2025",
     active: true,
   },
+  {
+    id: 8,
+    roleName: "New Admin",
+    name: "New Admin",
+    description: "Verifies and approves",
+    users: 0,
+    permissions: "Dashboard, Airtime, Bills, Request...",
+    updated: "10:00 AM | 25th March, 2025",
+    active: true,
+  },
 ];
 
 export const RBAC_COLUMNS = [
-  // {
-  //     field: 'name',
-  //     headerName: 'User Account',
-  //     width: 180,
-  //     flex: 1,
-  //     renderCell: (params) => (
-  //         <span className="text-sm font-medium text-[#1E1E1E] flex items-center h-full">{params.value}</span>
-  //     )
-  // },
-  // {
-  //     field: 'users',
-  //     headerName: 'Total Users',
-  //     width: 120,
-  //     flex: 1,
-  //     renderCell: (params) => (
-  //         <span className="text-sm text-[#505C61] flex items-center h-full">{params.value}</span>
-  //     )
-  // },
+  {
+    field: "roleName",
+    headerName: "Role Name",
+    width: 180,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm font-medium text-[#1E1E1E] flex items-center h-full">
+        {params.value || params.row.name || "-"}
+      </span>
+    ),
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    width: 200,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#505C61] flex items-center h-full">
+        {params.value || "-"}
+      </span>
+    ),
+  },
   {
     field: "permissions",
     headerName: "Permissions",
