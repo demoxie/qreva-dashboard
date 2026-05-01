@@ -51,7 +51,7 @@ const DataDetails = () => {
     return (
       <div className="flex-1 overflow-auto bg-[#F7FAFA]">
         <div className="p-6">
-          <PageHeader title={`${id} State`} subtitle="Here is how this location has been performing so far" timeFilter={timeFilter} onTimeFilterChange={setTimeFilter} />
+          <PageHeader title={id} subtitle="Here is how this location has been performing so far" timeFilter={timeFilter} onTimeFilterChange={setTimeFilter} />
           <DashboardStats stats={stats} />
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-6">
             <div className="lg:col-span-2">

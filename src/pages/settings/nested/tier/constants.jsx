@@ -39,7 +39,7 @@ export const TIER_COLUMNS = [
     flex: 1,
     renderCell: (params) => (
       <span className="text-sm font-medium text-[#1E1E1E] flex items-center h-full">
-        {params.row.tierDescription || params.value}
+        {params.row.tierName || params.tierDescription}
       </span>
     ),
   },

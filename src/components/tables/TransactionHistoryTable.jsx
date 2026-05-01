@@ -179,6 +179,7 @@ const TransactionHistoryTable = ({
       columns={columns}
       title={title}
       actions={actions.length > 0 ? actions : defaultActions}
+      showExport={true}
       {...rest}
     />
   );

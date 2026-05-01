@@ -11,9 +11,17 @@ const Breadcrumb = ({ user }) => {
   const params = useParams();
   const [notifOpen, setNotifOpen] = useState(false);
 
-  const { data: notifResponse } = useNotifications({ limit: 20 });
+  const { data: notifResponse, refetch: refetchNotifications } = useNotifications({ limit: 20 });
   const notifications = notifResponse?.data || notifResponse?.notifications || [];
   const unreadCount = notifications.filter(n => !n.read && !n.isRead).length;
+
+  const handleToggleNotif = () => {
+    setNotifOpen((v) => {
+      const next = !v;
+      if (next) refetchNotifications();
+      return next;
+    });
+  };
 
   const currentRoute = getRouteConfig(location.pathname);
   const path = location.pathname;
@@ -157,17 +165,15 @@ const Breadcrumb = ({ user }) => {
       <div className="flex items-center gap-4">
         <div className="relative">
           <button
-            onClick={() => setNotifOpen((v) => !v)}
+            onClick={handleToggleNotif}
             className="p-3 hover:bg-gray-100 transition-colors relative border border-[#D9D9D9] rounded-full"
             aria-label="Notifications"
           >
             <Bell size={20} className="text-[#7C8D96]" />
-            {unreadCount > 0 ? (
+            {unreadCount > 0 && (
               <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 bg-[#FF6B2C] rounded-full flex items-center justify-center text-[9px] font-bold text-white px-0.5">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
-            ) : (
-              <span className="absolute top-2 right-2 w-2 h-2 bg-[#FF6B2C] rounded-full" />
             )}
           </button>
           {notifOpen && <NotificationsPanel onClose={() => setNotifOpen(false)} />}

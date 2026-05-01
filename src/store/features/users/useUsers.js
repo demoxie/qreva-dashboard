@@ -3,11 +3,12 @@ import { usersApi } from '../../api/users-api';
 import { handleError } from '../../utils/handleError';
 import { handleSuccess } from '../../utils/handleSuccess';
 
-export const useUsers = (params = {}) => {
+export const useUsers = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ['users', params],
     queryFn: () => usersApi.getUsers(params),
     staleTime: 5 * 60 * 1000,
+    ...options,
   });
 };
 
@@ -65,12 +66,14 @@ export const useActivateUser = () => {
   });
 };
 
-export const useAggregatorReferralLink = () => {
+export const useAggregatorReferralLink = (options = {}) => {
   return useQuery({
     queryKey: ['aggregator-referral-link'],
     queryFn: () => usersApi.getAggregatorReferralLink(),
-    staleTime: 30 * 1000,
+    staleTime: 0,
+    gcTime: 0,
     retry: false,
+    ...options,
   });
 };
 
@@ -78,7 +81,8 @@ export const useInviteAggregator = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => usersApi.inviteAggregator(payload),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      handleSuccess(response?.message || 'Invite sent successfully.');
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
     onError: (error) => {

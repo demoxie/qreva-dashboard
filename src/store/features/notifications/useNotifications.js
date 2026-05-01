@@ -5,9 +5,10 @@ export const useNotifications = (params = {}) => {
   return useQuery({
     queryKey: ['notifications', params],
     queryFn: () => notificationsApi.getNotifications(params),
-    staleTime: 30 * 1000,
+    staleTime: 60 * 1000,
     retry: false,
-    refetchInterval: 60 * 1000,
+    refetchInterval: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 };
 

@@ -1,13 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import DataTable from "@/components/tables/DataTable";
 import { RBAC_COLUMNS, RBAC_ACTIONS } from "./constants";
-import { useRoles } from "@/store/features/settings/useRbac";
+import AssignRoleToUserModal from "@/components/modals/AssignRoleToUserModal";
+import { useAssignRole, useRoles } from "@/store/features/settings/useRbac";
 
 const RBAC = () => {
   const navigate = useNavigate();
   const { data: rolesResponse, isLoading } = useRoles();
+  const assignRoleMutation = useAssignRole();
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const roles = rolesResponse?.data || [];
 
@@ -16,7 +19,21 @@ const RBAC = () => {
       navigate(`/settings/rbac/view/${row._id || row.id}`);
     } else if (action.label === "Edit Details") {
       navigate(`/settings/rbac/edit/${row._id || row.id}`);
+    } else if (action.label === "Assign Role") {
+      setSelectedRole(row);
     }
+  };
+
+  const handleAssignRole = (userId) => {
+    const roleId = selectedRole?._id || selectedRole?.id;
+    if (!userId || !roleId) return;
+
+    assignRoleMutation.mutate(
+      { userId, roleId },
+      {
+        onSuccess: () => setSelectedRole(null),
+      },
+    );
   };
 
   const actionsWithHandler = RBAC_ACTIONS.map((action) => ({
@@ -52,6 +69,14 @@ const RBAC = () => {
         showSearch={true}
         showCheckbox={true}
         loading={isLoading}
+      />
+
+      <AssignRoleToUserModal
+        isOpen={!!selectedRole}
+        onClose={() => setSelectedRole(null)}
+        onAssign={handleAssignRole}
+        role={selectedRole}
+        isSubmitting={assignRoleMutation.isPending}
       />
     </div>
   );

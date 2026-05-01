@@ -58,7 +58,12 @@ export const ACTIVITY_LOGS_DATA = [
 ];
 
 const splitCamelCase = (str) =>
-  str ? str.replace(/([A-Z])/g, ' $1').trim() : '-';
+  str
+    ? String(str)
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+        .trim()
+    : '-';
 
 const formatDate = (val) => {
   if (!val) return null;
@@ -73,17 +78,18 @@ export const ACTIVITY_LOGS_COLUMNS = [
   {
     field: "actorAdminId",
     headerName: "Actor",
-    width: 220,
-    flex: 1.5,
+    width: 260,
+    minWidth: 240,
+    flex: 1.4,
     renderCell: (params) => {
       const name = params.row.actorName || params.row.user || null;
       const email = params.row.actorEmail || params.row.email || null;
       const id = params.row.actorAdminId || '-';
       return (
-        <div className="flex flex-col justify-center h-full">
-          <div className="text-sm font-medium text-[#1E1E1E]">{name || id}</div>
-          {email && <div className="text-xs text-[#808C91]">{email}</div>}
-          {name && <div className="text-xs text-[#808C91]">{id}</div>}
+        <div className="flex flex-col justify-center h-full min-w-0 py-3">
+          <div className="text-sm font-medium text-[#1E1E1E] truncate">{name || id}</div>
+          {email && <div className="text-xs text-[#808C91] truncate">{email}</div>}
+          {name && <div className="text-xs text-[#808C91] truncate">{id}</div>}
         </div>
       );
     },
@@ -91,8 +97,9 @@ export const ACTIVITY_LOGS_COLUMNS = [
   {
     field: "role",
     headerName: "Role",
-    width: 160,
-    flex: 1,
+    width: 150,
+    minWidth: 140,
+    flex: 0.8,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full whitespace-normal leading-snug">
         {params.row.actorRole || params.row.role || '-'}
@@ -103,7 +110,8 @@ export const ACTIVITY_LOGS_COLUMNS = [
     field: "resource",
     headerName: "Resource",
     width: 160,
-    flex: 1,
+    minWidth: 150,
+    flex: 0.9,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
         {splitCamelCase(params.row.resource)}
@@ -113,8 +121,9 @@ export const ACTIVITY_LOGS_COLUMNS = [
   {
     field: "action",
     headerName: "Action",
-    width: 180,
-    flex: 1.2,
+    width: 190,
+    minWidth: 180,
+    flex: 1,
     renderCell: (params) => (
       <span className="text-sm text-[#505C61] flex items-center h-full">
         {splitCamelCase(params.row.action)}
@@ -124,8 +133,9 @@ export const ACTIVITY_LOGS_COLUMNS = [
   {
     field: "description",
     headerName: "Description",
-    width: 280,
-    flex: 2,
+    width: 360,
+    minWidth: 320,
+    flex: 1.8,
     renderCell: (params) => {
       const description = params.row.description || params.row.details || null;
       const action = splitCamelCase(params.row.action);
@@ -134,9 +144,10 @@ export const ACTIVITY_LOGS_COLUMNS = [
       const generated = updatedFields?.length
         ? `${action} on ${resource} — Fields: ${updatedFields.map(splitCamelCase).join(', ')}`
         : `${action} on ${resource}`;
+      const displayDescription = description ? splitCamelCase(description) : generated;
       return (
-        <span className="text-sm text-[#505C61] flex items-center h-full whitespace-normal leading-snug">
-          {description || generated}
+        <span className="text-sm text-[#505C61] flex items-center h-full whitespace-normal leading-snug py-3">
+          {displayDescription}
         </span>
       );
     },
@@ -144,25 +155,27 @@ export const ACTIVITY_LOGS_COLUMNS = [
   {
     field: "location",
     headerName: "Location",
-    width: 160,
-    flex: 1,
+    width: 170,
+    minWidth: 150,
+    flex: 0.9,
     renderCell: (params) => (
-      <div className="flex flex-col justify-center h-full">
-        <span className="text-sm text-[#505C61]">{params.row.location || params.row.city || '-'}</span>
-        {params.row.ipAddress && <span className="text-xs text-[#808C91]">{params.row.ipAddress}</span>}
+      <div className="flex flex-col justify-center h-full min-w-0 py-3">
+        <span className="text-sm text-[#505C61] truncate">{params.row.location || params.row.city || '-'}</span>
+        {params.row.ipAddress && <span className="text-xs text-[#808C91] truncate">{params.row.ipAddress}</span>}
       </div>
     ),
   },
   {
     field: "lastLogin",
     headerName: "Last Login",
-    width: 160,
-    flex: 1,
+    width: 170,
+    minWidth: 150,
+    flex: 0.9,
     renderCell: (params) => {
       const f = formatDate(params.row.lastLogin || params.row.lastLoginAt);
       if (!f) return <span className="text-sm text-[#808C91] flex items-center h-full">-</span>;
       return (
-        <div className="flex flex-col justify-center h-full">
+        <div className="flex flex-col justify-center h-full py-3">
           <span className="text-sm text-[#505C61]">{f.date}</span>
           <span className="text-xs text-[#808C91]">{f.time}</span>
         </div>
@@ -172,13 +185,14 @@ export const ACTIVITY_LOGS_COLUMNS = [
   {
     field: "createdAt",
     headerName: "Timestamp",
-    width: 160,
-    flex: 1,
+    width: 180,
+    minWidth: 160,
+    flex: 0.9,
     renderCell: (params) => {
       const f = formatDate(params.row.timestamp || params.row.createdAt);
       if (!f) return <span className="text-sm text-[#808C91] flex items-center h-full">-</span>;
       return (
-        <div className="flex flex-col justify-center h-full">
+        <div className="flex flex-col justify-center h-full py-3">
           <span className="text-sm text-[#505C61]">{f.date}</span>
           <span className="text-xs text-[#808C91]">{f.time}</span>
         </div>
