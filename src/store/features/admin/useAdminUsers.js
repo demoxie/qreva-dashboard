@@ -1,10 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../../api/admin-api';
 
-export const useAdminUsers = (params) => {
+export const useAdminUsers = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ['admins', params],
     queryFn: () => adminApi.listAdmins(params),
+    ...options,
   });
 };
 

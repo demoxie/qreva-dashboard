@@ -11,6 +11,7 @@ import {
   useSuspendUser,
   useActivateUser,
   useInviteAggregator,
+  useAggregatorReferralLink,
 } from "@/store/features/users/useUsers";
 import { formatUserStats } from "@/utils/formatUserStats";
 
@@ -18,6 +19,7 @@ const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
+  const [inviteReferralLink, setInviteReferralLink] = useState("");
   const navigate = useNavigate();
 
   const { data: usersResponse, isLoading } = useUsers({
@@ -59,6 +61,7 @@ const Aggregators = () => {
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
   const inviteAggregatorMutation = useInviteAggregator();
+  const aggregatorReferralLink = useAggregatorReferralLink({ enabled: false });
 
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedAggregator?._id) return;
@@ -85,18 +88,20 @@ const Aggregators = () => {
       inviteAggregatorMutation.mutate(
         { fullName: aggregatorData.fullName, email: aggregatorData.email },
         {
-          onSuccess: () => {
-            setters.setShowAddAggregatorModal(false);
-            setters.setShowAggregatorAddedModal(true);
-          },
-          onError: () => {
+          onSuccess: async () => {
+            const referralResponse = await aggregatorReferralLink.refetch();
+            const referralLink =
+              referralResponse.data?.data?.referralLink ||
+              referralResponse.data?.referralLink ||
+              "";
+            setInviteReferralLink(referralLink);
             setters.setShowAddAggregatorModal(false);
             setters.setShowAggregatorAddedModal(true);
           },
         },
       );
     },
-    [setters, inviteAggregatorMutation],
+    [setters, inviteAggregatorMutation, aggregatorReferralLink],
   );
 
   const tableActions = useMemo(
@@ -144,6 +149,7 @@ const Aggregators = () => {
         setters={setters}
         selectedAggregator={selectedAggregator}
         onAddAggregator={handleAddAggregator}
+        referralLink={inviteReferralLink}
         isSubmittingInvite={inviteAggregatorMutation.isPending}
         onSuspendAggregator={handleConfirmSuspend}
       />

@@ -5,6 +5,7 @@ import { MoreVertical, Download, Search } from "lucide-react";
 import CustomPagination from "../common/Pagination";
 import { Skeleton, Box } from "@mui/material";
 import { GridOverlay } from "@mui/x-data-grid";
+import ExportReportModal from "../modals/ExportReportModal";
 
 const DataTable = ({
   data = [],
@@ -13,10 +14,13 @@ const DataTable = ({
   actions = [], // Array of action objects: [{ label, icon, onClick }]
   onSearch,
   onFilter,
+  filterGroups,
   onExport,
   showSearch = true,
+  showFilter,
   showCheckbox = true,
-  showExport = true,
+  showExport = false,
+  exportType = "all",
   pageSize = 5,
   pageSizeOptions = [5, 10, 25],
   getRowId,
@@ -38,43 +42,35 @@ const DataTable = ({
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const [exportModalOpen, setExportModalOpen] = useState(false);
   const filterRef = useRef(null);
   const searchDebounceRef = useRef(null);
 
-  const STATUS_OPTIONS = ["All", "Successful", "Pending", "Failed"];
+  const defaultFilterGroups = [
+    {
+      key: "status",
+      label: "Status",
+      options: ["Successful", "Pending", "Failed"].map((status) => ({
+        label: status,
+        value: status,
+      })),
+    },
+  ];
+  const resolvedFilterGroups = filterGroups?.length
+    ? filterGroups
+    : defaultFilterGroups;
+  const shouldShowFilter = showFilter ?? !!onFilter;
+  const activeFilterCount = Object.values(selectedFilters).filter(Boolean).length;
 
-  // CSV Export utility
+  // CSV Export utility via Modal API
   const handleExport = useCallback(() => {
     if (onExport) {
       onExport(data);
       return;
     }
-
-    // Default: export visible columns + rows as CSV
-    const exportColumns = columns.filter(col => col.field !== 'actions');
-    const headers = exportColumns.map(col => col.headerName || col.field).join(',');
-    const rows = data.map(row =>
-      exportColumns.map(col => {
-        const value = row[col.field];
-        // Escape commas and quotes in CSV values
-        const strVal = value !== undefined && value !== null ? String(value) : '';
-        return strVal.includes(',') || strVal.includes('"')
-          ? `"${strVal.replace(/"/g, '""')}"`
-          : strVal;
-      }).join(',')
-    );
-    const csv = [headers, ...rows].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${title.replace(/\s+/g, '_').toLowerCase()}_report_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  }, [data, columns, title, onExport]);
+    setExportModalOpen(true);
+  }, [data, onExport]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -108,10 +104,24 @@ const DataTable = ({
     }, 400);
   };
 
-  const handleFilterSelect = (status) => {
-    setSelectedStatus(status);
+  const handleFilterSelect = (groupKey, value) => {
+    const nextFilters = {
+      ...selectedFilters,
+      [groupKey]: value,
+    };
+
+    if (!value) {
+      delete nextFilters[groupKey];
+    }
+
+    setSelectedFilters(nextFilters);
+    if (onFilter) onFilter(nextFilters);
+  };
+
+  const clearFilters = () => {
+    setSelectedFilters({});
     setFilterOpen(false);
-    if (onFilter) onFilter({ status: status === "All" ? "" : status });
+    if (onFilter) onFilter({});
   };
 
   useEffect(() => {
@@ -202,10 +212,11 @@ const DataTable = ({
                       className="pl-10 pr-3 py-2 text-sm font-general border border-[#E8EBED] rounded-lg outline-none focus:border-[#84C4CF] bg-white w-52"
                     />
                   </div>
+                  {shouldShowFilter && (
                   <div className="relative" ref={filterRef}>
                     <button
                       onClick={() => setFilterOpen((v) => !v)}
-                      className={`flex items-center gap-2 px-3 py-2 text-sm font-general border rounded-lg transition-colors ${filterOpen || selectedStatus !== "All" ? "border-[#084059] text-[#084059] bg-[#F0F8FA]" : "border-[#E8EBED] text-[#98A2B3] bg-white hover:bg-[#F5F6F7]"}`}
+                      className={`flex items-center gap-2 px-3 py-2 text-sm font-general border rounded-lg transition-colors ${filterOpen || activeFilterCount > 0 ? "border-[#FF5B04] text-[#FF5B04] bg-[#FFF4EE]" : "border-[#E8EBED] text-[#98A2B3] bg-white hover:bg-[#F5F6F7]"}`}
                     >
                       <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M2.5 5.83337H5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -216,28 +227,55 @@ const DataTable = ({
                         <path d="M10 14.1666C10 13.39 10 13.0018 10.1268 12.6955C10.296 12.2871 10.6205 11.9626 11.0288 11.7935C11.3352 11.6666 11.7234 11.6666 12.5 11.6666C13.2766 11.6666 13.6648 11.6666 13.9712 11.7935C14.3795 11.9626 14.704 12.2871 14.8732 12.6955C15 13.0018 15 13.39 15 14.1666C15 14.9432 15 15.3315 14.8732 15.6378C14.704 16.0461 14.3795 16.3706 13.9712 16.5398C13.6648 16.6666 13.2766 16.6666 12.5 16.6666C11.7234 16.6666 11.3352 16.6666 11.0288 16.5398C10.6205 16.3706 10.296 16.0461 10.1268 15.6378C10 15.3315 10 14.9432 10 14.1666Z" stroke="currentColor" strokeWidth="1.5"/>
                       </svg>
                       Filter
-                      {selectedStatus !== "All" && (
-                        <span className="ml-1 px-1.5 py-0.5 text-xs bg-[#084059] text-white rounded-full">{selectedStatus}</span>
+                      {activeFilterCount > 0 && (
+                        <span className="ml-1 px-1.5 py-0.5 text-xs bg-[#FF5B04] text-white rounded-full">{activeFilterCount}</span>
                       )}
                     </button>
                     {filterOpen && (
-                      <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-[#E8EBED] rounded-lg shadow-lg py-1 w-44">
-                        <p className="px-3 py-1.5 text-xs font-urbanist font-semibold text-[#7C8D96] uppercase tracking-wide">Status</p>
-                        {STATUS_OPTIONS.map((status) => (
-                          <button
-                            key={status}
-                            onClick={() => handleFilterSelect(status)}
-                            className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${selectedStatus === status ? "text-[#084059] bg-[#F0F8FA] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
-                          >
-                            {status}
-                            {selectedStatus === status && (
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            )}
-                          </button>
+                      <div className="absolute right-0 top-full mt-1 z-50 bg-white border border-[#E8EBED] rounded-lg shadow-lg py-2 w-64 max-h-96 overflow-y-auto">
+                        <div className="flex items-center justify-between px-3 pb-2 border-b border-[#F0F3F4]">
+                          <p className="text-xs font-urbanist font-semibold text-[#7C8D96] uppercase tracking-wide">Filters</p>
+                          {activeFilterCount > 0 && (
+                            <button
+                              onClick={clearFilters}
+                              className="text-xs font-general font-medium text-[#FF5B04] hover:text-[#E54F03]"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                        {resolvedFilterGroups.map((group) => (
+                          <div key={group.key} className="py-2 border-b border-[#F0F3F4] last:border-b-0">
+                            <p className="px-3 py-1 text-xs font-urbanist font-semibold text-[#7C8D96] uppercase tracking-wide">
+                              {group.label}
+                            </p>
+                            <button
+                              onClick={() => handleFilterSelect(group.key, "")}
+                              className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${!selectedFilters[group.key] ? "text-[#FF5B04] bg-[#FFF4EE] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
+                            >
+                              All
+                              {!selectedFilters[group.key] && (
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                              )}
+                            </button>
+                            {(group.options || []).map((option) => (
+                              <button
+                                key={`${group.key}-${option.value}`}
+                                onClick={() => handleFilterSelect(group.key, option.value)}
+                                className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${selectedFilters[group.key] === option.value ? "text-[#FF5B04] bg-[#FFF4EE] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
+                              >
+                                <span className="truncate">{option.label}</span>
+                                {selectedFilters[group.key] === option.value && (
+                                  <svg className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                )}
+                              </button>
+                            ))}
+                          </div>
                         ))}
                       </div>
                     )}
                   </div>
+                  )}
                 </div>
               )}
               {showExport && (
@@ -409,6 +447,12 @@ const DataTable = ({
           })}
         </div>
       )}
+      
+      <ExportReportModal 
+        isOpen={exportModalOpen} 
+        onClose={() => setExportModalOpen(false)} 
+        exportType={exportType}
+      />
     </>
   );
 };

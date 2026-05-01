@@ -189,6 +189,7 @@ const Transfers = () => {
           onSearch={handleSearch}
           onFilter={handleFilter}
           isLoading={isTransactionsLoading}
+          showExport={true}
         />
       </div>
 

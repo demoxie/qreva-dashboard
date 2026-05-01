@@ -4,6 +4,7 @@ import { ROUTES, getAllRoutes } from './config/routes.config';
 import { RouteComponentMap } from './config/routeComponentMap';
 import LoginPage from './pages/auth/LoginPage';
 import ChangePasswordPage from './pages/auth/ChangePasswordPage';
+import RegisterPage from './pages/auth/RegisterPage';
 import Sidebar from './components/base/SideBar';
 import { AuthContext, useAuth } from './hooks/useAuth';
 import Breadcrumb from './components/common/BreadCrumb';
@@ -233,6 +234,8 @@ export default function App() {
               </PublicRoute>
             } 
           />
+
+          <Route path="/register" element={<RegisterPage />} />
           
           {/* Change Password Route */}
           <Route 

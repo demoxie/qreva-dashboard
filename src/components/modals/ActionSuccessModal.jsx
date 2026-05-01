@@ -3,7 +3,7 @@ import BaseModal from './BaseModal';
 import confetti from '../../assets/images/confetti.png';
 import { Button } from '@/components/ui/button';
 
-const ActionSuccessModal = ({ isOpen, onClose, title, message, buttonText = "Dismiss", action }) => {
+const ActionSuccessModal = ({ isOpen, onClose, title, message, buttonText = "Dismiss", action, children }) => {
     return (
         <BaseModal isOpen={isOpen} onClose={onClose} title={null} hasCloseButton={false} maxWidth="max-w-sm">
             <div className="p-2 text-center relative">
@@ -26,6 +26,7 @@ const ActionSuccessModal = ({ isOpen, onClose, title, message, buttonText = "Dis
 
                 <h3 className="text-xl font-urbanist font-semibold text-[#1E1E1E] mb-2">{title}</h3>
                 <p className="text-sm text-[#808C91] mb-6 font-general">{message}</p>
+                {children}
 
                 <Button
                     onClick={() => {

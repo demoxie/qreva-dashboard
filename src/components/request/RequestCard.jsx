@@ -9,7 +9,7 @@ const RequestCard = ({ request, onViewDetails }) => {
   const receiverEmail = request.receiverEmail || request.recipientEmail || request.receiver?.email || null;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start mb-4">
         <h3 className="text-base font-general font-semibold text-[#1E1E1E]">
           {request.requestType}
@@ -27,26 +27,26 @@ const RequestCard = ({ request, onViewDetails }) => {
       </p>
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-general text-[#808C91] mb-0.5">Sender</p>
           <div className="flex items-center gap-1.5 text-sm font-general text-[#475367]">
-            <User size={14} />
-            <span>{request.requesterName || 'N/A'}</span>
+            <User size={14} className="shrink-0" />
+            <span className="truncate">{request.requesterName || 'N/A'}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs font-general text-[#808C91] mt-0.5">
-            <Mail size={12} />
-            <span>{request.requesterEmail || 'N/A'}</span>
+            <Mail size={12} className="shrink-0" />
+            <span className="truncate" title={request.requesterEmail}>{request.requesterEmail || 'N/A'}</span>
           </div>
         </div>
-        <div>
+        <div className="min-w-0">
           <p className="text-xs font-general text-[#808C91] mb-0.5">Receiver</p>
           <div className="flex items-center gap-1.5 text-sm font-general text-[#475367]">
-            <User size={14} />
-            <span>{receiverName || 'N/A'}</span>
+            <User size={14} className="shrink-0" />
+            <span className="truncate">{receiverName || 'N/A'}</span>
           </div>
           <div className="flex items-center gap-1.5 text-xs font-general text-[#808C91] mt-0.5">
-            <Mail size={12} />
-            <span>{receiverEmail || 'N/A'}</span>
+            <Mail size={12} className="shrink-0" />
+            <span className="truncate" title={receiverEmail}>{receiverEmail || 'N/A'}</span>
           </div>
         </div>
       </div>

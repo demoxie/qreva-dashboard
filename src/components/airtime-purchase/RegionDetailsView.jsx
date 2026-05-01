@@ -51,7 +51,7 @@ const RegionDetailsView = () => {
   return (
     <>
       <PageHeader
-        title={`${region.location} State`}
+        title={region.location}
         subtitle="Here is how this location has been performing so far"
         timeFilter={timeFilter}
         onTimeFilterChange={setTimeFilter}

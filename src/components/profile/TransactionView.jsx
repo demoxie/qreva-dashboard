@@ -24,6 +24,7 @@ const TransactionView = ({
           actions={actions}
           onSearch={setSearchQuery}
           onFilter={() => console.log('Filter clicked')}
+          showExport={true}
         />
     </>
   );

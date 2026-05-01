@@ -1,10 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { settingsApi } from '../../api/settings-api';
+import { handleError } from '../../utils/handleError';
+import { handleSuccess } from '../../utils/handleSuccess';
 
-export const useRoles = (params) => {
+export const useRoles = (params = {}, options = {}) => {
   return useQuery({
     queryKey: ['roles', params],
     queryFn: () => settingsApi.listRoles(params),
+    ...options,
   });
 };
 
@@ -45,8 +48,12 @@ export const useAssignRole = () => {
   return useMutation({
     mutationFn: settingsApi.assignRole,
     onSuccess: () => {
+      handleSuccess('Role assigned successfully.');
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to assign role.');
     },
   });
 };
