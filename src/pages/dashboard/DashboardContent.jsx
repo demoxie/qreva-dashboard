@@ -184,6 +184,7 @@ const DashboardContent = () => {
     metrics,
     transactions,
     pagination,
+    timeFilter,
     handlePageChange,
     handleSearch,
     handleFilter,

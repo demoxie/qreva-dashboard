@@ -82,8 +82,8 @@ const KYCDetails = () => {
           <div className="mb-6">
             <TopCustomersCard data={topCustomers} title="Top Customers" />
           </div>
-          <MultiLineChart data={chartData} series={chartSeries} title="Daily Transaction Volume" />
-          <TransactionHistoryTable data={transactions} title="Transactions" actions={regionTransactionActions} />
+          <MultiLineChart data={chartData} series={chartSeries} timeFilter={typeof timeFilter === 'string' ? timeFilter.toLowerCase() : timeFilter} />
+          <TransactionHistoryTable data={transactions} title="Transaction History" variant="region" actions={regionTransactionActions} />
         </div>
         <TransactionDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} transaction={selectedTransaction} />
         <ShareReceiptModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} transaction={selectedTransaction} />
@@ -120,8 +120,8 @@ const KYCDetails = () => {
             <TransactionPercentagePie data={bvnVsNinData} title="Verification Distribution" wrapped={true} />
             <TopCustomersCard data={topCustomers} title="Related Agents" />
           </div>
-          <MultiLineChart data={chartData} series={chartSeries} title="Daily Transaction Volume" />
-          <TransactionHistoryTable data={transactions} title="Transactions" actions={agentTransactionActions} />
+          <MultiLineChart data={chartData} series={chartSeries} timeFilter={typeof timeFilter === 'string' ? timeFilter.toLowerCase() : timeFilter} />
+          <TransactionHistoryTable data={transactions} title="Transaction History" variant="region" actions={agentTransactionActions} />
         </div>
         <TransactionDetailsModal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)} transaction={selectedTransaction} />
         <ShareReceiptModal isOpen={showShareModal} onClose={() => setShowShareModal(false)} transaction={selectedTransaction} />

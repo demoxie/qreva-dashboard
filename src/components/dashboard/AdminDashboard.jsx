@@ -9,11 +9,12 @@ import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import DashboardStats from '@/components/base/DashboardStats';
 
-const AdminDashboard = ({ 
-  formattedStats, 
-  metrics, 
+const AdminDashboard = ({
+  formattedStats,
+  metrics,
   transactions,
   pagination,
+  timeFilter,
   transactionActions,
   handlePageChange,
   handleSearch,
@@ -51,7 +52,7 @@ const AdminDashboard = ({
       </div>
 
       {/* Daily Transaction Value */}
-      <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
+      <TransactionVolumeChart data={metrics.dailyTransactionVolume} timeFilter={timeFilter} />
 
       {/* Top Regions Table */}
       <RegionsTable data={metrics.topRegions} onViewDetails={handleViewRegionDetails} />

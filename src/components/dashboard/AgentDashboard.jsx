@@ -8,11 +8,12 @@ import DashboardStats from '@/components/base/DashboardStats';
 
 const EXCLUDED_CATEGORIES = ['airtime', 'data', 'bills', 'bill', 'bill payment', 'data purchase', 'airtime purchase'];
 
-const AgentDashboard = ({ 
-  formattedStats, 
-  metrics, 
+const AgentDashboard = ({
+  formattedStats,
+  metrics,
   transactions,
   pagination,
+  timeFilter,
   handlePageChange,
   handleSearch,
   handleFilter,
@@ -40,7 +41,7 @@ const AgentDashboard = ({
       </div>
 
       {/* Daily Transaction Value */}
-      <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
+      <TransactionVolumeChart data={metrics.dailyTransactionVolume} timeFilter={timeFilter} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <PaymentComparisonPie

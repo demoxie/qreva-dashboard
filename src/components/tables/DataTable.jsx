@@ -51,7 +51,7 @@ const DataTable = ({
     {
       key: "status",
       label: "Status",
-      options: ["Successful", "Pending", "Failed"].map((status) => ({
+      options: ["Completed", "Pending", "Failed"].map((status) => ({
         label: status,
         value: status,
       })),
@@ -307,7 +307,9 @@ const DataTable = ({
             paginationMode={
               paginationMode || (pagination ? "server" : "client")
             }
-            rowCount={rowCount ?? pagination?.total ?? data.length}
+            {...((paginationMode || (pagination ? "server" : "client")) === "server"
+              ? { rowCount: rowCount ?? pagination?.total ?? data.length }
+              : {})}
             loading={isLoading}
             paginationModel={
               externalPaginationModel

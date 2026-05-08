@@ -164,14 +164,14 @@ const Transfers = () => {
         <MultiLineChart
           data={metrics.dailyTransactionVolume}
           series={[{ data: (metrics.dailyTransactionVolume || []).map(d => d.value), color: '#B54103', label: 'Value' }]}
-          title="Daily Transaction Value"
+          timeFilter={timeFilter}
         />
 
         {/* Use actual dailyTransactionCounts from API */}
-        <BarChartComponent 
+        <BarChartComponent
           data={metrics.dailyTransactionCounts}
           series={[{ data: (metrics?.dailyTransactionCounts || []).map(d => d.value), color: '#FF5B04' }]}
-          title="Daily Transaction Count"
+          timeFilter={timeFilter}
         />
 
         <RegionsTable
@@ -181,7 +181,7 @@ const Transfers = () => {
 
         <DataTable 
           data={transactions}
-          title="Transactions"
+          title="Transaction History"
           actions={transactionActions}
           columns={transactionColumns}
           pagination={pagination}

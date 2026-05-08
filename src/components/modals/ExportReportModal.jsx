@@ -68,7 +68,7 @@ const ExportReportModal = ({ isOpen, onClose, exportType = 'all' }) => {
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+            <PopoverContent className="w-auto p-0 z-9999" align="start">
               <Calendar
                 initialFocus
                 mode="range"

@@ -40,8 +40,8 @@ const BillsDetails = () => {
 
   const metrics = metricsResponse?.data || {};
   const transactions = useMemo(() => {
-    return (txResponse?.data || []).filter(tx => 
-      tx.typeCategory !== 'Airtime' && 
+    return (txResponse?.data || []).filter(tx =>
+      tx.typeCategory !== 'Airtime' &&
       tx.typeCategory !== 'Data' &&
       tx.category !== 'airtime' &&
       tx.category !== 'data'
@@ -69,7 +69,7 @@ const BillsDetails = () => {
   const customerTransactionActions = createCustomerTransactionActions({
     setSelectedTransaction,
     setShowDetailsModal,
-    setShowShareModal
+    setShowShareModal,
   });
 
   // REGION DETAILS VIEW
@@ -109,7 +109,7 @@ const BillsDetails = () => {
             <div className="lg:col-span-2">
               <TransactionVolumeChart
                 data={dailyBreakdown.map(d => ({ label: d.date, value: d.volume }))}
-                title="Daily Transaction Volume"
+                timeFilter={typeof timeFilter === 'string' ? timeFilter.toLowerCase() : timeFilter}
               />
             </div>
             <div className="lg:col-span-1">
@@ -123,7 +123,8 @@ const BillsDetails = () => {
 
           <TransactionHistoryTable
             data={transactions}
-            title="Transactions"
+            title="Transaction History"
+            variant="region"
             actions={regionTransactionActions}
           />
         </div>
@@ -192,7 +193,8 @@ const BillsDetails = () => {
 
           <TransactionHistoryTable
             data={transactions}
-            title="Transactions"
+            title="Transaction History"
+            variant="region"
             actions={customerTransactionActions}
           />
         </div>

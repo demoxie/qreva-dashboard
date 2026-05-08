@@ -1,12 +1,23 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart } from '@mui/x-charts/LineChart';
 
-const MultiLineChart = ({ 
-  data = [], 
-  series = [], 
-  title = "Daily Transaction Value",
-  height = 300 
+const TIME_RANGE_TITLE = {
+  today: 'Daily Transaction Value',
+  hourly: 'Hourly Transaction Value',
+  last12hours: 'Hourly Transaction Value',
+  weekly: 'Weekly Transaction Value',
+  monthly: 'Monthly Transaction Value',
+  yearly: 'Yearly Transaction Value',
+};
+
+const MultiLineChart = ({
+  data = [],
+  series = [],
+  title,
+  timeFilter,
+  height = 300
 }) => {
+  const resolvedTitle = title || TIME_RANGE_TITLE[timeFilter] || 'Daily Transaction Value';
   const formatYAxis = (value) => {
     const formatNumber = (num, divisor, suffix) => {
       const result = num / divisor;
@@ -39,7 +50,7 @@ const MultiLineChart = ({
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
-            {title}
+            {resolvedTitle}
           </CardTitle>
           <div className="flex gap-4">
             {series.map((s, idx) => (

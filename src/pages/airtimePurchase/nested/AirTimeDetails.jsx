@@ -114,7 +114,7 @@ const AirtimeDetails = () => {
             <div className="lg:col-span-2">
               <TransactionVolumeChart
                 data={dailyVolume}
-                title="Daily Transaction Volume"
+                timeFilter={typeof timeFilter === 'string' ? timeFilter.toLowerCase() : timeFilter}
               />
             </div>
             <div className="lg:col-span-1">
@@ -128,7 +128,8 @@ const AirtimeDetails = () => {
 
           <TransactionHistoryTable
             data={transactions}
-            title="Transactions"
+            title="Transaction History"
+            variant="region"
             actions={transactionActions}
             pagination={pagination}
             onPageChange={setPage}
@@ -200,7 +201,8 @@ const AirtimeDetails = () => {
 
           <TransactionHistoryTable
             data={transactions}
-            title="Transactions"
+            title="Transaction History"
+            variant="region"
             actions={transactionActions}
             pagination={pagination}
             onPageChange={setPage}

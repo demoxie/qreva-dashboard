@@ -103,7 +103,7 @@ const DashboardRegionDetails = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="lg:col-span-2">
-            <TransactionVolumeChart data={dailyVolume} title="Daily Transaction Volume" />
+            <TransactionVolumeChart data={dailyVolume} timeFilter={timeFilter} />
           </div>
           <div className="lg:col-span-1">
             <TransactionPercentagePie data={purchasePercentages} title="Top % Purchase from Customers" wrapped={true} />
@@ -112,7 +112,8 @@ const DashboardRegionDetails = () => {
 
         <TransactionHistoryTable
           data={transactions}
-          title="Transactions"
+          title="Transaction History"
+          variant="region"
           actions={transactionActions}
           pagination={pagination}
           onPageChange={setPage}

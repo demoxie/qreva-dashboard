@@ -1,7 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LineChart } from '@mui/x-charts/LineChart';
 
-const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Value" }) => {
+const TIME_RANGE_TITLE = {
+  today: 'Daily Transaction Value',
+  hourly: 'Hourly Transaction Value',
+  last12hours: 'Hourly Transaction Value',
+  weekly: 'Weekly Transaction Value',
+  monthly: 'Monthly Transaction Value',
+  yearly: 'Yearly Transaction Value',
+};
+
+const TransactionVolumeChart = ({ data = [], title, timeFilter }) => {
+  const resolvedTitle = title || TIME_RANGE_TITLE[timeFilter] || 'Daily Transaction Value';
+
   // Format labels for x-axis
   const getXAxisLabel = (index) => {
     if (index === 0) return 'Today';
@@ -34,7 +45,7 @@ const TransactionVolumeChart = ({ data = [], title = "Daily Transaction Value" }
     <Card className="mb-6 h-full">
       <CardHeader>
         <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
-          {title}
+          {resolvedTitle}
         </CardTitle>
       </CardHeader>
       <CardContent>
