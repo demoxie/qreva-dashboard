@@ -1,4 +1,4 @@
-import { Eye, Edit, UserPlus } from "lucide-react";
+import { Eye, Edit, UserPlus, Trash2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 
 export const ROLES_DATA = [
@@ -191,6 +191,11 @@ export const RBAC_ACTIONS = [
     label: "Assign Role",
     icon: UserPlus,
     onClick: (row) => console.log("Assign Role:", row),
+  },
+  {
+    label: "Delete Role",
+    icon: Trash2,
+    onClick: (row) => console.log("Delete Role:", row),
   },
 ];
 
