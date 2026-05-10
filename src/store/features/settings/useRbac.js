@@ -57,3 +57,14 @@ export const useAssignRole = () => {
     },
   });
 };
+
+export const useDeleteRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: settingsApi.deleteRole,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles'] });
+    },
+  });
+};

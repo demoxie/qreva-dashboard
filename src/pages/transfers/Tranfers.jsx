@@ -15,6 +15,19 @@ import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { transactionColumns, createTransactionActions } from './constants';
 
+const TRANSFER_FILTER_GROUPS = [
+  {
+    key: 'status',
+    label: 'Status',
+    options: [
+      { label: 'Successful', value: 'Successful' },
+      { label: 'Completed', value: 'Completed' },
+      { label: 'Pending', value: 'Pending' },
+      { label: 'Failed', value: 'Failed' },
+    ],
+  },
+];
+
 const Transfers = () => {
   const navigate = useNavigate();
   const [timeFilter, setTimeFilter] = useState('today');
@@ -70,6 +83,43 @@ const Transfers = () => {
   const transactions = useMemo(() => transactionData?.data || [], [transactionData]);
   const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
 
+  // Client-side fallback filtering so search/filter narrow what's already
+  // loaded even if the backend ignores the params.
+  const visibleTransactions = useMemo(() => {
+    const q = (search || '').trim().toLowerCase();
+    const statusFilter = filters.status?.toLowerCase();
+
+    return transactions.filter((row) => {
+      if (statusFilter && (row.status || '').toLowerCase() !== statusFilter) {
+        return false;
+      }
+      if (!q) return true;
+      const senderName =
+        row.senderName ||
+        row.metadata?.debitAccountName ||
+        row.transferId?.accountName ||
+        '';
+      const recipientName =
+        row.recipientName ||
+        row.transferId?.nameEnquiryId?.accountName ||
+        row.metadata?.creditAccountName ||
+        '';
+      const haystack = [
+        senderName,
+        recipientName,
+        row.status,
+        row.reference,
+        row.transactionRef,
+        row._id,
+        row.amount != null ? String(row.amount) : '',
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+  }, [transactions, search, filters]);
+
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
     return formatDashboardStats(metrics.summary, metrics.changePercentages, timeFilter);
@@ -92,8 +142,9 @@ const Transfers = () => {
     setPage(1);
   };
 
-  const handleFilter = () => {
-    console.log('Filter clicked');
+  const handleFilter = (selectedFilters) => {
+    setFilters(selectedFilters || {});
+    setPage(1);
   };
 
   const handlePageChange = (newPage) => setPage(newPage);
@@ -154,9 +205,10 @@ const Transfers = () => {
             <PaymentComparisonPie data={metrics.statusData} />
           </div>
           <div className='col-span-3'>
-            <TopCustomersCard 
+            <TopCustomersCard
               data={metrics.topCustomers}
-              title="Top Users"
+              title="Top Performing Customers"
+              showAgentToggle={false}
             />
           </div>
         </div>
@@ -179,8 +231,8 @@ const Transfers = () => {
           onViewDetails={handleViewRegionDetails}
         />
 
-        <DataTable 
-          data={transactions}
+        <DataTable
+          data={visibleTransactions}
           title="Transaction History"
           actions={transactionActions}
           columns={transactionColumns}
@@ -188,6 +240,8 @@ const Transfers = () => {
           onPageChange={handlePageChange}
           onSearch={handleSearch}
           onFilter={handleFilter}
+          showFilter={true}
+          filterGroups={TRANSFER_FILTER_GROUPS}
           isLoading={isTransactionsLoading}
           showExport={true}
         />

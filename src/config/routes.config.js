@@ -81,7 +81,7 @@ export const ROUTES = {
   },
   AGGREGATOR_MANAGER: {
     path: '/aggregator-manager',
-    label: 'Aggregator Manager',
+    label: 'Aggregator Managers',
     icon: 'aggregatorManager',
     permission: 'aggManager:view',
   },
@@ -337,7 +337,7 @@ export const ROUTES = {
   ACCOUNTS_APPROVALS_DETAILS: {
     path: '/account-approvals/:type/:id',
     label: 'View Details',
-    parent: 'account-approvals',
+    parent: '/account-approvals',
     icon: null,
     permission: 'approvals',
     dynamic: true,

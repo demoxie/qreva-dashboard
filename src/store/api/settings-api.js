@@ -84,6 +84,11 @@ export const settingsApi = {
     return data;
   },
 
+  deleteRole: async (rolePermissionId) => {
+    const { data } = await apiClient.delete(`/admin/settings/rbac/roles/${rolePermissionId}`);
+    return data;
+  },
+
   // ── Commission Rules ───────────────────────────────────────────────
   listCommissions: async (params = {}) => {
     const { data } = await apiClient.get('/admin/settings/commissions', { params });

@@ -4,13 +4,18 @@ import { useNavigate } from "react-router-dom";
 import DataTable from "@/components/tables/DataTable";
 import { RBAC_COLUMNS, RBAC_ACTIONS } from "./constants";
 import AssignRoleToUserModal from "@/components/modals/AssignRoleToUserModal";
-import { useAssignRole, useRoles } from "@/store/features/settings/useRbac";
+import ConfirmDialog from "@/components/modals/ConfirmDialogComponent";
+import { useAssignRole, useDeleteRole, useRoles } from "@/store/features/settings/useRbac";
+import { handleError } from "@/store/utils/handleError";
+import { handleSuccess } from "@/store/utils/handleSuccess";
 
 const RBAC = () => {
   const navigate = useNavigate();
   const { data: rolesResponse, isLoading } = useRoles();
   const assignRoleMutation = useAssignRole();
+  const deleteRoleMutation = useDeleteRole();
   const [selectedRole, setSelectedRole] = useState(null);
+  const [roleToDelete, setRoleToDelete] = useState(null);
 
   const roles = rolesResponse?.data || [];
 
@@ -21,6 +26,8 @@ const RBAC = () => {
       navigate(`/settings/rbac/edit/${row._id || row.id}`);
     } else if (action.label === "Assign Role") {
       setSelectedRole(row);
+    } else if (action.label === "Delete Role") {
+      setRoleToDelete(row);
     }
   };
 
@@ -34,6 +41,21 @@ const RBAC = () => {
         onSuccess: () => setSelectedRole(null),
       },
     );
+  };
+
+  const handleConfirmDelete = () => {
+    const id = roleToDelete?._id || roleToDelete?.id;
+    if (!id) return;
+    deleteRoleMutation.mutate(id, {
+      onSuccess: () => {
+        handleSuccess("Role deleted successfully");
+        setRoleToDelete(null);
+      },
+      onError: (error) => {
+        handleError(error);
+        setRoleToDelete(null);
+      },
+    });
   };
 
   const actionsWithHandler = RBAC_ACTIONS.map((action) => ({
@@ -77,6 +99,16 @@ const RBAC = () => {
         onAssign={handleAssignRole}
         role={selectedRole}
         isSubmitting={assignRoleMutation.isPending}
+      />
+
+      <ConfirmDialog
+        isOpen={!!roleToDelete}
+        onClose={() => setRoleToDelete(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Role"
+        message={`Are you sure you want to delete the "${roleToDelete?.roleName || roleToDelete?.name || 'this'}" role? Users currently assigned to it will lose its permissions. This action cannot be undone.`}
+        confirmText={deleteRoleMutation.isPending ? "Deleting..." : "Yes, delete"}
+        confirmStyle="danger"
       />
     </div>
   );

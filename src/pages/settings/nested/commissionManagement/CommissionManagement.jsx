@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
@@ -18,6 +18,28 @@ const CommissionManagement = () => {
 
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [selectedCommission, setSelectedCommission] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredCommissions = useMemo(() => {
+        const q = searchQuery.trim().toLowerCase();
+        if (!q) return commissions;
+        return commissions.filter((row) => {
+            const appliesTo = Array.isArray(row.appliesTo)
+                ? row.appliesTo.join(', ')
+                : row.appliesTo || '';
+            const haystack = [
+                row.transactionType,
+                row.feeType,
+                appliesTo,
+                row.percentageFee != null ? `${row.percentageFee}%` : '',
+                row.flatFee != null ? String(row.flatFee) : '',
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+            return haystack.includes(q);
+        });
+    }, [commissions, searchQuery]);
 
     const handleAction = (action, row) => {
         const id = row._id || row.id;
@@ -75,11 +97,12 @@ const CommissionManagement = () => {
             </div>
 
             <DataTable
-                data={commissions}
+                data={filteredCommissions}
                 columns={COMMISSION_COLUMNS}
                 title="Commissions"
                 actions={actionsWithHandler}
                 showSearch={true}
+                onSearch={setSearchQuery}
                 showCheckbox={true}
                 loading={isLoading}
             />

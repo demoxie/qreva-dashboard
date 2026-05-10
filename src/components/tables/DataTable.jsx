@@ -61,7 +61,12 @@ const DataTable = ({
     ? filterGroups
     : defaultFilterGroups;
   const shouldShowFilter = showFilter ?? !!onFilter;
-  const activeFilterCount = Object.values(selectedFilters).filter(Boolean).length;
+  const isActiveFilterValue = (val) => {
+    if (val == null || val === "") return false;
+    if (typeof val === "object") return Boolean(val.from || val.to);
+    return true;
+  };
+  const activeFilterCount = Object.values(selectedFilters).filter(isActiveFilterValue).length;
 
   // CSV Export utility via Modal API
   const handleExport = useCallback(() => {
@@ -244,34 +249,82 @@ const DataTable = ({
                             </button>
                           )}
                         </div>
-                        {resolvedFilterGroups.map((group) => (
-                          <div key={group.key} className="py-2 border-b border-[#F0F3F4] last:border-b-0">
-                            <p className="px-3 py-1 text-xs font-urbanist font-semibold text-[#7C8D96] uppercase tracking-wide">
-                              {group.label}
-                            </p>
-                            <button
-                              onClick={() => handleFilterSelect(group.key, "")}
-                              className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${!selectedFilters[group.key] ? "text-[#FF5B04] bg-[#FFF4EE] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
-                            >
-                              All
-                              {!selectedFilters[group.key] && (
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                              )}
-                            </button>
-                            {(group.options || []).map((option) => (
+                        {resolvedFilterGroups.map((group) => {
+                          if (group.type === "dateRange") {
+                            const range = selectedFilters[group.key] || {};
+                            return (
+                              <div key={group.key} className="py-2 px-3 border-b border-[#F0F3F4] last:border-b-0 space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-urbanist font-semibold text-[#7C8D96] uppercase tracking-wide">
+                                    {group.label}
+                                  </p>
+                                  {(range.from || range.to) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleFilterSelect(group.key, "")}
+                                      className="text-xs font-general text-[#FF5B04] hover:text-[#E54F03]"
+                                    >
+                                      Reset
+                                    </button>
+                                  )}
+                                </div>
+                                <label className="block">
+                                  <span className="block text-xs text-[#808C91] mb-1">From</span>
+                                  <input
+                                    type="date"
+                                    value={range.from || ""}
+                                    max={range.to || undefined}
+                                    onChange={(e) =>
+                                      handleFilterSelect(group.key, { ...range, from: e.target.value })
+                                    }
+                                    className="w-full px-2 py-1.5 text-sm font-general border border-[#E8EBED] rounded-md outline-none focus:border-[#84C4CF]"
+                                  />
+                                </label>
+                                <label className="block">
+                                  <span className="block text-xs text-[#808C91] mb-1">To</span>
+                                  <input
+                                    type="date"
+                                    value={range.to || ""}
+                                    min={range.from || undefined}
+                                    onChange={(e) =>
+                                      handleFilterSelect(group.key, { ...range, to: e.target.value })
+                                    }
+                                    className="w-full px-2 py-1.5 text-sm font-general border border-[#E8EBED] rounded-md outline-none focus:border-[#84C4CF]"
+                                  />
+                                </label>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div key={group.key} className="py-2 border-b border-[#F0F3F4] last:border-b-0">
+                              <p className="px-3 py-1 text-xs font-urbanist font-semibold text-[#7C8D96] uppercase tracking-wide">
+                                {group.label}
+                              </p>
                               <button
-                                key={`${group.key}-${option.value}`}
-                                onClick={() => handleFilterSelect(group.key, option.value)}
-                                className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${selectedFilters[group.key] === option.value ? "text-[#FF5B04] bg-[#FFF4EE] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
+                                onClick={() => handleFilterSelect(group.key, "")}
+                                className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${!selectedFilters[group.key] ? "text-[#FF5B04] bg-[#FFF4EE] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
                               >
-                                <span className="truncate">{option.label}</span>
-                                {selectedFilters[group.key] === option.value && (
-                                  <svg className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                All
+                                {!selectedFilters[group.key] && (
+                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                                 )}
                               </button>
-                            ))}
-                          </div>
-                        ))}
+                              {(group.options || []).map((option) => (
+                                <button
+                                  key={`${group.key}-${option.value}`}
+                                  onClick={() => handleFilterSelect(group.key, option.value)}
+                                  className={`w-full text-left px-3 py-2 text-sm font-general transition-colors flex items-center justify-between ${selectedFilters[group.key] === option.value ? "text-[#FF5B04] bg-[#FFF4EE] font-medium" : "text-[#1E1E1E] hover:bg-[#F5F6F7]"}`}
+                                >
+                                  <span className="truncate">{option.label}</span>
+                                  {selectedFilters[group.key] === option.value && (
+                                    <svg className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
