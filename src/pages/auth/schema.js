@@ -10,6 +10,10 @@ const loginSchema = yup.object({
     .string()
     .required('Password is required')
     .min(6, 'Password must be at least 6 characters'),
+  loginAs: yup
+    .string()
+    .oneOf(['admin', 'aggregator', 'aggregator_manager'])
+    .required('Please select login role'),
 });
 
 const forgotPasswordSchema = yup.object({

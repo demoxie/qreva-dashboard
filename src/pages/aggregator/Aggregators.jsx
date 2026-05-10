@@ -86,7 +86,11 @@ const Aggregators = () => {
   const handleAddAggregator = useCallback(
     (aggregatorData) => {
       inviteAggregatorMutation.mutate(
-        { fullName: aggregatorData.fullName, email: aggregatorData.email },
+        {
+          fullName: aggregatorData.fullName,
+          email: aggregatorData.email,
+          inviteType: 'aggregator',
+        },
         {
           onSuccess: async () => {
             const referralResponse = await aggregatorReferralLink.refetch();
