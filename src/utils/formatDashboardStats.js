@@ -1,10 +1,10 @@
 const RANGE_SUBTEXT = {
-  today: 'current day total',
-  last12hours: 'in the last 1 hour',
-  hourly: 'in the last 1 hour',
-  weekly: 'in the last 7 days',
-  monthly: 'in the last 30 days',
-  yearly: 'in the last 12 months',
+  today: 'Current day total',
+  last12hours: 'In the last 1 hour',
+  hourly: 'In the last 1 hour',
+  weekly: 'In the last 7 days',
+  monthly: 'In the last 30 days',
+  yearly: 'In the last 12 months',
 };
 
 export const formatDashboardStats = (summary, changePercentages = {}, timeFilter = 'today') => {
@@ -37,25 +37,25 @@ export const formatDashboardStats = (summary, changePercentages = {}, timeFilter
       label: 'Total Transaction Volume',
       value: formatNumber(summary.totalTransactions || 0),
       change: getChange(changePercentages.totalTransactions),
-      subtext: `${formatNumber(summary.dailyTransactions || 0)} ${periodLabel}`,
+      subtext: periodLabel,
     },
     {
       label: 'Total Transaction Value',
       value: formatCurrency(summary.totalTransactionVolume || 0),
       change: getChange(changePercentages.totalTransactionVolume),
-      subtext: `${formatCurrency(summary.dailyVolume || 0)} ${periodLabel}`,
+      subtext: periodLabel,
     },
     {
       label: 'Total Revenue',
       value: formatCurrency(summary.totalRevenue || 0),
       change: getChange(changePercentages.totalRevenue),
-      subtext: `${formatCurrency(summary.dailyRevenue || 0)} ${periodLabel}`,
+      subtext: periodLabel,
     },
     {
       label: 'Success Rate',
       value: `${summary.successRate || 0}%`,
       change: getChange(changePercentages.successRate),
-      subtext: `Out of ${periodLabel}`,
+      subtext: periodLabel,
     },
   ];
 };

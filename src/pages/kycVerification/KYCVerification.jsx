@@ -115,10 +115,10 @@ const KYCVerification = () => {
           </div>
         </div>
 
-        <MultiLineChart 
+        <MultiLineChart
           data={metrics?.dailyTransactionVolume || []}
           series={[{ data: (metrics?.dailyTransactionVolume || []).map(d => d.value), color: '#26C8B9', label: 'Volume' }]}
-          title="Daily Transaction Value"
+          timeFilter={typeof timeFilter === 'string' ? timeFilter.toLowerCase() : timeFilter}
         />
 
         <RegionsTable

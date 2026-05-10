@@ -3,158 +3,254 @@ import CustomHistory from "../icons/CustomHistory";
 import CustomShare from "../icons/CustomShare";
 import DataTable from "./DataTable";
 
+const customerNameColumn = {
+  field: "customerName",
+  headerName: "Customer Name",
+  width: 180,
+  flex: 1,
+  renderCell: (params) => {
+    const name =
+      params.row.senderName ||
+      params.row.customerName ||
+      params.row.clientName ||
+      params.row.transferId?.nameEnquiryId?.accountName ||
+      params.row.utilityId?.vasVerificationId?.name ||
+      params.row.title ||
+      "-";
+    const acc =
+      params.row.senderPhone ||
+      params.row.phoneNumber ||
+      params.row.utilityId?.phoneNumber ||
+      params.row.meterNumber ||
+      params.row.utilityId?.meterNumber ||
+      params.row.creditAccountNumber ||
+      params.row.accountNumber ||
+      params.row.utilityId?.accountNumber ||
+      params.row.acc ||
+      "";
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <div className="text-sm font-general font-medium flex items-center h-full">
+          {name}
+        </div>
+        {acc && (
+          <div className="text-xs text-gray-500 flex items-center h-full">
+            {acc}
+          </div>
+        )}
+      </div>
+    );
+  },
+};
+
+const billerColumn = {
+  field: "biller",
+  headerName: "Biller",
+  width: 150,
+  flex: 0.9,
+  renderCell: (params) => {
+    const biller =
+      params.row.biller ||
+      params.row.utilityId?.provider ||
+      params.row.provider ||
+      params.row.networkProvider ||
+      params.row.utilityId?.serviceName ||
+      params.row.utilityId?.billerName ||
+      params.row.serviceName ||
+      params.row.typeCategory ||
+      params.row.category ||
+      "-";
+    return (
+      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+        {biller}
+      </span>
+    );
+  },
+};
+
+const locationColumn = {
+  field: "location",
+  headerName: "Location",
+  width: 140,
+  flex: 0.8,
+  renderCell: (params) => (
+    <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+      {params.value || params.row.state || params.row.region || "-"}
+    </span>
+  ),
+};
+
+const categoryColumn = {
+  field: "typeCategory",
+  headerName: "Category",
+  width: 130,
+  flex: 0.8,
+  renderCell: (params) => (
+    <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+      {params.value || params.row.category || "-"}
+    </span>
+  ),
+};
+
+const titleColumn = {
+  field: "title",
+  headerName: "Title",
+  width: 180,
+  flex: 1,
+  renderCell: (params) => {
+    const name =
+      params.row.senderName ||
+      params.row.transferId?.nameEnquiryId?.accountName ||
+      params.row.utilityId?.vasVerificationId?.name ||
+      params.row.narration ||
+      params.row.utilityId?.narration ||
+      params.row.typeCategory ||
+      params.row.title ||
+      "-";
+    const acc =
+      params.row.senderPhone ||
+      params.row.phoneNumber ||
+      params.row.utilityId?.phoneNumber ||
+      params.row.meterNumber ||
+      params.row.utilityId?.meterNumber ||
+      params.row.creditAccountNumber ||
+      params.row.accountNumber ||
+      params.row.utilityId?.accountNumber ||
+      params.row.acc ||
+      "";
+    return (
+      <div className="flex flex-col justify-center h-full">
+        <div className="text-sm font-general font-medium flex items-center h-full">
+          {name}
+        </div>
+        {acc && (
+          <div className="text-xs text-gray-500 flex items-center h-full">
+            {acc}
+          </div>
+        )}
+      </div>
+    );
+  },
+};
+
+const statusColumn = {
+  field: "status",
+  headerName: "Status",
+  width: 130,
+  flex: 0.8,
+  renderCell: (params) => {
+    const statusColors = {
+      Pending: "border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]",
+      Successful: "border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]",
+      Completed: "border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]",
+      Failed: "border border-[#E85304] bg-[#FCECE8] text-[#E85304]",
+    };
+    const statusClass =
+      statusColors[params.value] ||
+      "border border-gray-300 bg-gray-50 text-gray-500";
+    return (
+      <span
+        className={`px-2 py-1.5 text-center ${statusClass} font-general font-medium text-xs rounded-md flex items-center justify-center h-full`}
+      >
+        {params.value}
+      </span>
+    );
+  },
+};
+
+const typeColumn = {
+  field: "type",
+  headerName: "Type",
+  width: 100,
+  flex: 0.7,
+  renderCell: (params) => (
+    <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+      {params.value}
+    </span>
+  ),
+};
+
+const amountColumn = {
+  field: "amount",
+  headerName: "Amount (₦)",
+  width: 150,
+  flex: 1,
+  renderCell: (params) => (
+    <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
+      {params.value?.toLocaleString()}
+    </span>
+  ),
+};
+
+const transactionDateColumn = {
+  field: "createdAt",
+  headerName: "Transaction Date",
+  width: 180,
+  flex: 1,
+  renderCell: (params) => {
+    const val = params.value || params.row.date;
+    if (!val)
+      return (
+        <span className="text-sm text-gray-500 flex items-center h-full">
+          -
+        </span>
+      );
+    const d = new Date(val);
+    if (isNaN(d))
+      return (
+        <span className="text-sm text-gray-500 flex items-center h-full">
+          {val}
+        </span>
+      );
+    return (
+      <span className="text-sm text-gray-500 flex items-center h-full">
+        {d.toLocaleDateString("en-NG", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </span>
+    );
+  },
+};
+
+const defaultColumns = [
+  titleColumn,
+  categoryColumn,
+  locationColumn,
+  statusColumn,
+  typeColumn,
+  amountColumn,
+  transactionDateColumn,
+];
+
+const regionColumns = [
+  customerNameColumn,
+  billerColumn,
+  locationColumn,
+  statusColumn,
+  typeColumn,
+  amountColumn,
+  transactionDateColumn,
+];
+
 const TransactionHistoryTable = ({
   data,
   title = "Transaction History",
   actions = [],
+  columns: columnsOverride,
+  variant,
   ...rest
 }) => {
-  // Define default columns for transaction history
-  const columns = [
-    {
-      field: "title",
-      headerName: "Title",
-      width: 180,
-      flex: 1,
-      renderCell: (params) => {
-        const name =
-          params.row.senderName ||
-          params.row.transferId?.nameEnquiryId?.accountName ||
-          params.row.utilityId?.vasVerificationId?.name ||
-          params.row.narration ||
-          params.row.utilityId?.narration ||
-          params.row.typeCategory ||
-          params.row.title ||
-          "-";
-        const acc =
-          params.row.senderPhone ||
-          params.row.phoneNumber ||
-          params.row.utilityId?.phoneNumber ||
-          params.row.meterNumber ||
-          params.row.utilityId?.meterNumber ||
-          params.row.creditAccountNumber ||
-          params.row.accountNumber ||
-          params.row.utilityId?.accountNumber ||
-          params.row.acc ||
-          "";
-        return (
-          <div className="flex flex-col justify-center h-full">
-            <div className="text-sm font-general font-medium flex items-center h-full">
-              {name}
-            </div>
-            {acc && (
-              <div className="text-xs text-gray-500 flex items-center h-full">
-                {acc}
-              </div>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      field: "typeCategory",
-      headerName: "Category",
-      width: 130,
-      flex: 0.8,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value || params.row.category || "-"}
-        </span>
-      ),
-    },
-    {
-      field: "location",
-      headerName: "Location",
-      width: 140,
-      flex: 0.8,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value || params.row.state || params.row.region || "-"}
-        </span>
-      ),
-    },
-    {
-      field: "status",
-      headerName: "Status",
-      width: 130,
-      flex: 0.8,
-      renderCell: (params) => {
-        const statusColors = {
-          Pending: "border border-[#FFC535] bg-[#FFF8E6] text-[#B58202]",
-          Successful: "border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]",
-          Completed: "border border-[#4ED17E] bg-[#E9F9EF] text-[#4ED17E]",
-          Failed: "border border-[#E85304] bg-[#FCECE8] text-[#E85304]",
-        };
-        const statusClass =
-          statusColors[params.value] ||
-          "border border-gray-300 bg-gray-50 text-gray-500";
-        return (
-          <span
-            className={`px-2 py-1.5 text-center ${statusClass} font-general font-medium text-xs rounded-md flex items-center justify-center h-full`}
-          >
-            {params.value}
-          </span>
-        );
-      },
-    },
-    {
-      field: "type",
-      headerName: "Type",
-      width: 100,
-      flex: 0.7,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-          {params.value}
-        </span>
-      ),
-    },
-    {
-      field: "amount",
-      headerName: "Amount (₦)",
-      width: 150,
-      flex: 1,
-      renderCell: (params) => (
-        <span className="text-sm font-general text-[#1E1E1E] flex items-center font-medium h-full">
-          {params.value?.toLocaleString()}
-        </span>
-      ),
-    },
-    {
-      field: "createdAt",
-      headerName: "Transaction Date",
-      width: 180,
-      flex: 1,
-      renderCell: (params) => {
-        const val = params.value || params.row.date;
-        if (!val)
-          return (
-            <span className="text-sm text-gray-500 flex items-center h-full">
-              -
-            </span>
-          );
-        const d = new Date(val);
-        if (isNaN(d))
-          return (
-            <span className="text-sm text-gray-500 flex items-center h-full">
-              {val}
-            </span>
-          );
-        return (
-          <span className="text-sm text-gray-500 flex items-center h-full">
-            {d.toLocaleDateString("en-NG", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        );
-      },
-    },
-  ];
+  let columns = defaultColumns;
+  if (columnsOverride && columnsOverride.length > 0) {
+    columns = columnsOverride;
+  } else if (variant === "region") {
+    columns = regionColumns;
+  }
 
-  // Default actions if none provided
   const defaultActions = [
     {
       label: "View Details",

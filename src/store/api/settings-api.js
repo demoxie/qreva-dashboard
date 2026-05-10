@@ -1,5 +1,15 @@
 import { apiClient } from './client';
 
+const throwIfApiError = (data) => {
+  if (data?.statusCode >= 400) {
+    const error = new Error(data.message || 'An error occurred');
+    error.response = { data, status: data.statusCode };
+    throw error;
+  }
+
+  return data;
+};
+
 export const settingsApi = {
   // ── Agency Categories ──────────────────────────────────────────────
   listAgencyCategories: async (params = {}) => {
@@ -35,7 +45,7 @@ export const settingsApi = {
 
   createTier: async (tierData) => {
     const { data } = await apiClient.post('/admin/settings/tiers', tierData);
-    return data;
+    return throwIfApiError(data);
   },
 
   updateTier: async ({ tierId, ...tierData }) => {

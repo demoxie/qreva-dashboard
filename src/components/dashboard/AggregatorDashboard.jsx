@@ -12,11 +12,12 @@ import DashboardStats from '@/components/base/DashboardStats';
 
 const EXCLUDED_CATEGORIES = ['airtime', 'data', 'bills', 'bill', 'bill payment', 'data purchase', 'airtime purchase'];
 
-const AggregatorDashboard = ({ 
-  formattedStats, 
-  metrics, 
+const AggregatorDashboard = ({
+  formattedStats,
+  metrics,
   transactions,
   pagination,
+  timeFilter,
   transactionActions,
   handlePageChange,
   handleSearch,
@@ -50,7 +51,7 @@ const AggregatorDashboard = ({
       </div>
 
       {/* Daily Transaction Value */}
-      <TransactionVolumeChart data={metrics.dailyTransactionVolume} />
+      <TransactionVolumeChart data={metrics.dailyTransactionVolume} timeFilter={timeFilter} />
 
       {/* Top Customers + Card vs QR Payments - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

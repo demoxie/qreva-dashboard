@@ -161,10 +161,10 @@ const SoftPOS = () => {
           </div> 
         </div>
 
-        <MultiLineChart 
+        <MultiLineChart
           data={metrics.dailyTransactionVolume}
           series={[{ data: (metrics?.dailyTransactionVolume || []).map(d => d.value), color: '#E85304', label: 'Value' }]}
-          title="Daily Transaction Value"
+          timeFilter={timeFilter}
         />
 
         <RegionsTable 

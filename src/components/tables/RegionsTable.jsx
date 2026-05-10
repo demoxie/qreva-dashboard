@@ -1,7 +1,11 @@
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataGrid } from "@mui/x-data-grid";
 import SearchFilterBar from "../common/SearchFilterBar";
 import CustomPagination from "../common/Pagination";
+
+const getRegionName = (row) =>
+  row.location || row.region || row.name || row.state || row._id || row.id || '';
 
 const RegionsTable = ({
   data = [],
@@ -9,6 +13,32 @@ const RegionsTable = ({
   title = "Top Regions",
   onViewDetails,
 }) => {
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState(null);
+
+  const filteredData = useMemo(() => {
+    let rows = Array.isArray(data) ? [...data] : [];
+    if (search) {
+      const q = search.toLowerCase();
+      rows = rows.filter((row) =>
+        String(getRegionName(row)).toLowerCase().includes(q),
+      );
+    }
+    if (sortKey === "transactions") {
+      rows.sort((a, b) => (b.totalTransactions || 0) - (a.totalTransactions || 0));
+    } else if (sortKey === "revenue") {
+      rows.sort((a, b) => (b.totalRevenue || 0) - (a.totalRevenue || 0));
+    } else if (sortKey === "volume") {
+      rows.sort(
+        (a, b) =>
+          (b.totalTransactionVolume || 0) - (a.totalTransactionVolume || 0),
+      );
+    } else if (sortKey === "successRate") {
+      rows.sort((a, b) => (b.successRate || 0) - (a.successRate || 0));
+    }
+    return rows;
+  }, [data, search, sortKey]);
+
   const handleViewDetails = (region) => {
     if (onViewDetails) {
       onViewDetails(region._id || region.id || region.location || region.region || region.name || region.state);
@@ -106,13 +136,25 @@ const RegionsTable = ({
             {title}
           </CardTitle>
           <SearchFilterBar
-            onSearch={(value) => console.log("Search:", value)}
-            onFilter={() => console.log("Filter clicked")}
+            onSearch={(value) => setSearch(value)}
+            filterGroups={[
+              {
+                key: 'sort',
+                label: 'Sort By',
+                options: [
+                  { label: 'Total Transactions', value: 'transactions' },
+                  { label: 'Total Revenue', value: 'revenue' },
+                  { label: 'Total Transaction Value', value: 'volume' },
+                  { label: 'Success Rate', value: 'successRate' },
+                ],
+              },
+            ]}
+            onFilter={(filters) => setSortKey(filters?.sort || null)}
           />
         </div>
       </CardHeader>
       <CardContent className="px-0">
-        {data.length === 0 ? (
+        {filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 text-[#7C8D96]">
             <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#D0D5DD] flex items-center justify-center mb-3">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -121,7 +163,7 @@ const RegionsTable = ({
           </div>
         ) : (
         <DataGrid
-          rows={data}
+          rows={filteredData}
           columns={tableColumns}
           getRowId={(row) =>
             row._id || row.id || row.location || row.region || row.name || row.state || Math.random()
