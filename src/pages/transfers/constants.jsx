@@ -181,6 +181,40 @@ const transactionColumns = [
       </span>
     ),
   },
+  {
+    field: "location",
+    headerName: "Location",
+    width: 160,
+    flex: 1,
+    valueGetter: (value, row) => {
+      const meta = row.metadata || {};
+      const sender = row.senderId || row.userId || {};
+      const senderPersonal = sender.personalDetails || {};
+      const senderAddress = sender.address || {};
+      const state =
+        row.location?.state ||
+        meta.state ||
+        meta.location?.state ||
+        senderPersonal.state ||
+        senderAddress.state ||
+        "";
+      const lga =
+        row.location?.lga ||
+        meta.lga ||
+        meta.location?.lga ||
+        senderPersonal.lga ||
+        senderAddress.lga ||
+        senderAddress.city ||
+        "";
+      if (state && lga) return `${lga}, ${state}`;
+      return state || lga || row.location || meta.location || senderAddress.country || "-";
+    },
+    renderCell: (params) => (
+      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+        {params.value || "-"}
+      </span>
+    ),
+  },
 ];
 
 const createTransactionActions = ({

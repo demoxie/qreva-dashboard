@@ -136,7 +136,7 @@ const AggregatorManagers = () => {
           className="font-general"
           data={managers}
           columns={aggregatorManagerColumns}
-          title="Aggregator Managers"
+          title="Aggregator Managers Transaction History"
           actions={tableActions}
           onSearch={setSearchQuery}
           onFilter={() => console.log("Filter clicked")}
