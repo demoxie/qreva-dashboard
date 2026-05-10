@@ -89,7 +89,11 @@ const AggregatorManagers = () => {
   const handleAddAggregator = useCallback(
     (aggregatorData) => {
       inviteAggregatorMutation.mutate(
-        { fullName: aggregatorData.fullName, email: aggregatorData.email },
+        {
+          fullName: aggregatorData.fullName,
+          email: aggregatorData.email,
+          inviteType: 'aggregator_manager',
+        },
         {
           onSuccess: async () => {
             const referralResponse = await aggregatorReferralLink.refetch();

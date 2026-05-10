@@ -23,16 +23,21 @@ const LoginPage = ({ onLogin }) => {
   } = useForm({
     resolver: yupResolver(loginSchema),
     mode: 'onTouched',
+    defaultValues: {
+      loginAs: 'admin',
+    },
   });
 
   const email = watch('email');
   const password = watch('password');
+  const loginAs = watch('loginAs');
 
   const onSubmit = async (data) => {
     try {
       const response = await login.mutateAsync({
         emailAddress: data.email,
         password: data.password,
+        loginAs: data.loginAs,
       });
 
       // Extract admin data from response
@@ -81,6 +86,26 @@ const LoginPage = ({ onLogin }) => {
 
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="relative">
+              <select
+                id="loginAs"
+                {...register('loginAs')}
+                disabled={login.isPending}
+                className={`${inputStyles.base} ${getInputBorderColor(
+                  errors.loginAs,
+                  touchedFields.loginAs,
+                  loginAs
+                )}`}
+              >
+                <option value="admin">Login as Admin</option>
+                <option value="aggregator">Login as Aggregator</option>
+                <option value="aggregator_manager">Login as Aggregator Manager</option>
+              </select>
+              {errors.loginAs && touchedFields.loginAs && (
+                <p className="text-xs text-red-500 mt-1">{errors.loginAs.message}</p>
+              )}
+            </div>
+
             <div className="relative">
               <input
                 type="email"
