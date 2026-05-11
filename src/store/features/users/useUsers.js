@@ -90,3 +90,12 @@ export const useInviteAggregator = () => {
     },
   });
 };
+
+export const useResolveAggregatorInvitee = () => {
+  return useMutation({
+    mutationFn: (payload) => usersApi.resolveAggregatorInvitee(payload),
+    onError: (error) => {
+      handleError(error, 'Unable to resolve invitee.');
+    },
+  });
+};

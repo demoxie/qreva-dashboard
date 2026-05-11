@@ -157,24 +157,9 @@ export const createAggregatorManagerActions = (navigate, onSuspend) => [
     icon: CustomHistory,
     onClick: (row) => navigate(`/aggregator-managers/${row._id}?tab=transactions`)
   },
-  {
-    label: 'View Aggregators',
-    icon: CustomUser,
-    onClick: (row) => navigate(`/aggregator-managers/${row._id}?tab=aggregators`)
-  },
-  {
-    label: 'View Agents',
-    icon: CustomUser,
-    onClick: (row) => navigate(`/aggregator-managers/${row._id}?tab=agents`)
-  },
-  {
-    label: 'View Merchants',
-    icon: CustomUser,
-    onClick: (row) => navigate(`/aggregator-managers/${row._id}?tab=merchants`)
-  },
-  {
+  ...(onSuspend ? [{
     label: 'Suspend Aggregator Manager',
     icon: CustomUser,
     onClick: (row) => onSuspend(row)
-  },
+  }] : []),
 ];

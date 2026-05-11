@@ -14,16 +14,25 @@ import {
   useSuspendUser,
   useActivateUser,
   useInviteAggregator,
-  useAggregatorReferralLink,
+  useResolveAggregatorInvitee,
 } from "@/store/features/users/useUsers";
 import { formatUserStats } from "@/utils/formatUserStats";
+import { useAuth } from "@/hooks/useAuth";
+import AggregatorCommissionSettingsModal from "@/components/modals/AggregatorCommissionSettingsModal";
+import {
+  useAggregatorCommissionSettings,
+  useUpdateAggregatorCommissionSettings,
+} from "@/store/features/contracts/useContracts";
 
 const AggregatorManagers = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const [inviteReferralLink, setInviteReferralLink] = useState("");
+  const [showCommissionSettings, setShowCommissionSettings] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const normalizedRole = (user?.role || "").toLowerCase();
+  const canManageAggregatorManagers = normalizedRole !== "aggregator" && normalizedRole !== "aggregator_manager";
 
   const { data: usersResponse, isLoading } = useUsers({
     type: "AggregatorManager",
@@ -64,7 +73,12 @@ const AggregatorManagers = () => {
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
   const inviteAggregatorMutation = useInviteAggregator();
-  const aggregatorReferralLink = useAggregatorReferralLink({ enabled: false });
+  const resolveInviteeMutation = useResolveAggregatorInvitee();
+  const { data: aggregatorCommissionSettingsResponse, isLoading: isLoadingCommissionSettings } =
+    useAggregatorCommissionSettings({
+      enabled: canManageAggregatorManagers && showCommissionSettings,
+    });
+  const updateAggregatorCommissionSettings = useUpdateAggregatorCommissionSettings();
 
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedManager?._id) return;
@@ -88,6 +102,7 @@ const AggregatorManagers = () => {
 
   const handleAddAggregator = useCallback(
     (aggregatorData) => {
+      if (!canManageAggregatorManagers) return;
       inviteAggregatorMutation.mutate(
         {
           fullName: aggregatorData.fullName,
@@ -96,24 +111,31 @@ const AggregatorManagers = () => {
         },
         {
           onSuccess: async () => {
-            const referralResponse = await aggregatorReferralLink.refetch();
-            const referralLink =
-              referralResponse.data?.data?.referralLink ||
-              referralResponse.data?.referralLink ||
-              "";
-            setInviteReferralLink(referralLink);
             setters.setShowAddAggregatorModal(false);
             setters.setShowAggregatorAddedModal(true);
           },
         },
       );
     },
-    [setters, inviteAggregatorMutation, aggregatorReferralLink],
+    [setters, inviteAggregatorMutation, canManageAggregatorManagers],
   );
 
+  const handleResolveInvitee = useCallback(async (email) => {
+    if (!canManageAggregatorManagers) return null;
+    const response = await resolveInviteeMutation.mutateAsync({
+      email,
+      inviteType: 'aggregator_manager',
+    });
+    return response?.data || null;
+  }, [resolveInviteeMutation, canManageAggregatorManagers]);
+
+  const openAddAggregatorModal = useCallback(() => {
+    setters.setShowAddAggregatorModal(true);
+  }, [setters]);
+
   const tableActions = useMemo(
-    () => createAggregatorManagerActions(navigate, handleSuspendClick),
-    [navigate, handleSuspendClick],
+    () => createAggregatorManagerActions(navigate, canManageAggregatorManagers ? handleSuspendClick : undefined),
+    [navigate, handleSuspendClick, canManageAggregatorManagers],
   );
 
   return (
@@ -124,14 +146,22 @@ const AggregatorManagers = () => {
           subtitle="Here is the full list of aggregators on the platform"
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
-          actionButton={
-            <button
-              onClick={() => setters.setShowAddAggregatorModal(true)}
-              className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
-            >
-              Add Aggregator Manager
-            </button>
-          }
+          actionButton={canManageAggregatorManagers ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCommissionSettings(true)}
+                className="px-5 py-2.5 border border-[#D9D9D9] text-[#1E1E1E] rounded-lg text-sm font-medium hover:bg-[#F8FAFB] transition-colors"
+              >
+                Settings
+              </button>
+              <button
+                onClick={openAddAggregatorModal}
+                className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
+              >
+                Add Aggregator Manager
+              </button>
+            </div>
+          ) : null}
         />
 
         <DashboardStats stats={metricsStats} route="aggregator-managers" />
@@ -157,9 +187,23 @@ const AggregatorManagers = () => {
         setters={setters}
         selectedManager={selectedManager}
         onAddAggregator={handleAddAggregator}
-        referralLink={inviteReferralLink}
+        onResolveInvitee={handleResolveInvitee}
+        isResolvingInvitee={resolveInviteeMutation.isPending}
         isSubmittingInvite={inviteAggregatorMutation.isPending}
         onSuspendManager={handleConfirmSuspend}
+      />
+
+      <AggregatorCommissionSettingsModal
+        isOpen={showCommissionSettings}
+        onClose={() => setShowCommissionSettings(false)}
+        settings={aggregatorCommissionSettingsResponse?.data?.rules || []}
+        isLoading={isLoadingCommissionSettings}
+        isSaving={updateAggregatorCommissionSettings.isPending}
+        onSave={(payload) => {
+          updateAggregatorCommissionSettings.mutate(payload, {
+            onSuccess: () => setShowCommissionSettings(false),
+          });
+        }}
       />
     </div>
   );

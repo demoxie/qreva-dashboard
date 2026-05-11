@@ -30,7 +30,7 @@ const endOfDay = (val) => {
 const ActivityLogs = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({});
-    const { data: logsResponse, isLoading } = useActivityLogs();
+    const { data: logsResponse, isLoading } = useActivityLogs({ page: 1, limit: 100 });
 
     const logs = logsResponse?.data || [];
 

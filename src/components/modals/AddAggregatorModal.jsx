@@ -1,20 +1,57 @@
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
-const AddAggregatorModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
-  const [formData, setFormData] = useState({ fullName: '', email: '' });
+const AddAggregatorModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  isSubmitting,
+  onResolveInvitee,
+  isResolvingInvitee,
+  inviteTypeLabel = 'Aggregator',
+}) => {
+  const [formData, setFormData] = useState({ email: '' });
+  const [resolvedInvitee, setResolvedInvitee] = useState(null);
+  const [resolutionError, setResolutionError] = useState('');
 
   useEffect(() => {
     if (!isOpen) {
-      setFormData({ fullName: '', email: '' });
+      setFormData({ email: '' });
+      setResolvedInvitee(null);
+      setResolutionError('');
     }
   }, [isOpen]);
 
   if (!isOpen) return null;
 
+  const isValidEmail = /\S+@\S+\.\S+/.test(formData.email);
+
+  const handleResolveInvitee = async () => {
+    if (!isValidEmail || !onResolveInvitee) return;
+    setResolutionError('');
+    setResolvedInvitee(null);
+    try {
+      const invitee = await onResolveInvitee(formData.email.trim());
+      if (!invitee) {
+        setResolutionError('Unable to resolve invitee details.');
+        return;
+      }
+      setResolvedInvitee(invitee);
+      if (!invitee.eligible) {
+        setResolutionError(invitee.eligibilityMessage || 'This user is not eligible for this invite type.');
+      }
+    } catch (error) {
+      setResolutionError(error?.response?.data?.message || 'Unable to resolve invitee details.');
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (!resolvedInvitee?.eligible) return;
+    onSubmit({
+      email: resolvedInvitee.email || formData.email.trim(),
+      fullName: resolvedInvitee.fullName || '',
+    });
   };
 
   return (
@@ -24,41 +61,67 @@ const AddAggregatorModal = ({ isOpen, onClose, onSubmit, isSubmitting }) => {
           <X size={20} />
         </button>
 
-        <h2 className="text-xl font-urbanist font-bold text-[#1E1E1E] mb-1">Add Aggregator</h2>
+        <h2 className="text-xl font-urbanist font-bold text-[#1E1E1E] mb-1">Invite {inviteTypeLabel}</h2>
         <p className="text-sm text-[#808C91] font-general font-medium mb-4">
-          Fill out the info below to invite an aggregator
+          Enter the agent email, verify identity, then send invite.
         </p>
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 mb-6">
-            <input
-              type="text"
-              value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-              placeholder="Full Name"
-              className="w-full px-4 py-3 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent"
-              required
-            />
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="Email Address"
-              className="w-full px-4 py-3 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent"
-              required
-            />
+            <div className="flex gap-2">
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => {
+                  setFormData({ email: e.target.value });
+                  setResolvedInvitee(null);
+                  setResolutionError('');
+                }}
+                onBlur={() => {
+                  if (isValidEmail && formData.email.trim() !== (resolvedInvitee?.email || '')) {
+                    handleResolveInvitee();
+                  }
+                }}
+                placeholder="Agent Email Address"
+                className="w-full px-4 py-3 border border-[#D9D9D9] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF5B04] focus:border-transparent"
+                required
+              />
+              <button
+                type="button"
+                onClick={handleResolveInvitee}
+                disabled={!isValidEmail || isResolvingInvitee}
+                className="px-4 rounded-lg border border-[#FF5B04] text-[#FF5B04] text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isResolvingInvitee ? 'Checking...' : 'Verify'}
+              </button>
+            </div>
+
+            {resolvedInvitee && (
+              <div className="rounded-lg border border-[#D9D9D9] bg-[#F8FAFB] p-3">
+                <p className="text-xs text-[#808C91] mb-1">Matched Agent</p>
+                <p className="text-sm font-semibold text-[#1E1E1E]">{resolvedInvitee.fullName || '-'}</p>
+                <p className="text-xs text-[#505C61] mt-1">{resolvedInvitee.email}</p>
+                <p className="text-xs text-[#505C61] mt-1">
+                  Current Role: {resolvedInvitee.role || resolvedInvitee.type || 'Agent'}
+                </p>
+              </div>
+            )}
+
+            {resolutionError && (
+              <p className="text-xs text-red-600">{resolutionError}</p>
+            )}
           </div>
 
           <button
             type="submit"
-            disabled={!formData.fullName || !formData.email || isSubmitting}
+            disabled={!resolvedInvitee?.eligible || isSubmitting}
             className={`w-full py-3 rounded-lg font-medium transition-colors ${
-              !formData.fullName || !formData.email || isSubmitting
+              !resolvedInvitee?.eligible || isSubmitting
                 ? 'opacity-50 cursor-not-allowed bg-[#9A9A9A]/60 text-white'
                 : 'bg-[#FF5B04] text-white hover:bg-[#E54F03]'
             }`}
           >
-            {isSubmitting ? 'Sending Invite...' : 'Add Aggregator'}
+            {isSubmitting ? 'Sending Invite...' : `Invite ${inviteTypeLabel}`}
           </button>
         </form>
       </div>
