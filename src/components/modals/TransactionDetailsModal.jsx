@@ -204,6 +204,11 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
     );
 
     if (category.includes("transfer") || transfer) {
+      const debitAccountNumber =
+        transaction?.metadata?.debitAccountNumber ||
+        transaction?.transferId?.debitAccountNumber ||
+        transaction?.debitAccountNumber ||
+        "-";
       return (
         <div className="grid grid-cols-2 gap-6 text-sm font-general">
           <DetailRow
@@ -223,13 +228,16 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
             }
           />
           <DetailRow
-            label="Sender Account"
+            label="Sender Name"
             value={
               transaction?.metadata?.debitAccountName ||
               transaction?.transferId?.debitAccountName ||
-              transaction?.transferId?.debitAccountNumber ||
               "-"
             }
+          />
+          <DetailRow
+            label="Debit Account Number"
+            value={debitAccountNumber}
           />
           <DetailRow
             label="Session ID"

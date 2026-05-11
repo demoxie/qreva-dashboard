@@ -7,6 +7,25 @@ import CustomPagination from "../common/Pagination";
 const getRegionName = (row) =>
   row.location || row.region || row.name || row.state || row._id || row.id || '';
 
+const buildSearchHaystack = (row) =>
+  [
+    row.location,
+    row.region,
+    row.name,
+    row.state,
+    row.lga,
+    row.country,
+    row._id,
+    row.id,
+    row.totalTransactions != null ? String(row.totalTransactions) : '',
+    row.totalRevenue != null ? String(row.totalRevenue) : '',
+    row.totalTransactionVolume != null ? String(row.totalTransactionVolume) : '',
+    row.successRate != null ? String(row.successRate) : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
 const RegionsTable = ({
   data = [],
   columns = [],
@@ -19,10 +38,10 @@ const RegionsTable = ({
   const filteredData = useMemo(() => {
     let rows = Array.isArray(data) ? [...data] : [];
     if (search) {
-      const q = search.toLowerCase();
-      rows = rows.filter((row) =>
-        String(getRegionName(row)).toLowerCase().includes(q),
-      );
+      const q = search.trim().toLowerCase();
+      if (q) {
+        rows = rows.filter((row) => buildSearchHaystack(row).includes(q));
+      }
     }
     if (sortKey === "transactions") {
       rows.sort((a, b) => (b.totalTransactions || 0) - (a.totalTransactions || 0));
@@ -136,6 +155,7 @@ const RegionsTable = ({
             {title}
           </CardTitle>
           <SearchFilterBar
+            searchPlaceholder="Search by location..."
             onSearch={(value) => setSearch(value)}
             filterGroups={[
               {

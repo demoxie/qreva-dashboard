@@ -25,6 +25,75 @@ const managerProfileTabs = [
   { key: 'transactions', label: 'Transaction History' },
   { key: 'aggregators', label: 'Aggregators' },
   { key: 'agents', label: 'Agents' },
+  { key: 'merchants', label: 'Merchants' },
+];
+
+const merchantListColumns = [
+  {
+    field: 'firstName',
+    headerName: 'Merchant Name',
+    width: 220,
+    flex: 1,
+    renderCell: (params) => (
+      <div>
+        <div className="text-sm font-medium text-[#1E1E1E]">{params.row.firstName} {params.row.lastName}</div>
+        <div className="text-xs text-gray-500">{params.row.emailAddress}</div>
+      </div>
+    ),
+  },
+  { field: 'phoneNumber', headerName: 'Phone Number', width: 160, flex: 1 },
+  {
+    field: 'businessName',
+    headerName: 'Business Name',
+    width: 180,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#1E1E1E]">
+        {params.row.businessName || params.row.businessDetails?.businessName || '-'}
+      </span>
+    ),
+  },
+  {
+    field: 'totalTransactions',
+    headerName: 'Transactions',
+    width: 130,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#1E1E1E]">
+        {Number(params.row.totalTransactions ?? params.row.stats?.totalTransactions ?? 0).toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    field: 'totalCommissions',
+    headerName: 'Commissions',
+    width: 140,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#1E1E1E]">
+        ₦{Number(params.row.totalCommissions ?? params.row.stats?.totalCommissions ?? 0).toLocaleString()}
+      </span>
+    ),
+  },
+  {
+    field: 'status',
+    headerName: 'Status',
+    width: 130,
+    flex: 1,
+    renderCell: (params) => {
+      const statusColors = {
+        Active: 'border border-[#4ED17E] bg-[#E9F9EF] text-[#1B7D3C]',
+        Inactive: 'border border-[#D1D5DB] bg-[#F3F4F6] text-[#6B7280]',
+        Suspended: 'border border-[#F87171] bg-[#FEE2E2] text-[#B91C1C]',
+      };
+      return (
+        <span className={`px-2 py-1.5 text-center ${statusColors[params.value] || ''} font-general font-medium text-xs rounded-md`}>
+          {params.value || '-'}
+        </span>
+      );
+    },
+  },
+  { field: 'clientId', headerName: 'Client ID', width: 180, flex: 1 },
 ];
 
 const aggregatorListColumns = [
@@ -291,6 +360,94 @@ const AggregatorManagerProfileDetails = () => {
         </div>
 
         <AgentDropdownMenu dropdown={agentDropdown} onClose={closeDropdown} />
+      </div>
+    );
+  }
+
+  // Merchants View
+  if (activeTab === 'merchants') {
+    const merchantColumnsWithActions = [
+      ...merchantListColumns,
+      {
+        field: 'actions',
+        headerName: '',
+        width: 80,
+        sortable: false,
+        renderCell: (params) => (
+          <button
+            className="text-[#7C8D96] hover:text-[#1E1E1E]"
+            onClick={(e) => {
+              e.stopPropagation();
+              const rect = e.currentTarget.getBoundingClientRect();
+              handleAggregatorActionClick(params.row, rect);
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <circle cx="12" cy="5" r="1.5" />
+              <circle cx="12" cy="12" r="1.5" />
+              <circle cx="12" cy="19" r="1.5" />
+            </svg>
+          </button>
+        ),
+      },
+    ];
+
+    return (
+      <div className="flex-1 overflow-auto bg-[#F7FAFA]">
+        <div className="p-6">
+          <PageHeader
+            title="View Profile Details"
+            subtitle="Here is the full profile details of this user"
+            timeFilter={timeFilter}
+            onTimeFilterChange={setTimeFilter}
+          />
+          <UserProfileHeader
+            user={managerData}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            availableTabs={managerProfileTabs}
+            showActionsMenu={modals.showActionsMenu}
+            onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
+            actions={managerActions}
+          />
+          <DashboardStats stats={managerData?.stats} />
+          <Card>
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-urbanist font-semibold text-[#1E1E1E]">Merchants</h2>
+            </div>
+            <CardContent>
+              <DataGrid
+                rows={managerData.merchants || []}
+                columns={merchantColumnsWithActions}
+                getRowId={(row) => row._id || row.id || row.userId || row.clientId}
+                checkboxSelection
+                disableRowSelectionOnClick
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
+                sx={{
+                  border: 0,
+                  '& .MuiDataGrid-cell': { borderBottom: '1px solid #f0f0f0' },
+                  '& .MuiDataGrid-columnHeaders': { backgroundColor: '#fafafa', borderBottom: '1px solid #e0e0e0' },
+                }}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        {aggregatorDropdown.open && (
+          <div
+            className="fixed bg-white rounded-lg shadow-xl border border-gray-100 w-56 py-1 z-50"
+            style={{ top: aggregatorDropdown.y, left: aggregatorDropdown.x }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => navigate(`/users/${aggregatorDropdown.row._id}`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+              View Profile Details
+            </button>
+            <button onClick={() => navigate(`/users/${aggregatorDropdown.row._id}?tab=transactions`)} className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+              View Transaction History
+            </button>
+          </div>
+        )}
       </div>
     );
   }

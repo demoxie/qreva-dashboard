@@ -11,9 +11,16 @@ const SearchFilterBar = ({
 }) => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({});
+  const [searchValue, setSearchValue] = useState("");
   const filterRef = useRef(null);
 
   const activeFilterCount = Object.values(selectedFilters).filter(Boolean).length;
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    onSearch?.(value);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -53,7 +60,8 @@ const SearchFilterBar = ({
         <Input
           placeholder={searchPlaceholder}
           className="pl-10 text-sm font-general leading-[156%] outline-none"
-          onChange={(e) => onSearch?.(e.target.value)}
+          value={searchValue}
+          onChange={handleSearchChange}
         />
       </div>
       <div className="relative" ref={filterRef}>

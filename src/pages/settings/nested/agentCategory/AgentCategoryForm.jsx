@@ -152,7 +152,7 @@ const AgentCategoryForm = ({
             <GreenRadio
               checked={userAccountType === "PersonalAccount"}
               onChange={() => setUserAccountType("PersonalAccount")}
-              label="Personal Account"
+              label="Agents/Merchants"
             />
             {/* <GreenRadio
                             checked={userAccountType === 'Agent'}

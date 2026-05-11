@@ -9,12 +9,31 @@ export const aggregatorManagerStats = [
   { label: 'Total Agg. Manager Commission', value: '₦115,823', change: '10%', subtext: '₦6,000 in last 24 hours' }
 ];
 
+const formatNaira = (val) => `₦${Number(val || 0).toLocaleString()}`;
+const formatCount = (val) => Number(val || 0).toLocaleString();
+
+const formatLocation = (row) => {
+  const personal = row.personalDetails || {};
+  const address = row.address || {};
+  const state = personal.state || address.state || '';
+  const lga = personal.lga || address.lga || address.city || '';
+  if (state && lga) return `${lga}, ${state}`;
+  return state || lga || address.country || '-';
+};
+
+const formatJoinedDate = (val) => {
+  if (!val) return '-';
+  const d = new Date(val);
+  if (isNaN(d)) return '-';
+  return d.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
 export const aggregatorManagerColumns = [
   {
     field: 'firstName',
-    headerName: 'Agg. Manager Name',
-    width: 250,
-    flex: 1,
+    headerName: 'Aggregator Managers Name',
+    width: 240,
+    flex: 1.2,
     renderCell: (params) => (
       <div className="flex flex-col justify-center h-full">
         <div className="text-sm font-general font-medium">
@@ -25,26 +44,55 @@ export const aggregatorManagerColumns = [
     )
   },
   {
-    field: 'phoneNumber',
-    headerName: 'Phone Number',
-    width: 160,
+    field: 'totalTransactionCount',
+    headerName: 'Total Transaction Counts',
+    width: 180,
     flex: 1,
-    renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-        {params.value}
-      </span>
-    )
+    renderCell: (params) => {
+      const value = params.row.totalTransactionCount
+        ?? params.row.stats?.totalTransactions
+        ?? params.row.transactionCount
+        ?? 0;
+      return (
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {formatCount(value)}
+        </span>
+      );
+    }
   },
   {
-    field: 'type',
-    headerName: 'Account Type',
-    width: 130,
+    field: 'totalTransactionValue',
+    headerName: 'Total Transaction Values',
+    width: 180,
     flex: 1,
-    renderCell: (params) => (
-      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
-        {params.value}
-      </span>
-    )
+    renderCell: (params) => {
+      const value = params.row.totalTransactionValue
+        ?? params.row.stats?.totalVolume
+        ?? params.row.transactionVolume
+        ?? 0;
+      return (
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {formatNaira(value)}
+        </span>
+      );
+    }
+  },
+  {
+    field: 'totalCommissions',
+    headerName: 'Total Commissions',
+    width: 160,
+    flex: 1,
+    renderCell: (params) => {
+      const value = params.row.totalCommissions
+        ?? params.row.stats?.totalCommissions
+        ?? params.row.commissions
+        ?? 0;
+      return (
+        <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+          {formatNaira(value)}
+        </span>
+      );
+    }
   },
   {
     field: 'status',
@@ -66,12 +114,34 @@ export const aggregatorManagerColumns = [
     }
   },
   {
+    field: 'createdAt',
+    headerName: 'Date Joined',
+    width: 140,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+        {formatJoinedDate(params.row.createdAt || params.row.dateJoined)}
+      </span>
+    )
+  },
+  {
     field: 'clientId',
     headerName: 'Client ID',
+    width: 160,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm font-general text-gray-500 flex items-center h-full">{params.value || '-'}</span>
+    )
+  },
+  {
+    field: 'location',
+    headerName: 'Location',
     width: 180,
     flex: 1,
     renderCell: (params) => (
-      <span className="text-sm font-general text-gray-500 flex items-center h-full">{params.value}</span>
+      <span className="text-sm font-general text-[#1E1E1E] flex items-center h-full">
+        {formatLocation(params.row)}
+      </span>
     )
   },
 ];

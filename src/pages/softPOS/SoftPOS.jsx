@@ -12,7 +12,7 @@ import RegionsTable from '@/components/tables/RegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
-import { multiLineData, chartSeries, createTransactionActions, createRegioncolumns } from './constants';
+import { multiLineData, chartSeries, createTransactionActions, createRegioncolumns, softposTransactionColumns } from './constants';
 
 const SoftPOS = () => {
   const navigate = useNavigate();
@@ -154,11 +154,12 @@ const SoftPOS = () => {
             />
           </div>
           <div className='col-span-3'>
-            <TopCustomersCard 
+            <TopCustomersCard
               data={metrics.topCustomers}
-              title="Top Customers"
+              title="Top Performing Agents"
+              showAgentToggle={false}
             />
-          </div> 
+          </div>
         </div>
 
         <MultiLineChart
@@ -172,9 +173,10 @@ const SoftPOS = () => {
           columns={regionColumns}
         />
 
-        <TransactionHistoryTable 
+        <TransactionHistoryTable
           data={transactions}
-          title="Transactions"
+          title="Transaction History"
+          columns={softposTransactionColumns}
           actions={transactionActions}
           pagination={pagination}
           onPageChange={handlePageChange}

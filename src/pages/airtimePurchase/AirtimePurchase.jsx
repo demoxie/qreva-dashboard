@@ -11,6 +11,7 @@ import TransactionVolumeChart from '@/components/charts/TransactionVolumeChart';
 import TransactionPercentagePie from '@/components/charts/TransactionPercentagePie';
 import RegionsTable from '@/components/tables/RegionsTable';
 import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable';
+import { vasTransactionColumns } from '@/components/tables/vasTransactionColumns';
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import { createTransactionActions } from './constants';
@@ -191,9 +192,10 @@ const AirtimePurchase = () => {
           onViewDetails={handleViewRegionDetails}
         />
 
-        <TransactionHistoryTable 
+        <TransactionHistoryTable
           data={transactions}
-          title="Transactions"
+          title="Transaction History"
+          columns={vasTransactionColumns}
           actions={actions}
           pagination={pagination}
           onPageChange={handlePageChange}

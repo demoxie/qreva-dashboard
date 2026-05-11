@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DataGrid } from "@mui/x-data-grid";
 import SearchFilterBar from "../common/SearchFilterBar";
@@ -8,6 +9,35 @@ const TransferRegionsTable = ({
   title = "Top Regions",
   onViewDetails,
 }) => {
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState(null);
+
+  const filteredData = useMemo(() => {
+    let rows = Array.isArray(data) ? [...data] : [];
+    if (search) {
+      const q = search.trim().toLowerCase();
+      if (q) {
+        rows = rows.filter((row) =>
+          [row.location, row.region, row.name, row.state]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase()
+            .includes(q),
+        );
+      }
+    }
+    if (sortKey === "transactions") {
+      rows.sort((a, b) => (b.value || 0) - (a.value || 0));
+    } else if (sortKey === "revenue") {
+      rows.sort((a, b) => (b.revenue || 0) - (a.revenue || 0));
+    } else if (sortKey === "volume") {
+      rows.sort((a, b) => (b.volume || 0) - (a.volume || 0));
+    } else if (sortKey === "successRate") {
+      rows.sort((a, b) => (b.successRate || 0) - (a.successRate || 0));
+    }
+    return rows;
+  }, [data, search, sortKey]);
+
   const handleViewDetails = (region) => {
     // If parent provides handler, use it (for navigation)
     if (onViewDetails) {
@@ -95,14 +125,27 @@ const TransferRegionsTable = ({
             {title}
           </CardTitle>
           <SearchFilterBar
-            onSearch={(value) => console.log("Search:", value)}
-            onFilter={() => console.log("Filter clicked")}
+            searchPlaceholder="Search by location..."
+            onSearch={(value) => setSearch(value)}
+            filterGroups={[
+              {
+                key: "sort",
+                label: "Sort By",
+                options: [
+                  { label: "Total Transfers", value: "transactions" },
+                  { label: "Volume", value: "volume" },
+                  { label: "Revenue", value: "revenue" },
+                  { label: "Success Rate", value: "successRate" },
+                ],
+              },
+            ]}
+            onFilter={(filters) => setSortKey(filters?.sort || null)}
           />
         </div>
       </CardHeader>
       <CardContent>
         <DataGrid
-          rows={data}
+          rows={filteredData}
           columns={columns}
           getRowId={(row) =>
             row._id || row.id || row.location || row.name || Math.random()
