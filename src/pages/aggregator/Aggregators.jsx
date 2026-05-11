@@ -11,16 +11,25 @@ import {
   useSuspendUser,
   useActivateUser,
   useInviteAggregator,
-  useAggregatorReferralLink,
+  useResolveAggregatorInvitee,
 } from "@/store/features/users/useUsers";
 import { formatUserStats } from "@/utils/formatUserStats";
+import { useAuth } from "@/hooks/useAuth";
+import AggregatorCommissionSettingsModal from "@/components/modals/AggregatorCommissionSettingsModal";
+import {
+  useAggregatorCommissionSettings,
+  useUpdateAggregatorCommissionSettings,
+} from "@/store/features/contracts/useContracts";
 
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const [inviteReferralLink, setInviteReferralLink] = useState("");
+  const [showCommissionSettings, setShowCommissionSettings] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const normalizedRole = (user?.role || "").toLowerCase();
+  const canManageAggregators = normalizedRole !== "aggregator" && normalizedRole !== "aggregator_manager";
 
   const { data: usersResponse, isLoading } = useUsers({
     type: "Aggregator",
@@ -31,20 +40,20 @@ const Aggregators = () => {
 
   const aggregators = usersResponse?.data || [];
 
-  const { data: totalAgentsResponse } = useUsers({
-    type: "Agent",
+  const { data: totalAggregatorsResponse } = useUsers({
+    type: "Aggregator",
     limit: 1,
   });
 
-  const { data: activeAgentsResponse } = useUsers({
-    type: "Agent",
+  const { data: activeAggregatorsResponse } = useUsers({
+    type: "Aggregator",
     status: "Active",
     limit: 1,
   });
 
   const metricsStats = useMemo(
-    () => formatUserStats(totalAgentsResponse, activeAgentsResponse, "Agents"),
-    [totalAgentsResponse, activeAgentsResponse],
+    () => formatUserStats(totalAggregatorsResponse, activeAggregatorsResponse, "Aggregators"),
+    [totalAggregatorsResponse, activeAggregatorsResponse],
   );
 
   const { modals, setters, selectedAggregator, setSelectedAggregator } =
@@ -61,7 +70,12 @@ const Aggregators = () => {
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
   const inviteAggregatorMutation = useInviteAggregator();
-  const aggregatorReferralLink = useAggregatorReferralLink({ enabled: false });
+  const resolveInviteeMutation = useResolveAggregatorInvitee();
+  const { data: aggregatorCommissionSettingsResponse, isLoading: isLoadingCommissionSettings } =
+    useAggregatorCommissionSettings({
+      enabled: canManageAggregators && showCommissionSettings,
+    });
+  const updateAggregatorCommissionSettings = useUpdateAggregatorCommissionSettings();
 
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedAggregator?._id) return;
@@ -85,6 +99,7 @@ const Aggregators = () => {
 
   const handleAddAggregator = useCallback(
     (aggregatorData) => {
+      if (!canManageAggregators) return;
       inviteAggregatorMutation.mutate(
         {
           fullName: aggregatorData.fullName,
@@ -93,24 +108,31 @@ const Aggregators = () => {
         },
         {
           onSuccess: async () => {
-            const referralResponse = await aggregatorReferralLink.refetch();
-            const referralLink =
-              referralResponse.data?.data?.referralLink ||
-              referralResponse.data?.referralLink ||
-              "";
-            setInviteReferralLink(referralLink);
             setters.setShowAddAggregatorModal(false);
             setters.setShowAggregatorAddedModal(true);
           },
         },
       );
     },
-    [setters, inviteAggregatorMutation, aggregatorReferralLink],
+    [setters, inviteAggregatorMutation, canManageAggregators],
   );
 
+  const handleResolveInvitee = useCallback(async (email) => {
+    if (!canManageAggregators) return null;
+    const response = await resolveInviteeMutation.mutateAsync({
+      email,
+      inviteType: 'aggregator',
+    });
+    return response?.data || null;
+  }, [resolveInviteeMutation, canManageAggregators]);
+
+  const openAddAggregatorModal = useCallback(() => {
+    setters.setShowAddAggregatorModal(true);
+  }, [setters]);
+
   const tableActions = useMemo(
-    () => createAggregatorActions(navigate, handleSuspendClick),
-    [navigate, handleSuspendClick],
+    () => createAggregatorActions(navigate, canManageAggregators ? handleSuspendClick : undefined),
+    [navigate, handleSuspendClick, canManageAggregators],
   );
 
   return (
@@ -121,14 +143,22 @@ const Aggregators = () => {
           subtitle="Here is the full list of aggregators on the platform"
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
-          actionButton={
-            <button
-              onClick={() => setters.setShowAddAggregatorModal(true)}
-              className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
-            >
-              Add Aggregator
-            </button>
-          }
+          actionButton={canManageAggregators ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCommissionSettings(true)}
+                className="px-5 py-2.5 border border-[#D9D9D9] text-[#1E1E1E] rounded-lg text-sm font-medium hover:bg-[#F8FAFB] transition-colors"
+              >
+                Settings
+              </button>
+              <button
+                onClick={openAddAggregatorModal}
+                className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
+              >
+                Add Aggregator
+              </button>
+            </div>
+          ) : null}
         />
 
         <DashboardStats stats={metricsStats} route="aggregators" />
@@ -153,9 +183,23 @@ const Aggregators = () => {
         setters={setters}
         selectedAggregator={selectedAggregator}
         onAddAggregator={handleAddAggregator}
-        referralLink={inviteReferralLink}
+        onResolveInvitee={handleResolveInvitee}
+        isResolvingInvitee={resolveInviteeMutation.isPending}
         isSubmittingInvite={inviteAggregatorMutation.isPending}
         onSuspendAggregator={handleConfirmSuspend}
+      />
+
+      <AggregatorCommissionSettingsModal
+        isOpen={showCommissionSettings}
+        onClose={() => setShowCommissionSettings(false)}
+        settings={aggregatorCommissionSettingsResponse?.data?.rules || []}
+        isLoading={isLoadingCommissionSettings}
+        isSaving={updateAggregatorCommissionSettings.isPending}
+        onSave={(payload) => {
+          updateAggregatorCommissionSettings.mutate(payload, {
+            onSuccess: () => setShowCommissionSettings(false),
+          });
+        }}
       />
     </div>
   );

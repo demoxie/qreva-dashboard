@@ -49,3 +49,21 @@ export const usePatchAllContracts = () => {
     },
   });
 };
+
+export const useAggregatorCommissionSettings = (options = {}) => {
+  return useQuery({
+    queryKey: ['aggregator-commission-settings'],
+    queryFn: () => contractsApi.getAggregatorCommissionSettings(),
+    ...options,
+  });
+};
+
+export const useUpdateAggregatorCommissionSettings = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: contractsApi.updateAggregatorCommissionSettings,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aggregator-commission-settings'] });
+    },
+  });
+};

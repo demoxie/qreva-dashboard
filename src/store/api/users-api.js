@@ -36,6 +36,13 @@ export const usersApi = {
     return data;
   },
 
+  resolveAggregatorInvitee: async ({ email, inviteType }) => {
+    const { data } = await apiClient.get('/admin/aggregators/invitee', {
+      params: { email, inviteType },
+    });
+    return data;
+  },
+
   getAggregatorReferralLink: async () => {
     const { data } = await apiClient.get('/admin/aggregators/referral-link');
     return data;

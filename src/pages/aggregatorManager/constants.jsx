@@ -87,9 +87,9 @@ export const createAggregatorManagerActions = (navigate, onSuspend) => [
     icon: CustomHistory,
     onClick: (row) => navigate(`/aggregator-managers/${row._id}?tab=transactions`)
   },
-  {
+  ...(onSuspend ? [{
     label: 'Suspend Aggregator Manager',
     icon: CustomUser,
     onClick: (row) => onSuspend(row)
-  },
+  }] : []),
 ];
