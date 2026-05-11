@@ -25,4 +25,14 @@ export const contractsApi = {
     const { data } = await apiClient.patch(`/admin/contracts/${contractId}`, updates);
     return data;
   },
+
+  getAggregatorCommissionSettings: async () => {
+    const { data } = await apiClient.get('/admin/contracts/aggregator-commissions/settings');
+    return data;
+  },
+
+  updateAggregatorCommissionSettings: async (payload) => {
+    const { data } = await apiClient.patch('/admin/contracts/aggregator-commissions/settings', payload);
+    return data;
+  },
 };

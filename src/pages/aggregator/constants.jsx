@@ -81,11 +81,11 @@ export const createAggregatorActions = (navigate, onSuspend) => [
     icon: CustomHistory,
     onClick: (row) => navigate(`/aggregators/${row._id}?tab=transactions`)
   },
-  {
+  ...(onSuspend ? [{
     label: 'Suspend Aggregator',
     icon: CustomUser,
     onClick: (row) => onSuspend(row)
-  },
+  }] : []),
 ];
 
 

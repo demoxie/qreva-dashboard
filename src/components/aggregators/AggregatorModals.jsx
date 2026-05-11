@@ -7,7 +7,8 @@ const AggregatorModals = ({
   setters,
   selectedAggregator,
   onAddAggregator,
-  referralLink,
+  onResolveInvitee,
+  isResolvingInvitee,
   isSubmittingInvite,
   onSuspendAggregator
 }) => {
@@ -17,13 +18,16 @@ const AggregatorModals = ({
         isOpen={modals.showAddAggregatorModal}
         onClose={() => setters.setShowAddAggregatorModal(false)}
         onSubmit={onAddAggregator}
+        onResolveInvitee={onResolveInvitee}
+        isResolvingInvitee={isResolvingInvitee}
+        inviteTypeLabel="Aggregator"
         isSubmitting={isSubmittingInvite}
       />
 
       <AggregatorAddedModal
         isOpen={modals.showAggregatorAddedModal}
         onClose={() => setters.setShowAggregatorAddedModal(false)}
-        referralLink={referralLink}
+        roleLabel="Aggregator"
       />
 
       <ConfirmDialog
