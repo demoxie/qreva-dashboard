@@ -70,7 +70,12 @@ export const aggregatorColumns = [
   }
 ];
 
-export const createAggregatorActions = (navigate, onSuspend) => [
+export const createAggregatorActions = (navigate, onSuspend, onManageAgents) => [
+  ...(onManageAgents ? [{
+    label: 'Manage Agents',
+    icon: CustomUser,
+    onClick: (row) => onManageAgents(row),
+  }] : []),
   {
     label: 'View Profile Details',
     icon: CustomEye,

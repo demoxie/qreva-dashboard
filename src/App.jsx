@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { ROUTES, getAllRoutes } from './config/routes.config';
+import { ROUTES, getAllRoutes, getRouteConfig } from './config/routes.config';
 import { RouteComponentMap } from './config/routeComponentMap';
 import LoginPage from './pages/auth/LoginPage';
 import ChangePasswordPage from './pages/auth/ChangePasswordPage';
@@ -39,6 +39,11 @@ export const PERMISSIONS = {
     'aggManager:view',
     'approvals:view',
     'disputes:view',
+    'settings:view',
+    'settings:create',
+    'transactions',
+    'accounts',
+    'approvals',
   ],
   [ROLES.AGENT]: [
     'dashboard:view',
@@ -46,6 +51,7 @@ export const PERMISSIONS = {
     'softpos:view',
     'transfers:view',
     'kyc:view',
+    'transactions',
   ],
   [ROLES.MERCHANT]: [
     'dashboard:view',
@@ -53,33 +59,32 @@ export const PERMISSIONS = {
     'softpos:view',
     'transfers:view',
     'kyc:view',
+    'transactions',
   ],
   [ROLES.AGGREGATOR]: [
     'dashboard:view',
     'section:transactions',
-    'aggregator:view',
     'softpos:view',
     'transfers:view',
     'kyc:view',
+    'transactions',
   ],
   [ROLES.AGGREGATORMANAGER]: [
     'dashboard:view',
     'section:transactions',
-    'section:accounts',
-    'agents:view',
-    'aggregator:view',
-    'users:view',
     'softpos:view',
     'transfers:view',
     'kyc:view',
+    'transactions',
   ],
 };
 
 // ============ PROTECTED ROUTE COMPONENT ============
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
+  const location = useLocation();
   const mustChangePassword = localStorage.getItem('mustChangePassword') === 'true';
-  const currentPath = window.location.pathname;
+  const currentPath = location.pathname;
   
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -88,6 +93,22 @@ const ProtectedRoute = ({ children }) => {
   // Redirect to change password if required (except on change-password route itself)
   if (mustChangePassword && currentPath !== '/change-password') {
     return <Navigate to="/change-password" replace />;
+  }
+
+  const route = getRouteConfig(currentPath);
+  const permissions = PERMISSIONS[user.role] || [];
+  const requiredPermission = route?.permission;
+  const hasPermission = (() => {
+    if (!requiredPermission) return true;
+    if (permissions.includes(requiredPermission)) return true;
+    if (requiredPermission === 'transactions') return permissions.includes('section:transactions');
+    if (requiredPermission === 'accounts') return permissions.includes('section:accounts');
+    if (requiredPermission === 'approvals') return permissions.includes('section:approvals');
+    return false;
+  })();
+
+  if (!hasPermission) {
+    return <Navigate to="/dashboard" replace />;
   }
   
   return children;

@@ -99,3 +99,52 @@ export const useResolveAggregatorInvitee = () => {
     },
   });
 };
+
+export const useAggregatorNetwork = (ownerUserId, params = {}, options = {}) => {
+  return useQuery({
+    queryKey: ['aggregator-network', ownerUserId, params],
+    queryFn: () => usersApi.getAggregatorNetwork(ownerUserId, params),
+    enabled: !!ownerUserId && (options.enabled ?? true),
+    staleTime: 60 * 1000,
+    ...options,
+  });
+};
+
+export const useResolveAggregatorNetworkCandidate = () => {
+  return useMutation({
+    mutationFn: ({ ownerUserId, email }) => usersApi.resolveAggregatorNetworkCandidate(ownerUserId, email),
+    onError: (error) => {
+      handleError(error, 'Unable to verify this email.');
+    },
+  });
+};
+
+export const useAssignAggregatorNetworkMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ownerUserId, payload }) => usersApi.assignAggregatorNetworkMember(ownerUserId, payload),
+    onSuccess: (response, variables) => {
+      handleSuccess(response?.message || 'Member assigned successfully.');
+      queryClient.invalidateQueries({ queryKey: ['aggregator-network', variables.ownerUserId] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to assign member.');
+    },
+  });
+};
+
+export const useRemoveAggregatorNetworkMember = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ ownerUserId, memberUserId }) => usersApi.removeAggregatorNetworkMember(ownerUserId, memberUserId),
+    onSuccess: (response, variables) => {
+      handleSuccess(response?.message || 'Member removed successfully.');
+      queryClient.invalidateQueries({ queryKey: ['aggregator-network', variables.ownerUserId] });
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to remove member.');
+    },
+  });
+};
