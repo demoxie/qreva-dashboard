@@ -12,6 +12,10 @@ import {
   useActivateUser,
   useInviteAggregator,
   useResolveAggregatorInvitee,
+  useAggregatorNetwork,
+  useResolveAggregatorNetworkCandidate,
+  useAssignAggregatorNetworkMember,
+  useRemoveAggregatorNetworkMember,
 } from "@/store/features/users/useUsers";
 import { formatUserStats } from "@/utils/formatUserStats";
 import { useAuth } from "@/hooks/useAuth";
@@ -20,12 +24,15 @@ import {
   useAggregatorCommissionSettings,
   useUpdateAggregatorCommissionSettings,
 } from "@/store/features/contracts/useContracts";
+import ManageNetworkModal from "@/components/modals/ManageNetworkModal";
 
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const [showCommissionSettings, setShowCommissionSettings] = useState(false);
+  const [showManageNetworkModal, setShowManageNetworkModal] = useState(false);
+  const [selectedNetworkOwner, setSelectedNetworkOwner] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const normalizedRole = (user?.role || "").toLowerCase();
@@ -71,6 +78,19 @@ const Aggregators = () => {
   const activateUserMutation = useActivateUser();
   const inviteAggregatorMutation = useInviteAggregator();
   const resolveInviteeMutation = useResolveAggregatorInvitee();
+  const resolveNetworkCandidateMutation = useResolveAggregatorNetworkCandidate();
+  const assignNetworkMemberMutation = useAssignAggregatorNetworkMember();
+  const removeNetworkMemberMutation = useRemoveAggregatorNetworkMember();
+  const { data: networkResponse, isLoading: isLoadingNetwork } = useAggregatorNetwork(
+    selectedNetworkOwner?._id,
+    {
+      page: 1,
+      limit: 100,
+    },
+    {
+      enabled: showManageNetworkModal && !!selectedNetworkOwner?._id,
+    },
+  );
   const { data: aggregatorCommissionSettingsResponse, isLoading: isLoadingCommissionSettings } =
     useAggregatorCommissionSettings({
       enabled: canManageAggregators && showCommissionSettings,
@@ -130,9 +150,19 @@ const Aggregators = () => {
     setters.setShowAddAggregatorModal(true);
   }, [setters]);
 
+  const openManageNetworkModal = useCallback((owner) => {
+    setSelectedNetworkOwner(owner);
+    setShowManageNetworkModal(true);
+  }, []);
+
   const tableActions = useMemo(
-    () => createAggregatorActions(navigate, canManageAggregators ? handleSuspendClick : undefined),
-    [navigate, handleSuspendClick, canManageAggregators],
+    () =>
+      createAggregatorActions(
+        navigate,
+        canManageAggregators ? handleSuspendClick : undefined,
+        canManageAggregators ? openManageNetworkModal : undefined,
+      ),
+    [navigate, handleSuspendClick, canManageAggregators, openManageNetworkModal],
   );
 
   return (
@@ -200,6 +230,33 @@ const Aggregators = () => {
             onSuccess: () => setShowCommissionSettings(false),
           });
         }}
+      />
+
+      <ManageNetworkModal
+        isOpen={showManageNetworkModal}
+        onClose={() => setShowManageNetworkModal(false)}
+        owner={selectedNetworkOwner}
+        networkResponse={networkResponse}
+        isLoadingNetwork={isLoadingNetwork}
+        onResolveCandidate={(ownerUserId, email) =>
+          resolveNetworkCandidateMutation.mutateAsync({ ownerUserId, email })
+        }
+        isResolvingCandidate={resolveNetworkCandidateMutation.isPending}
+        onAssign={(ownerUserId, email) =>
+          assignNetworkMemberMutation.mutate(
+            { ownerUserId, payload: { email } },
+            {
+              onSuccess: () => {
+                setShowManageNetworkModal(true);
+              },
+            },
+          )
+        }
+        isAssigning={assignNetworkMemberMutation.isPending}
+        onRemove={(ownerUserId, memberUserId) => {
+          removeNetworkMemberMutation.mutate({ ownerUserId, memberUserId });
+        }}
+        isRemoving={removeNetworkMemberMutation.isPending}
       />
     </div>
   );

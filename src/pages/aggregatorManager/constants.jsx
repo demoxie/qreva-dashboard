@@ -146,7 +146,12 @@ export const aggregatorManagerColumns = [
   },
 ];
 
-export const createAggregatorManagerActions = (navigate, onSuspend) => [
+export const createAggregatorManagerActions = (navigate, onSuspend, onManageAggregators) => [
+  ...(onManageAggregators ? [{
+    label: 'Manage Aggregators',
+    icon: CustomUser,
+    onClick: (row) => onManageAggregators(row),
+  }] : []),
   {
     label: 'View Profile Details',
     icon: CustomEye,
