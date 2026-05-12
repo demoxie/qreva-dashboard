@@ -47,4 +47,26 @@ export const usersApi = {
     const { data } = await apiClient.get('/admin/aggregators/referral-link');
     return data;
   },
+
+  getAggregatorNetwork: async (ownerUserId, params = {}) => {
+    const { data } = await apiClient.get(`/admin/aggregators/${ownerUserId}/network`, { params });
+    return data;
+  },
+
+  resolveAggregatorNetworkCandidate: async (ownerUserId, email) => {
+    const { data } = await apiClient.get(`/admin/aggregators/${ownerUserId}/network/resolve`, {
+      params: { email },
+    });
+    return data;
+  },
+
+  assignAggregatorNetworkMember: async (ownerUserId, payload) => {
+    const { data } = await apiClient.post(`/admin/aggregators/${ownerUserId}/network`, payload);
+    return data;
+  },
+
+  removeAggregatorNetworkMember: async (ownerUserId, memberUserId) => {
+    const { data } = await apiClient.delete(`/admin/aggregators/${ownerUserId}/network/${memberUserId}`);
+    return data;
+  },
 };
