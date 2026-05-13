@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTransferMetrics } from '@/store/features/dashboard/useDashboard';
 import { useTransactions } from '@/store/features/transactions/useTransactions';
 import { formatDashboardStats } from '@/utils/formatDashboardStats';
@@ -30,6 +30,7 @@ const TRANSFER_FILTER_GROUPS = [
 
 const Transfers = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [timeFilter, setTimeFilter] = useState('today');
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -40,8 +41,17 @@ const Transfers = () => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  const transferDirection = useMemo(() => {
+    if (location.pathname.startsWith('/transfers/inward')) return 'inward';
+    if (location.pathname.startsWith('/transfers/outward')) return 'outward';
+    return 'all';
+  }, [location.pathname]);
+
+  const pageTitle = transferDirection === 'inward' ? 'Inward Transfers' : transferDirection === 'outward' ? 'Outward Transfers' : 'Transfers';
+
   const { data, isLoading, isError, refetch } = useTransferMetrics({
     range: timeFilter,
+    direction: transferDirection === 'all' ? undefined : transferDirection,
   });
 
   // Fetch transactions using the new API
@@ -50,6 +60,7 @@ const Transfers = () => {
     isLoading: isTransactionsLoading 
   } = useTransactions({
     typeCategory: 'Transfer',
+    direction: transferDirection === 'all' ? undefined : transferDirection,
     page,
     limit,
     search,
@@ -88,10 +99,17 @@ const Transfers = () => {
   const visibleTransactions = useMemo(() => {
     const q = (search || '').trim().toLowerCase();
     const statusFilter = filters.status?.toLowerCase();
+    const directionFilter = transferDirection;
 
     return transactions.filter((row) => {
       if (statusFilter && (row.status || '').toLowerCase() !== statusFilter) {
         return false;
+      }
+      if (directionFilter !== 'all') {
+        const txType = String(row.type || '').toLowerCase();
+        const isInward = txType.includes('inward');
+        if (directionFilter === 'inward' && !isInward) return false;
+        if (directionFilter === 'outward' && isInward) return false;
       }
       if (!q) return true;
       const senderName =
@@ -118,7 +136,7 @@ const Transfers = () => {
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [transactions, search, filters]);
+  }, [transactions, search, filters, transferDirection]);
 
   const formattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
@@ -150,7 +168,13 @@ const Transfers = () => {
   const handlePageChange = (newPage) => setPage(newPage);
 
   const handleViewRegionDetails = (regionId) => {
-    navigate(`/transfers/details/region/${regionId}`);
+    const basePath =
+      transferDirection === 'inward'
+        ? '/transfers/inward/details'
+        : transferDirection === 'outward'
+          ? '/transfers/outward/details'
+          : '/transfers/details';
+    navigate(`${basePath}/region/${regionId}`);
   };
 
   const transactionActions = createTransactionActions({
@@ -192,7 +216,7 @@ const Transfers = () => {
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
       <div className="p-6">
         <PageHeader
-          title="Transfers"
+          title={pageTitle}
           subtitle="Here is how this has been performing so far"
           timeFilter={timeFilter}
           onTimeFilterChange={handleTimeFilterChange}
