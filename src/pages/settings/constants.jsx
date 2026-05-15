@@ -5,7 +5,8 @@ import {
     List,
     Users,
     Gift,
-    Activity
+    Activity,
+    FileText
 } from "lucide-react";
 
 export const SETTINGS_VISUALS = {
@@ -36,6 +37,11 @@ export const SETTINGS_VISUALS = {
     },
     commission: {
         icon: Gift,
+        color: "text-[#0FB5C9]",
+        bgColor: "bg-[#0FB5C9]/10"
+    },
+    contract: {
+        icon: FileText,
         color: "text-[#0FB5C9]",
         bgColor: "bg-[#0FB5C9]/10"
     },

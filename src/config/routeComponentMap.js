@@ -27,6 +27,7 @@ import ActivityLogs from "@/pages/settings/nested/activityLogs/ActivityLogs";
 import TierManagement from "@/pages/settings/nested/tier/TierManagement";
 import EditTier from "@/pages/settings/nested/tier/EditTier";
 import CommissionManagement from "@/pages/settings/nested/commissionManagement/CommissionManagement";
+import Contracts from "@/pages/settings/nested/contracts/Contracts";
 import CreateCommission from "@/pages/settings/nested/commissionManagement/CreateCommission";
 import EditCommission from "@/pages/settings/nested/commissionManagement/EditCommission";
 import ViewCommissionDetails from "@/pages/settings/nested/commissionManagement/ViewCommissionDetails";
@@ -100,6 +101,7 @@ export const RouteComponentMap = {
   SETTINGS_TIER: TierManagement,
   SETTINGS_EDIT_TIER: EditTier,
   SETTINGS_COMMISSION: CommissionManagement,
+  SETTINGS_CONTRACT: Contracts,
   SETTINGS_CREATE_COMMISSION: CreateCommission,
   SETTINGS_EDIT_COMMISSION: EditCommission,
   SETTINGS_VIEW_COMMISSION: ViewCommissionDetails,

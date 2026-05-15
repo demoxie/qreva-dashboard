@@ -17,6 +17,7 @@ const AggregatorCommissionSettingsModal = ({
   title = 'Aggregator Commission Settings',
   subtitle = 'Configure percentage split from contract charges/commissions for uplines.',
   saveLabel = 'Save Settings',
+  ownerType,
 }) => {
   const [rules, setRules] = useState([]);
   const [error, setError] = useState('');
@@ -46,6 +47,11 @@ const AggregatorCommissionSettingsModal = ({
     });
   }, [rules]);
 
+  const isOwnerAggregator = ownerType === 'aggregator';
+  const isOwnerAggregatorManager = ownerType === 'aggregator_manager';
+  const showAggregatorColumn = !ownerType || isOwnerAggregator;
+  const showAggregatorManagerColumn = !ownerType || isOwnerAggregatorManager;
+
   if (!isOpen) return null;
 
   const updateRule = (key, field, value) => {
@@ -64,19 +70,26 @@ const AggregatorCommissionSettingsModal = ({
     const normalizedRules = rules.map((rule) => ({
       code: rule.code,
       sourceType: rule.sourceType,
-      aggregatorPercent: toNumber(rule.aggregatorPercent),
-      aggregatorManagerPercent: toNumber(rule.aggregatorManagerPercent),
+      aggregatorPercent: showAggregatorColumn ? toNumber(rule.aggregatorPercent) : 0,
+      aggregatorManagerPercent: showAggregatorManagerColumn ? toNumber(rule.aggregatorManagerPercent) : 0,
     }));
     for (const rule of normalizedRules) {
-      if (rule.aggregatorPercent < 0 || rule.aggregatorPercent > 100) {
+      if (showAggregatorColumn && (rule.aggregatorPercent < 0 || rule.aggregatorPercent > 100)) {
         setError(`Aggregator % for ${rule.code} must be between 0 and 100.`);
         return;
       }
-      if (rule.aggregatorManagerPercent < 0 || rule.aggregatorManagerPercent > 100) {
+      if (
+        showAggregatorManagerColumn &&
+        (rule.aggregatorManagerPercent < 0 || rule.aggregatorManagerPercent > 100)
+      ) {
         setError(`Aggregator Manager % for ${rule.code} must be between 0 and 100.`);
         return;
       }
-      if (rule.aggregatorPercent + rule.aggregatorManagerPercent > 100) {
+      if (
+        showAggregatorColumn &&
+        showAggregatorManagerColumn &&
+        rule.aggregatorPercent + rule.aggregatorManagerPercent > 100
+      ) {
         setError(`Combined % for ${rule.code} (${rule.sourceType}) cannot exceed 100.`);
         return;
       }
@@ -114,8 +127,12 @@ const AggregatorCommissionSettingsModal = ({
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Name</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Source</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Scope</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Aggregator %</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Agg. Manager %</th>
+                    {showAggregatorColumn ? (
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Aggregator %</th>
+                    ) : null}
+                    {showAggregatorManagerColumn ? (
+                      <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[#808C91]">Agg. Manager %</th>
+                    ) : null}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#F1F4F6] bg-white">
@@ -137,28 +154,32 @@ const AggregatorCommissionSettingsModal = ({
                             {rule.source === 'override' ? 'Personal Override' : 'Global'}
                           </span>
                         </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value={rule.aggregatorPercent}
-                            onChange={(e) => updateRule(key, 'aggregatorPercent', e.target.value)}
-                            className="w-28 rounded-lg border border-[#D9D9D9] px-3 py-2 text-sm focus:border-[#FF5B04] focus:outline-none"
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            step="0.01"
-                            value={rule.aggregatorManagerPercent}
-                            onChange={(e) => updateRule(key, 'aggregatorManagerPercent', e.target.value)}
-                            className="w-28 rounded-lg border border-[#D9D9D9] px-3 py-2 text-sm focus:border-[#FF5B04] focus:outline-none"
-                          />
-                        </td>
+                        {showAggregatorColumn ? (
+                          <td className="px-4 py-3">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              value={rule.aggregatorPercent}
+                              onChange={(e) => updateRule(key, 'aggregatorPercent', e.target.value)}
+                              className="w-28 rounded-lg border border-[#D9D9D9] px-3 py-2 text-sm focus:border-[#FF5B04] focus:outline-none"
+                            />
+                          </td>
+                        ) : null}
+                        {showAggregatorManagerColumn ? (
+                          <td className="px-4 py-3">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              step="0.01"
+                              value={rule.aggregatorManagerPercent}
+                              onChange={(e) => updateRule(key, 'aggregatorManagerPercent', e.target.value)}
+                              className="w-28 rounded-lg border border-[#D9D9D9] px-3 py-2 text-sm focus:border-[#FF5B04] focus:outline-none"
+                            />
+                          </td>
+                        ) : null}
                       </tr>
                     );
                   })}

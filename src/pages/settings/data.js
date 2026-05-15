@@ -30,6 +30,11 @@ export const settingsData = [
         description: "Create, view and edit the different commissions for the agents on the platform",
     },
     {
+        id: "contract",
+        title: "Contract Management",
+        description: "View and update platform charges and commissions contract settings",
+    },
+    {
         id: "logs",
         title: "Activity Logs",
         description: "View in details every and any action performed by your users on the platform",

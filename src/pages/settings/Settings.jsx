@@ -50,6 +50,9 @@ const Settings = () => {
       case "commission":
         navigate("/settings/commission-management");
         break;
+      case "contract":
+        navigate("/settings/contracts");
+        break;
       case "logs":
         navigate("/settings/activity-logs");
         break;
@@ -77,6 +80,9 @@ const Settings = () => {
   };
 
   const visibleSettingsItems = settingsData.filter((item) => {
+    if (item.id === "contract") {
+      return user?.role === "SuperAdmin" || user?.role === "Operation";
+    }
     if (item.id === "logs") {
       return user?.role === "SuperAdmin";
     }

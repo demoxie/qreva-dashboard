@@ -218,6 +218,13 @@ export const ROUTES = {
     permission: 'settings:view',
     parent: null
   },
+  SETTINGS_CONTRACT: {
+    path: '/settings/contracts',
+    label: 'Contract Management',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
   SETTINGS_CREATE_COMMISSION: {
     path: '/settings/commission-management/create',
     label: 'Create Commission',

@@ -116,6 +116,7 @@ const Breadcrumb = ({ user }) => {
       '/settings/rbac/create': 'Add Admin',
       '/settings/agent-category': 'Agent Category',
       '/settings/agent-category/create': 'Create Agent Category',
+      '/settings/contracts': 'Contract Management',
       '/settings/activity-logs': 'Activity Logs',
       '/settings/profile': 'My Profile',
     };
