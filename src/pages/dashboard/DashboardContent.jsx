@@ -89,7 +89,7 @@ const DashboardContent = () => {
   }, [metrics, timeFilter]);
 
   // Role checks
-  const isAdmin = user?.role === 'SuperAdmin';
+  const isAdmin = ['SuperAdmin', 'Operation', 'Support'].includes(user?.role || '');
   const isAgent = user?.role === 'agent';
   const isAggregator = user?.role === 'aggregator';
   const isAggregatorManager = user?.role === 'aggregator_manager';
@@ -228,6 +228,7 @@ const DashboardContent = () => {
         {(isAggregator || isAggregatorManager) && (
           <AggregatorDashboard
             {...dashboardProps}
+            userRole={user?.role}
             transactionActions={transactionActions}
             {...modalProps}
           />

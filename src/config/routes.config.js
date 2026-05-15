@@ -131,23 +131,23 @@ export const ROUTES = {
   },
   SETTINGS_RBAC: {
     path: '/settings/rbac',
-    label: 'RBAC (Role Based Permissions)',
+    label: 'Admin Management',
     icon: 'settings',
-    permission: 'settings:view',
+    permission: 'admins:view',
     parent: null
   },
   SETTINGS_CREATE_ROLE: {
     path: '/settings/rbac/create',
-    label: 'Create Role',
+    label: 'Add Admin',
     icon: 'settings',
-    permission: 'settings:create',
+    permission: 'admins:manage',
     parent: null
   },
   SETTINGS_EDIT_ROLE: {
     path: '/settings/rbac/edit/:id',
-    label: 'Edit Details',
+    label: 'Edit Admin',
     icon: 'settings',
-    permission: 'settings:create',
+    permission: 'admins:manage',
     parent: '/settings/rbac',
     dynamic: true,
   },
@@ -155,7 +155,7 @@ export const ROUTES = {
     path: '/settings/rbac/view/:id',
     label: 'View Details',
     icon: 'settings',
-    permission: 'settings:view',
+    permission: 'admins:view',
     parent: '/settings/rbac',
     dynamic: true,
   },
@@ -193,7 +193,7 @@ export const ROUTES = {
     path: '/settings/activity-logs',
     label: 'Activity Logs',
     icon: 'settings',
-    permission: 'settings:view',
+    permission: 'settings:logs:view',
     parent: null
   },
   SETTINGS_TIER: {
@@ -201,13 +201,6 @@ export const ROUTES = {
     label: 'Tier Management',
     icon: 'settings',
     permission: 'settings:view',
-    parent: null
-  },
-  SETTINGS_CREATE_TIER: {
-    path: '/settings/tier/create',
-    label: 'Create Tier',
-    icon: 'settings',
-    permission: 'settings:create',
     parent: null
   },
   SETTINGS_EDIT_TIER: {

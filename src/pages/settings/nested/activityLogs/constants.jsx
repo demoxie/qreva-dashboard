@@ -153,34 +153,47 @@ export const ACTIVITY_LOGS_COLUMNS = [
     },
   },
   {
-    field: "location",
-    headerName: "Location",
-    width: 170,
-    minWidth: 150,
-    flex: 0.9,
+    field: "network",
+    headerName: "Network",
+    width: 220,
+    minWidth: 200,
+    flex: 1.1,
     renderCell: (params) => (
       <div className="flex flex-col justify-center h-full min-w-0 py-3">
-        <span className="text-sm text-[#505C61] truncate">{params.row.location || params.row.city || '-'}</span>
-        {params.row.ipAddress && <span className="text-xs text-[#808C91] truncate">{params.row.ipAddress}</span>}
+        <span className="text-sm text-[#505C61] truncate">{params.row.ipAddress || '-'}</span>
+        <span className="text-xs text-[#808C91] truncate">{params.row.location || params.row.city || '-'}</span>
       </div>
     ),
   },
   {
-    field: "lastLogin",
-    headerName: "Last Login",
-    width: 170,
-    minWidth: 150,
-    flex: 0.9,
+    field: "device",
+    headerName: "Device / Agent",
+    width: 310,
+    minWidth: 290,
+    flex: 1.5,
     renderCell: (params) => {
-      const f = formatDate(params.row.lastLogin || params.row.lastLoginAt);
-      if (!f) return <span className="text-sm text-[#808C91] flex items-center h-full">-</span>;
       return (
-        <div className="flex flex-col justify-center h-full py-3">
-          <span className="text-sm text-[#505C61]">{f.date}</span>
-          <span className="text-xs text-[#808C91]">{f.time}</span>
+        <div className="flex flex-col justify-center h-full min-w-0 py-3">
+          <span className="text-sm text-[#505C61] truncate">
+            {params.row.deviceType || '-'} | {params.row.os || '-'} | {params.row.browser || '-'}
+          </span>
+          <span className="text-xs text-[#808C91] truncate">{params.row.userAgent || '-'}</span>
         </div>
       );
     },
+  },
+  {
+    field: "requestPath",
+    headerName: "Request",
+    width: 260,
+    minWidth: 240,
+    flex: 1.2,
+    renderCell: (params) => (
+      <div className="flex flex-col justify-center h-full min-w-0 py-3">
+        <span className="text-sm text-[#505C61] truncate">{params.row.requestMethod || '-'}</span>
+        <span className="text-xs text-[#808C91] truncate">{params.row.requestPath || '-'}</span>
+      </div>
+    ),
   },
   {
     field: "createdAt",

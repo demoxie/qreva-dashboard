@@ -66,13 +66,6 @@ const Breadcrumb = ({ user }) => {
   // Build breadcrumb segments for routes with known parents
   const getBreadcrumbSegments = () => {
     // Tier Management sub-routes
-    if (path.startsWith('/settings/tier/create')) {
-      return [
-        { label: 'Settings', path: '/settings' },
-        { label: 'Tier Management', path: '/settings/tier' },
-        { label: 'Create New Tier', path: null },
-      ];
-    }
     if (path.startsWith('/settings/tier/edit')) {
       return [
         { label: 'Settings', path: '/settings' },
@@ -102,11 +95,25 @@ const Breadcrumb = ({ user }) => {
         { label: 'View Details', path: null },
       ];
     }
+    if (path.startsWith('/settings/rbac/edit')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Admin Management', path: '/settings/rbac' },
+        { label: 'Edit Admin', path: null },
+      ];
+    }
+    if (path.startsWith('/settings/rbac/view')) {
+      return [
+        { label: 'Settings', path: '/settings' },
+        { label: 'Admin Management', path: '/settings/rbac' },
+        { label: 'View Details', path: null },
+      ];
+    }
     // Settings sub-pages (first level under /settings)
     const settingsPages = {
       '/settings/tier': 'Tier Management',
-      '/settings/rbac': 'RBAC (Role Based Permissions)',
-      '/settings/rbac/create': 'Create Role',
+      '/settings/rbac': 'Admin Management',
+      '/settings/rbac/create': 'Add Admin',
       '/settings/agent-category': 'Agent Category',
       '/settings/agent-category/create': 'Create Agent Category',
       '/settings/activity-logs': 'Activity Logs',

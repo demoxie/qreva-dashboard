@@ -23,6 +23,7 @@ const DashboardStats = ({ stats, route }) => {
     stats && stats.length > 0 ? stats.filter(Boolean) : defaultStats;
 
   const userRole = localStorage.getItem("userRole") || "SuperAdmin";
+  const isAdminRole = ["SuperAdmin", "Operation", "Support"].includes(userRole);
 
   // ---------------------------
   //  GET DATA FOR CUSTOM CARD
@@ -140,7 +141,7 @@ const DashboardStats = ({ stats, route }) => {
       {statsToDisplay.map((stat, idx) => {
         if (
           idx === 0 &&
-          (userRole !== "SuperAdmin" || route === "my-earnings")
+          (!isAdminRole || route === "my-earnings")
         ) {
           return (
             <div key={idx} className="h-full">

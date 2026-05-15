@@ -67,3 +67,27 @@ export const useUpdateAggregatorCommissionSettings = () => {
     },
   });
 };
+
+export const useAggregatorCommissionSettingsForUser = (ownerUserId, options = {}) => {
+  return useQuery({
+    queryKey: ['aggregator-commission-settings', 'user', ownerUserId],
+    queryFn: () => contractsApi.getAggregatorCommissionSettingsForUser(ownerUserId),
+    enabled: !!ownerUserId,
+    ...options,
+  });
+};
+
+export const useUpdateAggregatorCommissionSettingsForUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: contractsApi.updateAggregatorCommissionSettingsForUser,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['aggregator-commission-settings'] });
+      if (variables?.ownerUserId) {
+        queryClient.invalidateQueries({
+          queryKey: ['aggregator-commission-settings', 'user', variables.ownerUserId],
+        });
+      }
+    },
+  });
+};

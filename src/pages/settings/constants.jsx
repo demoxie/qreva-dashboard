@@ -1,7 +1,6 @@
 import {
     User,
     Lock,
-    KeyRound,
     Award,
     List,
     Users,
@@ -17,11 +16,6 @@ export const SETTINGS_VISUALS = {
     },
     password: {
         icon: Lock,
-        color: "text-[#0FB5C9]",
-        bgColor: "bg-[#0FB5C9]/10"
-    },
-    pin: {
-        icon: KeyRound,
         color: "text-[#0FB5C9]",
         bgColor: "bg-[#0FB5C9]/10"
     },
