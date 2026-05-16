@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CheckCircle, ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -108,6 +108,24 @@ const AccountApprovalDetails = () => {
     if (isNaN(d)) return val;
     return d.toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' });
   };
+
+  useEffect(() => {
+    const normalizedTierStatus = String(
+      user?.kycTier3ReviewStatus || user?.kycTier3Status || ''
+    )
+      .trim()
+      .toLowerCase();
+
+    if (normalizedTierStatus === 'approved') {
+      setApprovalStatus('approved');
+      return;
+    }
+    if (normalizedTierStatus === 'declined' || normalizedTierStatus === 'rejected') {
+      setApprovalStatus('declined');
+      return;
+    }
+    setApprovalStatus('pending');
+  }, [user?.kycTier3ReviewStatus, user?.kycTier3Status]);
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">

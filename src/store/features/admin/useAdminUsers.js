@@ -30,3 +30,14 @@ export const useUpdateAdminStatus = () => {
     },
   });
 };
+
+export const useResendAdminInvite = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: adminApi.resendAdminInvite,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admins'] });
+    },
+  });
+};

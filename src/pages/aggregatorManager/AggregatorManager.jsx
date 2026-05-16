@@ -22,18 +22,12 @@ import {
 } from "@/store/features/users/useUsers";
 import { formatUserStats } from "@/utils/formatUserStats";
 import { useAuth } from "@/hooks/useAuth";
-import AggregatorCommissionSettingsModal from "@/components/modals/AggregatorCommissionSettingsModal";
-import {
-  useAggregatorCommissionSettings,
-  useUpdateAggregatorCommissionSettings,
-} from "@/store/features/contracts/useContracts";
 import ManageNetworkModal from "@/components/modals/ManageNetworkModal";
 
 const AggregatorManagers = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
-  const [showCommissionSettings, setShowCommissionSettings] = useState(false);
   const [showManageNetworkModal, setShowManageNetworkModal] = useState(false);
   const [selectedNetworkOwner, setSelectedNetworkOwner] = useState(null);
   const navigate = useNavigate();
@@ -94,12 +88,6 @@ const AggregatorManagers = () => {
       enabled: showManageNetworkModal && !!selectedNetworkOwner?._id,
     },
   );
-  const { data: aggregatorCommissionSettingsResponse, isLoading: isLoadingCommissionSettings } =
-    useAggregatorCommissionSettings({
-      enabled: canManageAggregatorManagers && showCommissionSettings,
-    });
-  const updateAggregatorCommissionSettings = useUpdateAggregatorCommissionSettings();
-
   const handleConfirmSuspend = useCallback(() => {
     if (!selectedManager?._id) return;
     const isActive =
@@ -179,12 +167,6 @@ const AggregatorManagers = () => {
           actionButton={canManageAggregatorManagers ? (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setShowCommissionSettings(true)}
-                className="px-5 py-2.5 border border-[#D9D9D9] text-[#1E1E1E] rounded-lg text-sm font-medium hover:bg-[#F8FAFB] transition-colors"
-              >
-                Settings
-              </button>
-              <button
                 onClick={openAddAggregatorModal}
                 className="px-6 py-2.5 bg-[#FF5B04] text-white rounded-lg text-sm font-medium hover:bg-[#E54F03] transition-colors"
               >
@@ -221,19 +203,6 @@ const AggregatorManagers = () => {
         isResolvingInvitee={resolveInviteeMutation.isPending}
         isSubmittingInvite={inviteAggregatorMutation.isPending}
         onSuspendManager={handleConfirmSuspend}
-      />
-
-      <AggregatorCommissionSettingsModal
-        isOpen={showCommissionSettings}
-        onClose={() => setShowCommissionSettings(false)}
-        settings={aggregatorCommissionSettingsResponse?.data?.rules || []}
-        isLoading={isLoadingCommissionSettings}
-        isSaving={updateAggregatorCommissionSettings.isPending}
-        onSave={(payload) => {
-          updateAggregatorCommissionSettings.mutate(payload, {
-            onSuccess: () => setShowCommissionSettings(false),
-          });
-        }}
       />
 
       <ManageNetworkModal

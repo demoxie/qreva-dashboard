@@ -9,6 +9,7 @@ import TransactionHistoryTable from '@/components/tables/TransactionHistoryTable
 import TransactionDetailsModal from '@/components/modals/TransactionDetailsModal';
 import ShareReceiptModal from '@/components/modals/ShareReceiptModal';
 import DashboardStats from '@/components/base/DashboardStats';
+import { useAggregatorReferralLink } from '@/store/features/users/useUsers';
 
 const EXCLUDED_CATEGORIES = ['airtime', 'data', 'bills', 'bill', 'bill payment', 'data purchase', 'airtime purchase'];
 
@@ -27,8 +28,15 @@ const AggregatorDashboard = ({
   showShareModal,
   setShowShareModal,
   selectedTransaction,
-  isTransactionsLoading
+  isTransactionsLoading,
+  userRole,
 }) => {
+  const shouldLoadReferral = userRole === 'aggregator';
+  const { data: referralResponse } = useAggregatorReferralLink({
+    enabled: shouldLoadReferral,
+  });
+  const referral = referralResponse?.data;
+
   // Filter out airtime, data, bills from pie chart data (Observation #09)
   const filteredPurchasePercentages = useMemo(() => {
     return (metrics.topPurchasePercentages || []).filter(
@@ -38,6 +46,18 @@ const AggregatorDashboard = ({
 
   return (
     <>
+      {shouldLoadReferral && (referral?.referralCode || referral?.referralLink) && (
+        <div className="bg-white border border-[#E8EBED] rounded-xl p-4 mb-6">
+          <h3 className="text-sm font-semibold text-[#1E1E1E] mb-2">Referral Details</h3>
+          <p className="text-xs text-[#808C91] mb-1">
+            Referral Code: <span className="text-[#1E1E1E] font-medium">{referral?.referralCode || '-'}</span>
+          </p>
+          <p className="text-xs text-[#808C91] break-all">
+            Referral Link: <span className="text-[#1E1E1E] font-medium">{referral?.referralLink || '-'}</span>
+          </p>
+        </div>
+      )}
+
       <DashboardStats stats={formattedStats} route="dashboard" />
 
       {/* Top Transaction Value + Top % Transactions */}
@@ -56,10 +76,9 @@ const AggregatorDashboard = ({
       {/* Top Customers + Card vs QR Payments - Side by Side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <TopCustomersCard
-          data={metrics.topCustomers}
-          agentsData={metrics.topAgents}
-          title="Top Customers"
-          showAgentToggle={true}
+          data={metrics.topAgents}
+          title="Top Performing Agents"
+          showAgentToggle={false}
         />
         <PaymentComparisonPie
           data={metrics.softPosPaymentBreakdown}

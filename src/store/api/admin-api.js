@@ -15,4 +15,9 @@ export const adminApi = {
     const { data } = await apiClient.patch(`/admin/users/${adminId}/status`, { status });
     return data;
   },
+
+  resendAdminInvite: async (adminId) => {
+    const { data } = await apiClient.post(`/admin/users/${adminId}/resend-invite`);
+    return data;
+  },
 };

@@ -11,31 +11,33 @@ const makeOptions = (items) =>
         .sort((a, b) => splitCamelCase(a).localeCompare(splitCamelCase(b)))
         .map((value) => ({ label: splitCamelCase(value), value }));
 
-const SEVERITY_LEVELS = ['Critical', 'High', 'Medium', 'Low', 'Info'];
-
-const startOfDay = (val) => {
-    const d = new Date(val);
-    if (isNaN(d)) return null;
-    d.setHours(0, 0, 0, 0);
-    return d;
-};
-
-const endOfDay = (val) => {
-    const d = new Date(val);
-    if (isNaN(d)) return null;
-    d.setHours(23, 59, 59, 999);
-    return d;
-};
-
 const ActivityLogs = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({});
-    const { data: logsResponse, isLoading } = useActivityLogs({ page: 1, limit: 100 });
+    const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 20 });
+    const queryParams = useMemo(
+        () => ({
+            page: paginationModel.page + 1,
+            limit: paginationModel.pageSize,
+            search: searchQuery || undefined,
+            actor: filters.actor || undefined,
+            actorRole: filters.actorRole || undefined,
+            action: filters.action || undefined,
+            resource: filters.resource || undefined,
+            ipAddress: filters.ipAddress || undefined,
+            deviceType: filters.deviceType || undefined,
+            browser: filters.browser || undefined,
+            os: filters.os || undefined,
+        }),
+        [filters, paginationModel.page, paginationModel.pageSize, searchQuery],
+    );
+    const { data: logsResponse, isLoading } = useActivityLogs(queryParams);
 
     const logs = logsResponse?.data || [];
+    const pagination = logsResponse?.pagination || { page: 1, limit: paginationModel.pageSize, total: 0 };
 
     const filterGroups = useMemo(() => {
-        const userOptions = (() => {
+        const actorOptions = (() => {
             const map = new Map();
             logs.forEach((log) => {
                 const value = log.actorAdminId || log.actorId || log.actorEmail;
@@ -48,66 +50,17 @@ const ActivityLogs = () => {
                 .map(([value, label]) => ({ label, value }));
         })();
 
-        const severityFromData = makeOptions(logs.map((log) => log.severity));
-        const severityOptions = severityFromData.length
-            ? severityFromData
-            : SEVERITY_LEVELS.map((value) => ({ label: value, value }));
-
         return [
-            { key: 'user', label: 'User', options: userOptions },
-            { key: 'severity', label: 'Severity', options: severityOptions },
-            { key: 'dateRange', label: 'Date Range', type: 'dateRange' },
+            { key: 'actor', label: 'Actor', options: actorOptions },
+            { key: 'actorRole', label: 'Role', options: makeOptions(logs.map((log) => log.actorRole)) },
+            { key: 'resource', label: 'Resource', options: makeOptions(logs.map((log) => log.resource)) },
+            { key: 'action', label: 'Action', options: makeOptions(logs.map((log) => log.action)) },
+            { key: 'deviceType', label: 'Device', options: makeOptions(logs.map((log) => log.deviceType)) },
+            { key: 'browser', label: 'Browser', options: makeOptions(logs.map((log) => log.browser)) },
+            { key: 'os', label: 'OS', options: makeOptions(logs.map((log) => log.os)) },
+            { key: 'ipAddress', label: 'IP Address', options: makeOptions(logs.map((log) => log.ipAddress)) },
         ].filter((group) => group.type === 'dateRange' || group.options.length > 0);
     }, [logs]);
-
-    const filteredLogs = useMemo(() => {
-        const normalizedSearch = searchQuery.trim().toLowerCase();
-        const range = filters.dateRange || {};
-        const fromDate = range.from ? startOfDay(range.from) : null;
-        const toDate = range.to ? endOfDay(range.to) : null;
-
-        return logs.filter((log) => {
-            if (filters.user) {
-                const userId = log.actorAdminId || log.actorId || log.actorEmail;
-                if (userId !== filters.user) return false;
-            }
-            if (filters.severity) {
-                if (log.severity !== filters.severity) return false;
-            }
-
-            if (fromDate || toDate) {
-                const ts = log.timestamp || log.createdAt;
-                if (!ts) return false;
-                const logDate = new Date(ts);
-                if (isNaN(logDate)) return false;
-                if (fromDate && logDate < fromDate) return false;
-                if (toDate && logDate > toDate) return false;
-            }
-
-            if (!normalizedSearch) return true;
-
-            const searchableText = [
-                log.actorName,
-                log.actorEmail,
-                log.actorAdminId,
-                log.actorRole,
-                log.role,
-                log.resource,
-                log.action,
-                log.description,
-                log.details,
-                log.location,
-                log.city,
-                log.ipAddress,
-                log.severity,
-            ]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase();
-
-            return searchableText.includes(normalizedSearch);
-        });
-    }, [filters, logs, searchQuery]);
 
     return (
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -117,7 +70,7 @@ const ActivityLogs = () => {
             </div>
 
             <DataTable
-                data={filteredLogs}
+                data={logs}
                 columns={ACTIVITY_LOGS_COLUMNS}
                 title="Activity Logs"
                 showSearch={true}
@@ -125,7 +78,10 @@ const ActivityLogs = () => {
                 onFilter={setFilters}
                 filterGroups={filterGroups}
                 showCheckbox={false}
-                pageSize={10}
+                paginationMode="server"
+                rowCount={pagination.total || 0}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
                 getRowHeight={() => 'auto'}
                 getEstimatedRowHeight={() => 76}
                 loading={isLoading}

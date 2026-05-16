@@ -13,12 +13,18 @@ import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
 import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import AggregatorCommissionSettingsModal from '@/components/modals/AggregatorCommissionSettingsModal';
+import {
+  useAggregatorCommissionSettingsForUser,
+  useUpdateAggregatorCommissionSettingsForUser,
+} from '@/store/features/contracts/useContracts';
 import { useAggregatorProfileModals } from '@/hooks/useAggregatorProfileModals';
 import { useAgentDropdown } from '@/hooks/useAgentDropdown';
 import { createTransactionActions } from '@/utils/profileUtils';
 import { createChartSeries } from '@/pages/aggregator/constants';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/hooks/useAuth';
 
 const managerProfileTabs = [
   { key: 'profile', label: 'Profile Details' },
@@ -134,10 +140,12 @@ const aggregatorListColumns = [
 
 const AggregatorManagerProfileDetails = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
+  const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
 
   const { data: managerResponse, isLoading: loading } = useUserById(id, 'aggregator-managers');
   const managerData = managerResponse?.data;
@@ -149,6 +157,14 @@ const AggregatorManagerProfileDetails = () => {
   const activateUserMutation = useActivateUser();
   const { agentDropdown, openDropdown, closeDropdown } = useAgentDropdown();
   const [aggregatorDropdown, setAggregatorDropdown] = useState({ open: false, row: null, x: 0, y: 0 });
+  const canManageCommission = ['SuperAdmin', 'Operation'].includes(user?.role || '');
+  const { data: profileCommissionResponse, isLoading: isLoadingProfileCommission, refetch: refetchProfileCommission } =
+    useAggregatorCommissionSettingsForUser(id, {
+      enabled: canManageCommission && !!id && isCommissionModalOpen,
+    });
+  const updateProfileCommission = useUpdateAggregatorCommissionSettingsForUser();
+  const profileCommissionRules = profileCommissionResponse?.data?.rules || [];
+  const profileCommissionOwnerType = profileCommissionResponse?.data?.ownerType;
 
   useEffect(() => {
     const currentTab = searchParams.get('tab');
@@ -207,6 +223,15 @@ const AggregatorManagerProfileDetails = () => {
   if (!managerData) return <LoadingState message="Aggregator Manager not found" />;
 
   const chartSeries = createChartSeries(managerData.chartData);
+  const commissionActionButton =
+    canManageCommission && managerData?._id ? (
+      <button
+        onClick={() => setIsCommissionModalOpen(true)}
+        className="h-11 rounded-lg border border-[#FF5B04] bg-white px-4 text-sm font-semibold text-[#FF5B04] hover:bg-[#FFF5F2]"
+      >
+        Personalize Commission
+      </button>
+    ) : null;
 
   const aggregatorColumnsWithActions = [
     ...aggregatorListColumns,
@@ -244,6 +269,7 @@ const AggregatorManagerProfileDetails = () => {
             subtitle="Here is the full profile details of this user"
             timeFilter={timeFilter}
             onTimeFilterChange={setTimeFilter}
+            actionButton={commissionActionButton}
           />
           <UserProfileHeader
             user={managerData}
@@ -269,6 +295,27 @@ const AggregatorManagerProfileDetails = () => {
           suspendTitle="Suspend Manager"
           suspendMessage="Are you sure you want to suspend this Aggregator Manager account?"
         />
+        <AggregatorCommissionSettingsModal
+          isOpen={isCommissionModalOpen}
+          onClose={() => setIsCommissionModalOpen(false)}
+          settings={profileCommissionRules}
+          ownerType={profileCommissionOwnerType}
+          isLoading={isLoadingProfileCommission}
+          isSaving={updateProfileCommission.isPending}
+          title="Aggregator Manager Commission Settings"
+          subtitle="Override commission split for this aggregator manager. Unchanged entries will continue using defaults."
+          onSave={(payload) => {
+            updateProfileCommission.mutate(
+              { ownerUserId: managerData._id, payload },
+              {
+                onSuccess: () => {
+                  setIsCommissionModalOpen(false);
+                  refetchProfileCommission();
+                },
+              },
+            );
+          }}
+        />
       </div>
     );
   }
@@ -283,6 +330,7 @@ const AggregatorManagerProfileDetails = () => {
             subtitle="Here is the full profile details of this user"
             timeFilter={timeFilter}
             onTimeFilterChange={setTimeFilter}
+            actionButton={commissionActionButton}
           />
           <UserProfileHeader
             user={managerData}
@@ -331,6 +379,27 @@ const AggregatorManagerProfileDetails = () => {
             </button>
           </div>
         )}
+        <AggregatorCommissionSettingsModal
+          isOpen={isCommissionModalOpen}
+          onClose={() => setIsCommissionModalOpen(false)}
+          settings={profileCommissionRules}
+          ownerType={profileCommissionOwnerType}
+          isLoading={isLoadingProfileCommission}
+          isSaving={updateProfileCommission.isPending}
+          title="Aggregator Manager Commission Settings"
+          subtitle="Override commission split for this aggregator manager. Unchanged entries will continue using defaults."
+          onSave={(payload) => {
+            updateProfileCommission.mutate(
+              { ownerUserId: managerData._id, payload },
+              {
+                onSuccess: () => {
+                  setIsCommissionModalOpen(false);
+                  refetchProfileCommission();
+                },
+              },
+            );
+          }}
+        />
       </div>
     );
   }
@@ -345,6 +414,7 @@ const AggregatorManagerProfileDetails = () => {
             subtitle="Here is the full profile details of this user"
             timeFilter={timeFilter}
             onTimeFilterChange={setTimeFilter}
+            actionButton={commissionActionButton}
           />
           <UserProfileHeader
             user={managerData}
@@ -360,6 +430,27 @@ const AggregatorManagerProfileDetails = () => {
         </div>
 
         <AgentDropdownMenu dropdown={agentDropdown} onClose={closeDropdown} />
+        <AggregatorCommissionSettingsModal
+          isOpen={isCommissionModalOpen}
+          onClose={() => setIsCommissionModalOpen(false)}
+          settings={profileCommissionRules}
+          ownerType={profileCommissionOwnerType}
+          isLoading={isLoadingProfileCommission}
+          isSaving={updateProfileCommission.isPending}
+          title="Aggregator Manager Commission Settings"
+          subtitle="Override commission split for this aggregator manager. Unchanged entries will continue using defaults."
+          onSave={(payload) => {
+            updateProfileCommission.mutate(
+              { ownerUserId: managerData._id, payload },
+              {
+                onSuccess: () => {
+                  setIsCommissionModalOpen(false);
+                  refetchProfileCommission();
+                },
+              },
+            );
+          }}
+        />
       </div>
     );
   }
@@ -400,6 +491,7 @@ const AggregatorManagerProfileDetails = () => {
             subtitle="Here is the full profile details of this user"
             timeFilter={timeFilter}
             onTimeFilterChange={setTimeFilter}
+            actionButton={commissionActionButton}
           />
           <UserProfileHeader
             user={managerData}
@@ -448,6 +540,27 @@ const AggregatorManagerProfileDetails = () => {
             </button>
           </div>
         )}
+        <AggregatorCommissionSettingsModal
+          isOpen={isCommissionModalOpen}
+          onClose={() => setIsCommissionModalOpen(false)}
+          settings={profileCommissionRules}
+          ownerType={profileCommissionOwnerType}
+          isLoading={isLoadingProfileCommission}
+          isSaving={updateProfileCommission.isPending}
+          title="Aggregator Manager Commission Settings"
+          subtitle="Override commission split for this aggregator manager. Unchanged entries will continue using defaults."
+          onSave={(payload) => {
+            updateProfileCommission.mutate(
+              { ownerUserId: managerData._id, payload },
+              {
+                onSuccess: () => {
+                  setIsCommissionModalOpen(false);
+                  refetchProfileCommission();
+                },
+              },
+            );
+          }}
+        />
       </div>
     );
   }
@@ -461,6 +574,7 @@ const AggregatorManagerProfileDetails = () => {
           subtitle="Here is the full profile details of this user"
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
+          actionButton={commissionActionButton}
         />
         <UserProfileHeader
           user={managerData}
@@ -492,6 +606,27 @@ const AggregatorManagerProfileDetails = () => {
         onSuspend={handleSuspend}
         suspendTitle="Suspend Manager"
         suspendMessage="Are you sure you want to suspend this Aggregator Manager account?"
+      />
+      <AggregatorCommissionSettingsModal
+        isOpen={isCommissionModalOpen}
+        onClose={() => setIsCommissionModalOpen(false)}
+        settings={profileCommissionRules}
+        ownerType={profileCommissionOwnerType}
+        isLoading={isLoadingProfileCommission}
+        isSaving={updateProfileCommission.isPending}
+        title="Aggregator Manager Commission Settings"
+        subtitle="Override commission split for this aggregator manager. Unchanged entries will continue using defaults."
+        onSave={(payload) => {
+          updateProfileCommission.mutate(
+            { ownerUserId: managerData._id, payload },
+            {
+              onSuccess: () => {
+                setIsCommissionModalOpen(false);
+                refetchProfileCommission();
+              },
+            },
+          );
+        }}
       />
     </div>
   );
