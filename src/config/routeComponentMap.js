@@ -19,18 +19,15 @@ import Settings from "@/pages/settings/Settings";
 // Settings
 import MyProfile from "@/pages/settings/nested/profile/MyProfile";
 import RBAC from "@/pages/settings/nested/rbac/RBAC";
-import CreateRole from "@/pages/settings/nested/rbac/CreateRole";
-import EditRole from "@/pages/settings/nested/rbac/EditRole";
-import ViewRoleDetails from "@/pages/settings/nested/rbac/ViewRoleDetails";
 import AgentCategory from "@/pages/settings/nested/agentCategory/AgentCategory";
 import CreateAgentCategory from "@/pages/settings/nested/agentCategory/CreateAgentCategory";
 import EditAgentCategory from "@/pages/settings/nested/agentCategory/EditAgentCategory";
 import ViewAgentCategoryDetails from "@/pages/settings/nested/agentCategory/ViewAgentCategoryDetails";
 import ActivityLogs from "@/pages/settings/nested/activityLogs/ActivityLogs";
 import TierManagement from "@/pages/settings/nested/tier/TierManagement";
-import CreateTier from "@/pages/settings/nested/tier/CreateTier";
 import EditTier from "@/pages/settings/nested/tier/EditTier";
 import CommissionManagement from "@/pages/settings/nested/commissionManagement/CommissionManagement";
+import Contracts from "@/pages/settings/nested/contracts/Contracts";
 import CreateCommission from "@/pages/settings/nested/commissionManagement/CreateCommission";
 import EditCommission from "@/pages/settings/nested/commissionManagement/EditCommission";
 import ViewCommissionDetails from "@/pages/settings/nested/commissionManagement/ViewCommissionDetails";
@@ -61,6 +58,8 @@ export const RouteComponentMap = {
   BILLS: BillsPayment,
   SOFTPOS: SoftPOS,
   TRANSFERS: Transfers,
+  OUTWARD_TRANSFERS: Transfers,
+  INWARD_TRANSFERS: Transfers,
   USERS: Users,
   AGENTS: Agents,
   AGGREGATOR: Aggregators,
@@ -77,6 +76,8 @@ export const RouteComponentMap = {
   DATA_DETAILS: DataDetails,
   BILLS_DETAILS: BillsDetails,
   TRANSFER_DETAILS: TransferDetails,
+  OUTWARD_TRANSFER_DETAILS: TransferDetails,
+  INWARD_TRANSFER_DETAILS: TransferDetails,
   SOFTPOS_DETAILS: SoftPOSDetails,
   KYC_DETAILS: KYCDetails,
   USER_DETAILS: UserProfileDetails,
@@ -89,18 +90,18 @@ export const RouteComponentMap = {
   // Settings
   SETTINGS_PROFILE: MyProfile,
   SETTINGS_RBAC: RBAC,
-  SETTINGS_CREATE_ROLE: CreateRole,
-  SETTINGS_EDIT_ROLE: EditRole,
-  SETTINGS_VIEW_ROLE: ViewRoleDetails,
+  SETTINGS_CREATE_ROLE: RBAC,
+  SETTINGS_EDIT_ROLE: RBAC,
+  SETTINGS_VIEW_ROLE: RBAC,
   SETTINGS_AGENT_CATEGORY: AgentCategory,
   SETTINGS_CREATE_AGENT_CATEGORY: CreateAgentCategory,
   SETTINGS_EDIT_AGENT_CATEGORY: EditAgentCategory,
   SETTINGS_VIEW_AGENT_CATEGORY: ViewAgentCategoryDetails,
   SETTINGS_ACTIVITY_LOGS: ActivityLogs,
   SETTINGS_TIER: TierManagement,
-  SETTINGS_CREATE_TIER: CreateTier,
   SETTINGS_EDIT_TIER: EditTier,
   SETTINGS_COMMISSION: CommissionManagement,
+  SETTINGS_CONTRACT: Contracts,
   SETTINGS_CREATE_COMMISSION: CreateCommission,
   SETTINGS_EDIT_COMMISSION: EditCommission,
   SETTINGS_VIEW_COMMISSION: ViewCommissionDetails,

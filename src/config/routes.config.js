@@ -41,6 +41,18 @@ export const ROUTES = {
     icon: 'transfers',
     permission: 'transfers:view',
   },
+  OUTWARD_TRANSFERS: {
+    path: '/transfers/outward',
+    label: 'Outward Transfer',
+    icon: 'transfers',
+    permission: 'transfers:view',
+  },
+  INWARD_TRANSFERS: {
+    path: '/transfers/inward',
+    label: 'Inward Transfer',
+    icon: 'transfers',
+    permission: 'transfers:view',
+  },
   SOFTPOS: {
     path: '/softpos',
     label: 'SoftPOS',
@@ -119,23 +131,23 @@ export const ROUTES = {
   },
   SETTINGS_RBAC: {
     path: '/settings/rbac',
-    label: 'RBAC (Role Based Permissions)',
+    label: 'Admin Management',
     icon: 'settings',
-    permission: 'settings:view',
+    permission: 'admins:view',
     parent: null
   },
   SETTINGS_CREATE_ROLE: {
     path: '/settings/rbac/create',
-    label: 'Create Role',
+    label: 'Add Admin',
     icon: 'settings',
-    permission: 'settings:create',
+    permission: 'admins:manage',
     parent: null
   },
   SETTINGS_EDIT_ROLE: {
     path: '/settings/rbac/edit/:id',
-    label: 'Edit Details',
+    label: 'Edit Admin',
     icon: 'settings',
-    permission: 'settings:create',
+    permission: 'admins:manage',
     parent: '/settings/rbac',
     dynamic: true,
   },
@@ -143,7 +155,7 @@ export const ROUTES = {
     path: '/settings/rbac/view/:id',
     label: 'View Details',
     icon: 'settings',
-    permission: 'settings:view',
+    permission: 'admins:view',
     parent: '/settings/rbac',
     dynamic: true,
   },
@@ -181,7 +193,7 @@ export const ROUTES = {
     path: '/settings/activity-logs',
     label: 'Activity Logs',
     icon: 'settings',
-    permission: 'settings:view',
+    permission: 'settings:logs:view',
     parent: null
   },
   SETTINGS_TIER: {
@@ -189,13 +201,6 @@ export const ROUTES = {
     label: 'Tier Management',
     icon: 'settings',
     permission: 'settings:view',
-    parent: null
-  },
-  SETTINGS_CREATE_TIER: {
-    path: '/settings/tier/create',
-    label: 'Create Tier',
-    icon: 'settings',
-    permission: 'settings:create',
     parent: null
   },
   SETTINGS_EDIT_TIER: {
@@ -209,6 +214,13 @@ export const ROUTES = {
   SETTINGS_COMMISSION: {
     path: '/settings/commission-management',
     label: 'Commission Management',
+    icon: 'settings',
+    permission: 'settings:view',
+    parent: null
+  },
+  SETTINGS_CONTRACT: {
+    path: '/settings/contracts',
+    label: 'Contract Management',
     icon: 'settings',
     permission: 'settings:view',
     parent: null
@@ -318,6 +330,22 @@ export const ROUTES = {
     permission: 'transactions',
     dynamic: true,
   },
+  OUTWARD_TRANSFER_DETAILS: {
+    path: '/transfers/outward/details/:type/:id',
+    label: 'View Details',
+    parent: '/transfers/outward',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
+  INWARD_TRANSFER_DETAILS: {
+    path: '/transfers/inward/details/:type/:id',
+    label: 'View Details',
+    parent: '/transfers/inward',
+    icon: null,
+    permission: 'transactions',
+    dynamic: true,
+  },
   SOFTPOS_DETAILS: {
     path: '/softpos/details/:type/:id',
     label: 'View Details',
@@ -405,7 +433,8 @@ export const MENU_STRUCTURE = [
       { routeKey: 'DATA' },
       { routeKey: 'BILLS' },
       { routeKey: 'REQUEST' },
-      { routeKey: 'TRANSFERS' },
+      { routeKey: 'OUTWARD_TRANSFERS' },
+      { routeKey: 'INWARD_TRANSFERS' },
       { routeKey: 'SOFTPOS' },
       { routeKey: 'KYC' },
       { routeKey: 'EARNINGS' },

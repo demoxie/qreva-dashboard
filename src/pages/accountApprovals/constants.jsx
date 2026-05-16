@@ -87,11 +87,13 @@ export const createApprovalActions = (
   {
     label: 'Accept Approval',
     icon: CustomApprove,
+    isVisible: (row) => String(row?.status || '').toLowerCase() === 'pending',
     onClick: (row) => onAccept(row)
   },
   {
     label: 'Decline Approval',
     icon: CustomDecline,
+    isVisible: (row) => String(row?.status || '').toLowerCase() === 'pending',
     onClick: (row) => onDecline(row)
   }
 ];

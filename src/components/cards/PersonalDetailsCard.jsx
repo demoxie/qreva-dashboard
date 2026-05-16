@@ -16,6 +16,12 @@ const PersonalDetailsCard = ({ user }) => {
         <DetailItem label="Gender" value={personal.gender} />
         <DetailItem label="State" value={personal.state} />
         <DetailItem label="LGA" value={personal.lga} />
+        {(user.referralCode || user.referralLink) && (
+          <DetailItem label="Referral Code" value={user.referralCode} />
+        )}
+        {(user.referralCode || user.referralLink) && (
+          <DetailItem label="Referral Link" value={user.referralLink} />
+        )}
         <DetailItem label="Address" value={personal.address} className="col-span-2" />
       </div>
     </div>

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import DataTable from "@/components/tables/DataTable";
 import { TIER_COLUMNS, TIER_ACTIONS } from './constants';
@@ -44,12 +43,6 @@ const TierManagement = () => {
                     <h1 className="text-2xl font-bold text-[#1E1E1E]">Tier Management</h1>
                     <p className="text-[#808C91] mt-1">View all the full information about KYC tiers on the platform</p>
                 </div>
-                <Button
-                    className="bg-[#FF5B04] hover:bg-[#E54F03] text-white"
-                    onClick={() => navigate('/settings/tier/create')}
-                >
-                    Create Tier
-                </Button>
             </div>
 
             <DataTable

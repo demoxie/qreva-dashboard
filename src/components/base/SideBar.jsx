@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronDown, ChevronUp, LogOut } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
 import { ROUTES, MENU_STRUCTURE } from '@/config/routes.config';
@@ -41,9 +41,10 @@ const ICON_MAP = {
   disputed: DisputedIcon,
 };
 
-const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS }) => {
+const Sidebar = ({ user, onLogout, setActiveSection, PERMISSIONS }) => {
   const permissions = PERMISSIONS[user.role] || [];
   const navigate = useNavigate();
+  const location = useLocation();
   
   const [expandedSections, setExpandedSections] = useState({
     transactions: true,
@@ -54,7 +55,7 @@ const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS 
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const handleMenuClick = (route) => {
-    setActiveSection(route.path.split('/')[1]); // Extract base path
+    setActiveSection(route.path);
     navigate(route.path);
   };
 
@@ -69,7 +70,9 @@ const Sidebar = ({ user, onLogout, activeSection, setActiveSection, PERMISSIONS 
     const route = ROUTES[routeKey];
     if (!route || !permissions.includes(route.permission)) return null;
 
-    const isActive = activeSection === route.path.split('/')[1];
+    const isActive =
+      location.pathname === route.path ||
+      (route.path !== '/dashboard' && location.pathname.startsWith(`${route.path}/`));
     const IconSrc = ICON_MAP[route.icon];
 
     return (

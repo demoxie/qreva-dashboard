@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { LogOut } from "lucide-react";
 import SettingsCard from "@/components/settings/SettingsCard";
-import ChangePinModal from "@/components/settings/ChangePinModal";
 import ChangePasswordModal from "@/components/settings/ChangePasswordModal";
 import ActionSuccessModal from "@/components/modals/ActionSuccessModal";
 import LogoutConfirmationModal from "@/components/modals/LogoutConfirmationModal";
@@ -17,7 +16,7 @@ import {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   // API hooks
   const changePassword = useChangePassword();
@@ -26,10 +25,6 @@ const Settings = () => {
   // Change Password Flow States
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isPasswordSuccessOpen, setIsPasswordSuccessOpen] = useState(false);
-
-  // Change PIN Flow States
-  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
-  const [isPinSuccessOpen, setIsPinSuccessOpen] = useState(false);
 
   // Logout Modal State
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -43,9 +38,6 @@ const Settings = () => {
       case "password":
         setIsChangePasswordOpen(true);
         break;
-      case "pin":
-        setIsPinModalOpen(true);
-        break;
       case "tier":
         navigate("/settings/tier");
         break;
@@ -57,6 +49,9 @@ const Settings = () => {
         break;
       case "commission":
         navigate("/settings/commission-management");
+        break;
+      case "contract":
+        navigate("/settings/contracts");
         break;
       case "logs":
         navigate("/settings/activity-logs");
@@ -75,11 +70,6 @@ const Settings = () => {
     });
   };
 
-  const handleChangePinSubmit = () => {
-    setIsPinModalOpen(false);
-    setIsPinSuccessOpen(true);
-  };
-
   const handleLogoutConfirm = () => {
     logoutMutation.mutate(undefined, {
       onSettled: () => {
@@ -88,6 +78,16 @@ const Settings = () => {
       },
     });
   };
+
+  const visibleSettingsItems = settingsData.filter((item) => {
+    if (item.id === "contract") {
+      return user?.role === "SuperAdmin" || user?.role === "Operation";
+    }
+    if (item.id === "logs") {
+      return user?.role === "SuperAdmin";
+    }
+    return true;
+  });
 
   return (
     <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
@@ -112,7 +112,7 @@ const Settings = () => {
 
       {/* Settings Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {settingsData.map((item) => {
+        {visibleSettingsItems.map((item) => {
           const visual = SETTINGS_VISUALS[item.id];
           return (
             <SettingsCard
@@ -140,20 +140,6 @@ const Settings = () => {
         onClose={() => setIsPasswordSuccessOpen(false)}
         title="Password Changed"
         message="You have successfully changed your password and can now use it to login subsequently"
-      />
-
-      {/* Change PIN Flow Modals */}
-      <ChangePinModal
-        isOpen={isPinModalOpen}
-        onClose={() => setIsPinModalOpen(false)}
-        onSubmit={handleChangePinSubmit}
-      />
-
-      <ActionSuccessModal
-        isOpen={isPinSuccessOpen}
-        onClose={() => setIsPinSuccessOpen(false)}
-        title="PIN Changed"
-        message="You have successfully changed your transaction PIN and can now use it continuously"
       />
 
       <LogoutConfirmationModal

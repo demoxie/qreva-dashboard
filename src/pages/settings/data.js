@@ -10,14 +10,9 @@ export const settingsData = [
         description: "Easily change your login password and you can start making use of the new one Immediately",
     },
     {
-        id: "pin",
-        title: "Change PIN",
-        description: "Easily change your transaction PIN and you can start making use of the new one Immediately",
-    },
-    {
         id: "tier",
         title: "Tier Management",
-        description: "Create, view and edit the different tiers offered on the platform",
+        description: "View and edit the different tiers offered on the platform",
     },
     {
         id: "agency",
@@ -26,13 +21,18 @@ export const settingsData = [
     },
     {
         id: "rbac",
-        title: "RBAC (Role Based Permissions)",
-        description: "Give and edit permissions for every user accounts on the platform",
+        title: "Admin Management",
+        description: "Invite and manage admin users, access levels, and account status",
     },
     {
         id: "commission",
         title: "Commission Management",
         description: "Create, view and edit the different commissions for the agents on the platform",
+    },
+    {
+        id: "contract",
+        title: "Contract Management",
+        description: "View and update platform charges and commissions contract settings",
     },
     {
         id: "logs",

@@ -487,7 +487,9 @@ const DataTable = ({
           className="bg-white rounded-lg shadow-lg border border-[#E8EBED] py-2 w-48"
           onMouseDown={(e) => e.stopPropagation()}
         >
-          {actions.map((action, index) => {
+          {actions
+            .filter((action) => (typeof action.isVisible === 'function' ? action.isVisible(dropdown.row) : true))
+            .map((action, index) => {
             const Icon = action.icon;
             return (
               <button

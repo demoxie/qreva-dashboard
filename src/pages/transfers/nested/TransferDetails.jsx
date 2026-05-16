@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import BarChartComponent from '@/components/charts/BarChartComponent';
@@ -17,16 +17,24 @@ import { createRegionTransactionActions, createCustomerTransactionActions } from
 const TransferDetails = () => {
   const { type, id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [timeFilter, setTimeFilter] = useState('Today');
 
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
 
+  const transferDirection = useMemo(() => {
+    if (location.pathname.startsWith('/transfers/inward')) return 'inward';
+    if (location.pathname.startsWith('/transfers/outward')) return 'outward';
+    return 'all';
+  }, [location.pathname]);
+
   const regionParam = type === 'region' ? id : undefined;
-  const { data: metricsResponse } = useCategoryDetailMetrics('transfers', { region: regionParam });
-  const { data: breakdownResponse } = useTransfersBreakdown({ region: regionParam });
-  const { data: txResponse } = useTransactions({ category: 'transfer', region: regionParam });
+  const directionFilter = transferDirection === 'all' ? undefined : transferDirection;
+  const { data: metricsResponse } = useCategoryDetailMetrics('transfers', { region: regionParam, direction: directionFilter });
+  const { data: breakdownResponse } = useTransfersBreakdown({ region: regionParam, direction: directionFilter });
+  const { data: txResponse } = useTransactions({ category: 'transfer', region: regionParam, direction: directionFilter });
 
   const metrics = metricsResponse?.data || {};
   const breakdown = breakdownResponse?.data || {};
