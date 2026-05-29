@@ -79,6 +79,24 @@ const AccountApprovalDetails = () => {
     });
   }, [id, declineReason, declineAccount, setFeedbackType, setters]);
 
+  useEffect(() => {
+    const normalizedTierStatus = String(
+      user?.kycTier3ReviewStatus || user?.kycTier3Status || ''
+    )
+      .trim()
+      .toLowerCase();
+
+    if (normalizedTierStatus === 'approved') {
+      setApprovalStatus('approved');
+      return;
+    }
+    if (normalizedTierStatus === 'declined' || normalizedTierStatus === 'rejected') {
+      setApprovalStatus('declined');
+      return;
+    }
+    setApprovalStatus('pending');
+  }, [user?.kycTier3ReviewStatus, user?.kycTier3Status]);
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-[#F7FAFA]">
@@ -108,24 +126,6 @@ const AccountApprovalDetails = () => {
     if (isNaN(d)) return val;
     return d.toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' });
   };
-
-  useEffect(() => {
-    const normalizedTierStatus = String(
-      user?.kycTier3ReviewStatus || user?.kycTier3Status || ''
-    )
-      .trim()
-      .toLowerCase();
-
-    if (normalizedTierStatus === 'approved') {
-      setApprovalStatus('approved');
-      return;
-    }
-    if (normalizedTierStatus === 'declined' || normalizedTierStatus === 'rejected') {
-      setApprovalStatus('declined');
-      return;
-    }
-    setApprovalStatus('pending');
-  }, [user?.kycTier3ReviewStatus, user?.kycTier3Status]);
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
