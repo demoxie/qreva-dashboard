@@ -9,6 +9,8 @@ const UserProfileHeader = ({
 }) => {
   const displayName = user.name || user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Unknown';
   const displayEmail = user.email || user.emailAddress || '';
+  const normalizedRole = String(user?.role || '').trim().toLowerCase();
+  const hideTierBadge = normalizedRole === 'aggregator' || normalizedRole === 'aggregator_manager' || normalizedRole === 'manager';
 
   const getInitials = (name) => {
     if (!name) return '??';
@@ -33,9 +35,11 @@ const UserProfileHeader = ({
             <h3 className="text-xl font-bold text-gray-900">{displayName}</h3>
             <p className="text-gray-600">{displayEmail}</p>
           </div>
-          <span className="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm font-medium">
-            {user.tier}
-          </span>
+          {!hideTierBadge && user?.tier && (
+            <span className="px-3 py-1 bg-cyan-100 text-cyan-700 rounded-full text-sm font-medium">
+              {user.tier}
+            </span>
+          )}
         </div>
         
         {/* Actions Dropdown Button */}
