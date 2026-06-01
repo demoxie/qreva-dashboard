@@ -28,6 +28,7 @@ export const useLogin = () => {
       localStorage.setItem('userEmail', admin.emailAddress);
       localStorage.setItem('userName', `${admin.firstName} ${admin.lastName}`);
       localStorage.setItem('mustChangePassword', mustChangePassword);
+      localStorage.setItem('userPermissions', JSON.stringify(admin.permissions || []));
 
       queryClient.invalidateQueries({ queryKey: ['admin'] });
       handleSuccess(response.message || successMessages.LOGIN_SUCCESS);

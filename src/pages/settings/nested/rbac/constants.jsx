@@ -1,4 +1,4 @@
-import { Eye, Mail, Power } from "lucide-react";
+import { Eye, Mail, Power, ShieldCheck, UserRoundCog } from "lucide-react";
 
 const formatDateTime = (value) => {
   if (!value) return "-";
@@ -64,6 +64,15 @@ export const ADMIN_COLUMNS = [
     ),
   },
   {
+    field: "rolePermissionName",
+    headerName: "Permission Group",
+    minWidth: 180,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#344054]">{params.value || "Default Group"}</span>
+    ),
+  },
+  {
     field: "inviteStatus",
     headerName: "Invite Status",
     minWidth: 160,
@@ -113,6 +122,11 @@ export const ADMIN_ROW_ACTIONS = [
     label: "Suspend / Activate",
     icon: Power,
   },
+  {
+    key: "assignGroup",
+    label: "Assign Group",
+    icon: UserRoundCog,
+  },
 ];
 
 export const ADMIN_FILTER_GROUPS = [
@@ -138,4 +152,77 @@ export const ADMIN_LEVEL_OPTIONS = [
   { label: "Super Admin", value: "SuperAdmin" },
   { label: "Operation", value: "Operation" },
   { label: "Support", value: "Support" },
+];
+
+export const GROUP_COLUMNS = [
+  {
+    field: "roleName",
+    headerName: "Group Name",
+    minWidth: 220,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm font-semibold text-[#1E1E1E]">{params.value || "-"}</span>
+    ),
+  },
+  {
+    field: "description",
+    headerName: "Description",
+    minWidth: 260,
+    flex: 1.4,
+    renderCell: (params) => (
+      <span className="text-sm text-[#344054]">{params.value || "-"}</span>
+    ),
+  },
+  {
+    field: "permissionCount",
+    headerName: "Permissions",
+    minWidth: 140,
+    flex: 0.6,
+    renderCell: (params) => (
+      <span className="text-sm text-[#344054]">{params.value ?? 0}</span>
+    ),
+  },
+  {
+    field: "roleSections",
+    headerName: "Roles In Group",
+    minWidth: 220,
+    flex: 1,
+    renderCell: (params) => (
+      <span className="text-sm text-[#344054]">{params.value || "-"}</span>
+    ),
+  },
+  {
+    field: "permissionsPreview",
+    headerName: "Permission List",
+    minWidth: 280,
+    flex: 1.3,
+    renderCell: (params) => (
+      <span className="text-xs text-[#667085]">{params.value || "-"}</span>
+    ),
+  },
+  {
+    field: "active",
+    headerName: "Status",
+    minWidth: 130,
+    flex: 0.6,
+    renderCell: (params) => renderStatusBadge(params.value ? "Active" : "Inactive", accountStatusTones),
+  },
+];
+
+export const GROUP_ROW_ACTIONS = [
+  {
+    key: "viewGroup",
+    label: "View Details",
+    icon: Eye,
+  },
+  {
+    key: "editGroup",
+    label: "Edit Group",
+    icon: ShieldCheck,
+  },
+  {
+    key: "assignGroupToMember",
+    label: "Assign to Member",
+    icon: UserRoundCog,
+  },
 ];

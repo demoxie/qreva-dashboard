@@ -50,6 +50,7 @@ const LoginPage = ({ onLogin }) => {
         role: admin.role,
         token: token,
         userId: admin._id,
+        permissions: admin.permissions || [],
         mustChangePassword: mustChangePassword,
         status: admin.status,
       });

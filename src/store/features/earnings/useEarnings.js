@@ -3,11 +3,12 @@ import { earningsApi } from '../../api/earnings-api';
 import { handleError } from '../../utils/handleError';
 import { handleSuccess } from '../../utils/handleSuccess';
 
-export const useEarnings = () => {
+export const useEarnings = (options = {}) => {
   return useQuery({
     queryKey: ['earnings'],
     queryFn: () => earningsApi.getEarnings(),
     staleTime: 2 * 60 * 1000,
+    enabled: options.enabled ?? true,
   });
 };
 

@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useDashboardMetrics } from '@/store/features/dashboard/useDashboard';
+import { useEarnings } from '@/store/features/earnings/useEarnings';
 import { useTransactions } from '@/store/features/transactions/useTransactions';
+import { useUserMetrics } from '@/store/features/users/useUsers';
 import { formatDashboardStats } from '@/utils/formatDashboardStats';
 import PageHeader from '@/components/common/PageHeader';
 import AdminDashboard from '@/components/dashboard/AdminDashboard';
@@ -28,6 +30,20 @@ const DashboardContent = () => {
     category: 'all',
     range: timeFilter,
   });
+
+  // Role checks
+  const isAdmin = ['SuperAdmin', 'Operation', 'Support'].includes(user?.role || '');
+  const isAgent = user?.role === 'agent';
+  const isAggregator = user?.role === 'aggregator';
+  const isAggregatorManager = user?.role === 'aggregator_manager';
+  const isPortalUpline = isAggregator || isAggregatorManager;
+
+  const { data: earningsResponse } = useEarnings({
+    enabled: isPortalUpline,
+  });
+  const { data: userMetricsResponse } = useUserMetrics(
+    isPortalUpline ? { range: timeFilter } : {},
+  );
 
   // Fetch transactions using the new API
   const { 
@@ -83,16 +99,47 @@ const DashboardContent = () => {
   const pagination = useMemo(() => transactionData?.pagination || {}, [transactionData]);
 
   // Format stats for DashboardStats component
-  const formattedStats = useMemo(() => {
+  const baseFormattedStats = useMemo(() => {
     if (!metrics?.summary) return null;
     return formatDashboardStats(metrics.summary, metrics.changePercentages, timeFilter);
   }, [metrics, timeFilter]);
 
-  // Role checks
-  const isAdmin = ['SuperAdmin', 'Operation', 'Support'].includes(user?.role || '');
-  const isAgent = user?.role === 'agent';
-  const isAggregator = user?.role === 'aggregator';
-  const isAggregatorManager = user?.role === 'aggregator_manager';
+  const formattedStats = useMemo(() => {
+    if (!baseFormattedStats) return null;
+    if (!isPortalUpline) return baseFormattedStats;
+
+    const totalEarnings = Number(earningsResponse?.data?.totalEarnings || 0);
+    const totalAgents = Number(userMetricsResponse?.data?.agents || 0);
+    const totalAgentsChange = String(userMetricsResponse?.data?.agentsChange || '0%');
+    const formatCurrency = (amount) =>
+      new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN',
+        minimumFractionDigits: 0,
+      }).format(amount);
+    const formatNumber = (count) =>
+      new Intl.NumberFormat('en-US').format(count);
+
+    const earningsCard = {
+      label: 'Your Earnings',
+      value: formatCurrency(totalEarnings),
+      change: '',
+      subtext: 'All-time earned on the system',
+    };
+    const totalAgentsCard = {
+      label: 'Total Agents',
+      value: formatNumber(totalAgents),
+      change: totalAgentsChange,
+      subtext: 'Total downline agents',
+    };
+
+    return [
+      earningsCard,
+      baseFormattedStats[0], // Total Transaction Volume (downline only)
+      baseFormattedStats[1], // Total Transaction Value (downline only)
+      totalAgentsCard,
+    ].filter(Boolean);
+  }, [baseFormattedStats, earningsResponse, isPortalUpline, userMetricsResponse]);
 
   // Transaction actions
   const transactionActions = [

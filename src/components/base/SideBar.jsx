@@ -33,6 +33,7 @@ const ICON_MAP = {
   softpos: SoftPOSIcon,
   kyc: KYCIcon,
   earnings: EarningsIcon,
+  balances: EarningsIcon,
   users: UsersIcon,
   agents: AgentsIcon,
   aggregator: AggregatorIcon,
