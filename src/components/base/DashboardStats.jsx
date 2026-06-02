@@ -42,12 +42,7 @@ const DashboardStats = ({ stats, route }) => {
       case "agent":
       case "aggregator":
       case "aggregator_manager":
-        return {
-          label: "Your Earnings",
-          value: "₦1,570,823",
-          change: "",
-          subtext: "₦100,000 in last 24 hours",
-        };
+        return statsToDisplay[0] || defaultStats[0];
 
       default:
         return statsToDisplay[0];

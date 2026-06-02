@@ -8,6 +8,13 @@ export const ROUTES = {
     icon: 'dashboard',
     permission: 'dashboard:view',
   },
+  BALANCES: {
+    path: '/balances',
+    label: 'Balances',
+    parent: null,
+    icon: 'balances',
+    permission: 'balances:view',
+  },
 
 
   // Transaction routes
@@ -422,6 +429,11 @@ export const MENU_STRUCTURE = [
     id: 'dashboard',
     type: 'item',
     routeKey: 'DASHBOARD',
+  },
+  {
+    id: 'balances',
+    type: 'item',
+    routeKey: 'BALANCES',
   },
   {
     id: 'transactions',
