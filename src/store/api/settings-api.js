@@ -69,6 +69,11 @@ export const settingsApi = {
     return data;
   },
 
+  listPermissionGroups: async () => {
+    const { data } = await apiClient.get('/admin/settings/rbac/permission-groups');
+    return data;
+  },
+
   createRole: async (roleData) => {
     const { data } = await apiClient.post('/admin/settings/rbac/roles', roleData);
     return data;

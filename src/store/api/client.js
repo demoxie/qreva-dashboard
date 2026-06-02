@@ -13,6 +13,18 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('adminToken');
+    const userRole = (localStorage.getItem('userRole') || '').toLowerCase();
+    const isPortalSession = userRole === 'aggregator' || userRole === 'aggregator_manager' || userRole === 'manager';
+
+    if (
+      isPortalSession &&
+      typeof config.url === 'string' &&
+      config.url.startsWith('/admin/') &&
+      !config.url.startsWith('/admin/auth/')
+    ) {
+      config.url = config.url.replace('/admin/', '/portal/');
+    }
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

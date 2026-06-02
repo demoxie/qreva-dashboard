@@ -196,13 +196,10 @@ const Breadcrumb = ({ user }) => {
         </button>
         <hr className="h-8 border-l border-gray-300" />
 
-        <div className={`flex items-center gap-2 h-11 bg-[#F7FAFA] border border-[#D9D9D9] rounded-[36px] px-1 ${user?.role === 'SuperAdmin' ? 'w-10' : 'w-[87px]'}`}>
+        <div className="flex items-center gap-2 h-11 bg-[#F7FAFA] border border-[#D9D9D9] rounded-[36px] px-1 w-10">
           <span className="text-[12.8px] font-urbanist font-semibold text-[#1E1E1E]  bg-[#CEEBF5] w-8 h-8 rounded-full flex items-center justify-center">
             {user?.username?.split(' ').map(n => n[0]).join('').toUpperCase() || 'JFD'}
           </span>
-          {user?.role !== 'SuperAdmin' && (
-            <span className="text-[14px] font-general font-medium text-[#808C91] leading-[148px]">Tier 1</span>
-          )}
         </div>
       </div>
     </div>

@@ -19,6 +19,14 @@ export const useRole = (rolePermissionId) => {
   });
 };
 
+export const usePermissionGroups = (options = {}) => {
+  return useQuery({
+    queryKey: ['permission-groups'],
+    queryFn: () => settingsApi.listPermissionGroups(),
+    ...options,
+  });
+};
+
 export const useCreateRole = () => {
   const queryClient = useQueryClient();
 

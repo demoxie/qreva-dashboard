@@ -31,7 +31,7 @@ const AggregatorDashboard = ({
   isTransactionsLoading,
   userRole,
 }) => {
-  const shouldLoadReferral = userRole === 'aggregator';
+  const shouldLoadReferral = userRole === 'aggregator' || userRole === 'aggregator_manager';
   const { data: referralResponse } = useAggregatorReferralLink({
     enabled: shouldLoadReferral,
   });

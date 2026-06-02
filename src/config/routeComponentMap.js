@@ -15,6 +15,7 @@ import AccountApprovals from "@/pages/accountApprovals/AccountApprovals";
 import DisputedTransactions from "@/pages/disputedTransactions/DisputedTransactions";
 import Request from "@/pages/request/Request";
 import Settings from "@/pages/settings/Settings";
+import Balances from "@/pages/balances/Balances";
 
 // Settings
 import MyProfile from "@/pages/settings/nested/profile/MyProfile";
@@ -52,6 +53,7 @@ import DisputedTransactionDetails from "@/pages/disputedTransactions/DisputedTra
 // ===== Component Mapper by ROUTES Key =====
 export const RouteComponentMap = {
   DASHBOARD: DashboardContent,
+  BALANCES: Balances,
   AIRTIME: AirtimePurchase,
   DATA: DataPurchase,
   KYC: KYCVerification,

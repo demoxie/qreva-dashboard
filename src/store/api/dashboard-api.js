@@ -5,4 +5,9 @@ export const dashboardApi = {
     const { data } = await apiClient.get('/admin/dashboard/metrics', { params });
     return data;
   },
+
+  getBalancesSummary: async (params = {}) => {
+    const { data } = await apiClient.get('/admin/dashboard/balances/summary', { params });
+    return data;
+  },
 };

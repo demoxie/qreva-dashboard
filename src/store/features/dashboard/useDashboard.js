@@ -83,3 +83,11 @@ export const useCategoryMetrics = (category, params = {}) => {
     enabled: !!category,
   });
 };
+
+export const useBalancesSummary = (params = {}) => {
+  return useQuery({
+    queryKey: ['dashboard-balances-summary', params],
+    queryFn: () => dashboardApi.getBalancesSummary(params),
+    staleTime: 2 * 60 * 1000,
+  });
+};
