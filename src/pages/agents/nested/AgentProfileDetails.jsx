@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
@@ -9,6 +10,7 @@ import LoadingState from '@/components/common/LoadingState';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import { createTransactionActions } from '@/utils/profileUtils';
+import { userTransactionColumns } from '@/pages/users/constants';
 import { availableTabs, createChartSeries } from '../constants'
 
 const AgentProfileDetails = () => {
@@ -72,6 +74,7 @@ const AgentProfileDetails = () => {
           stats={agentData.stats}
           transactions={agentTransactions}
           actions={transactionActions}
+          columns={userTransactionColumns}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <PaymentComparisonPie data={agentData.chartData || []} />
