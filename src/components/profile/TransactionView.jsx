@@ -8,6 +8,12 @@ const TransactionView = ({
   actions,
   columns,
   setSearchQuery,
+  loading,
+  paginationMode,
+  rowCount,
+  paginationModel,
+  onPaginationModelChange,
+  pagination,
   children 
 }) => {
   return (
@@ -25,6 +31,12 @@ const TransactionView = ({
           onSearch={setSearchQuery}
           onFilter={() => console.log('Filter clicked')}
           showExport={true}
+          loading={loading}
+          paginationMode={paginationMode}
+          rowCount={rowCount}
+          paginationModel={paginationModel}
+          onPaginationModelChange={onPaginationModelChange}
+          pagination={pagination}
         />
     </>
   );
