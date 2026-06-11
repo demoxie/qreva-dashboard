@@ -66,6 +66,24 @@ export const useActivateUser = () => {
   });
 };
 
+export const useUpdateUserTransactionLevel = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, payload }) => usersApi.updateUserTransactionLevel(userId, payload),
+    onSuccess: (response, variables) => {
+      handleSuccess(response?.message || 'Transaction level updated successfully.');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      if (variables?.userId) {
+        queryClient.invalidateQueries({ queryKey: ['user', 'agents', variables.userId] });
+        queryClient.invalidateQueries({ queryKey: ['user', 'users', variables.userId] });
+      }
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to update transaction level.');
+    },
+  });
+};
+
 export const useAggregatorReferralLink = (options = {}) => {
   return useQuery({
     queryKey: ['aggregator-referral-link'],

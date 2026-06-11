@@ -1,6 +1,13 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useProfileModals } from '@/hooks/useProfileModals';
-import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import {
+  useUserById,
+  useUserTransactions,
+  useSuspendUser,
+  useActivateUser,
+  useUpdateUserTransactionLevel,
+} from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
@@ -9,12 +16,77 @@ import LoadingState from '@/components/common/LoadingState';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import MultiLineChart from '@/components/charts/MultiLineChart';
 import { createTransactionActions } from '@/utils/profileUtils';
+import { useAuth } from '@/hooks/useAuth';
 import { availableTabs, createChartSeries } from '../constants'
+
+const TRANSACTION_LEVELS = ['STARTER', 'BRONZE', 'SILVER', 'GOLD'];
+
+const formatLevelLabel = (value) => {
+  const normalized = String(value || '').trim().toUpperCase();
+  return normalized ? `${normalized.charAt(0)}${normalized.slice(1).toLowerCase()}` : 'Starter';
+};
+
+const TransactionLevelCard = ({
+  currentLevel,
+  selectedLevel,
+  onChange,
+  onSave,
+  isSaving,
+  canManage,
+}) => {
+  const hasChanges = String(selectedLevel || '').trim().toUpperCase() !== String(currentLevel || '').trim().toUpperCase();
+
+  return (
+    <div className="mb-6 rounded-2xl border border-[#E8EBED] bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-sm font-medium text-[#808C91]">Transaction Level</p>
+          <div className="mt-2 flex items-center gap-3">
+            <span className="inline-flex rounded-full bg-[#FFF1EA] px-3 py-1 text-sm font-semibold text-[#FF5B04]">
+              {formatLevelLabel(currentLevel)}
+            </span>
+            <p className="text-sm text-[#505C61]">
+              This controls the agent&apos;s active contract tier on the platform.
+            </p>
+          </div>
+        </div>
+
+        {canManage ? (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <select
+              value={selectedLevel}
+              onChange={(e) => onChange(e.target.value)}
+              className="h-11 min-w-[180px] rounded-lg border border-[#D9D9D9] bg-white px-4 text-sm text-[#1E1E1E] focus:border-[#FF5B04] focus:outline-none"
+            >
+              {TRANSACTION_LEVELS.map((level) => (
+                <option key={level} value={level}>
+                  {formatLevelLabel(level)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={onSave}
+              disabled={!hasChanges || isSaving}
+              className="h-11 rounded-lg bg-[#FF5B04] px-5 text-sm font-semibold text-white hover:bg-[#E54F03] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isSaving ? 'Saving...' : 'Update Level'}
+            </button>
+          </div>
+        ) : (
+          <p className="text-sm text-[#808C91]">Only Operation and SuperAdmin can change this level.</p>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const AgentProfileDetails = () => {
   const { id } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'transactions';
+  const { user } = useAuth();
+  const [selectedLevel, setSelectedLevel] = useState('STARTER');
 
   
   
@@ -25,6 +97,16 @@ const AgentProfileDetails = () => {
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const updateTransactionLevelMutation = useUpdateUserTransactionLevel();
+  const canManageTransactionLevel = useMemo(
+    () => ['SuperAdmin', 'Operation'].includes(user?.role || ''),
+    [user?.role],
+  );
+
+  useEffect(() => {
+    const currentLevel = String(agentData?.transactionLevel || agentData?.transcationLevel || 'STARTER').toUpperCase();
+    setSelectedLevel(currentLevel);
+  }, [agentData?.transactionLevel, agentData?.transcationLevel]);
 
   const handleTabChange = (tab) => {
     setSearchParams({ tab });
@@ -49,6 +131,20 @@ const AgentProfileDetails = () => {
   if (loading) return <LoadingState />;
   if (!agentData) return <LoadingState message="Agent not found" />;
 
+  const currentTransactionLevel = String(
+    agentData.transactionLevel || agentData.transcationLevel || 'STARTER',
+  ).toUpperCase();
+
+  const handleUpdateTransactionLevel = () => {
+    if (!agentData?._id) return;
+    updateTransactionLevelMutation.mutate({
+      userId: agentData._id,
+      payload: {
+        transactionLevel: selectedLevel,
+      },
+    });
+  };
+
   return (
      <ProfileLayout
       userData={agentData}
@@ -66,13 +162,31 @@ const AgentProfileDetails = () => {
       ]}
     >
       {activeTab === 'profile' ? (
-        <ProfileDetailsView userData={agentData} showBusinessDetails />
+        <>
+          <TransactionLevelCard
+            currentLevel={currentTransactionLevel}
+            selectedLevel={selectedLevel}
+            onChange={setSelectedLevel}
+            onSave={handleUpdateTransactionLevel}
+            isSaving={updateTransactionLevelMutation.isPending}
+            canManage={canManageTransactionLevel}
+          />
+          <ProfileDetailsView userData={agentData} showBusinessDetails />
+        </>
       ) : (
         <TransactionView
           stats={agentData.stats}
           transactions={agentTransactions}
           actions={transactionActions}
         >
+          <TransactionLevelCard
+            currentLevel={currentTransactionLevel}
+            selectedLevel={selectedLevel}
+            onChange={setSelectedLevel}
+            onSave={handleUpdateTransactionLevel}
+            isSaving={updateTransactionLevelMutation.isPending}
+            canManage={canManageTransactionLevel}
+          />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             <PaymentComparisonPie data={agentData.chartData || []} />
             <MultiLineChart data={agentData.chartData || []} series={createChartSeries(agentData.chartData)} />

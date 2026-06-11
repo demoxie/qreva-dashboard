@@ -31,6 +31,11 @@ export const usersApi = {
     return data;
   },
 
+  updateUserTransactionLevel: async (userId, payload) => {
+    const { data } = await apiClient.patch(`/admin/dashboard/users/${userId}/transaction-level`, payload);
+    return data;
+  },
+
   inviteAggregator: async (payload) => {
     const { data } = await apiClient.post('/admin/aggregators/invite', payload);
     return data;
