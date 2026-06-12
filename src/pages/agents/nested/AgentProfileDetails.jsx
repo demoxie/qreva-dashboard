@@ -3,15 +3,12 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import { useProfileModals } from '@/hooks/useProfileModals';
 import {
   useUserById,
+  useUserMetrics,
   useUserTransactions,
   useSuspendUser,
   useActivateUser,
   useUpdateUserTransactionLevel,
 } from '@/store/features/users/useUsers';
-import { useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { useProfileModals } from '@/hooks/useProfileModals';
-import { useUserById, useUserMetrics, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
 import ProfileDetailsView from '@/components/profile/ProfileDetailsView';
 import TransactionView from '@/components/profile/TransactionView';
