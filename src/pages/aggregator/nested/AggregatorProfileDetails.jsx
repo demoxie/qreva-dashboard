@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
@@ -13,7 +13,7 @@ import LoadingState from '@/components/common/LoadingState';
 import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
-import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useUserById, useUserMetrics, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import AggregatorCommissionSettingsModal from '@/components/modals/AggregatorCommissionSettingsModal';
 import {
   useAggregatorCommissionSettingsForUser,
@@ -22,6 +22,7 @@ import {
 import { useAggregatorProfileModals } from '@/hooks/useAggregatorProfileModals';
 import { useAgentDropdown } from '@/hooks/useAgentDropdown';
 import { createTransactionActions } from '@/utils/profileUtils';
+import { formatProfileMetrics, getProfileChartData } from '@/utils/formatProfileMetrics';
 import { aggregatorProfileTabs, createChartSeries } from '../constants';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -32,11 +33,22 @@ const AggregatorProfileDetails = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
+  const [transactionSearchQuery, setTransactionSearchQuery] = useState('');
+  const [transactionPaginationModel, setTransactionPaginationModel] = useState({ page: 0, pageSize: 5 });
   
   const { data: aggregatorResponse, isLoading: loading } = useUserById(id, 'aggregators');
   const aggregatorData = aggregatorResponse?.data;
-  const { data: txResponse } = useUserTransactions(id, 'aggregators');
+  const { data: metricsResponse } = useUserMetrics({
+    type: 'Aggregator',
+    userId: id,
+  });
+  const { data: txResponse, isLoading: loadingTransactions } = useUserTransactions(id, 'aggregators', {
+    page: transactionPaginationModel.page + 1,
+    limit: transactionPaginationModel.pageSize,
+    search: transactionSearchQuery || undefined,
+  });
   const aggregatorTransactions = txResponse?.data || [];
+  const transactionPagination = txResponse?.pagination || {};
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
@@ -73,6 +85,19 @@ const AggregatorProfileDetails = () => {
     setters.setShowShareModal
   );
 
+  const aggregatorStats = useMemo(() => {
+    return formatProfileMetrics(metricsResponse, aggregatorData?.stats);
+  }, [aggregatorData?.stats, metricsResponse]);
+
+  const chartData = useMemo(() => {
+    return getProfileChartData(metricsResponse, aggregatorData?.chartData);
+  }, [aggregatorData?.chartData, metricsResponse]);
+
+  const handleTransactionSearch = useCallback((value) => {
+    setTransactionSearchQuery(value);
+    setTransactionPaginationModel((model) => ({ ...model, page: 0 }));
+  }, []);
+
   const aggregatorActions = [
     {
       label: 'Suspend Aggregator',
@@ -95,7 +120,7 @@ const AggregatorProfileDetails = () => {
   if (loading) return <LoadingState />;
   if (!aggregatorData) return <LoadingState message="Aggregator not found" />;
 
-  const chartSeries = createChartSeries(aggregatorData.chartData);
+  const chartSeries = createChartSeries(chartData);
   const commissionActionButton =
     canManageCommission && aggregatorData?._id ? (
       <button
@@ -192,7 +217,7 @@ const AggregatorProfileDetails = () => {
             actions={aggregatorActions}
           />
 
-          <DashboardStats stats={aggregatorData?.stats} />
+          <DashboardStats stats={aggregatorStats} />
           <AgentsTable agents={aggregatorData.agents} onActionClick={handleAgentActionClick} />
         </div>
 
@@ -244,10 +269,10 @@ const AggregatorProfileDetails = () => {
           actions={aggregatorActions}
         />
 
-        <DashboardStats stats={aggregatorData?.stats} />
+        <DashboardStats stats={aggregatorStats} />
 
         <TransactionChartsSection 
-          chartData={aggregatorData.chartData}
+          chartData={chartData}
           chartSeries={chartSeries}
         />
 
@@ -255,6 +280,12 @@ const AggregatorProfileDetails = () => {
           data={aggregatorTransactions}
           title="Transaction History"
           actions={transactionActions}
+          onSearch={handleTransactionSearch}
+          loading={loadingTransactions}
+          paginationMode="server"
+          rowCount={transactionPagination.total || 0}
+          paginationModel={transactionPaginationModel}
+          onPaginationModelChange={setTransactionPaginationModel}
         />
       </div>
 

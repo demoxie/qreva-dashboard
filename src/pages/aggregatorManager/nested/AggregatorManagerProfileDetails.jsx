@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import PageHeader from '@/components/common/PageHeader';
 import DashboardStats from '@/components/base/DashboardStats';
@@ -12,7 +12,7 @@ import LoadingState from '@/components/common/LoadingState';
 import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
-import { useUserById, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import { useUserById, useUserMetrics, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
 import AggregatorCommissionSettingsModal from '@/components/modals/AggregatorCommissionSettingsModal';
 import {
   useAggregatorCommissionSettingsForUser,
@@ -21,6 +21,7 @@ import {
 import { useAggregatorProfileModals } from '@/hooks/useAggregatorProfileModals';
 import { useAgentDropdown } from '@/hooks/useAgentDropdown';
 import { createTransactionActions } from '@/utils/profileUtils';
+import { formatProfileMetrics, getProfileChartData } from '@/utils/formatProfileMetrics';
 import { createChartSeries } from '@/pages/aggregator/constants';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent } from '@/components/ui/card';
@@ -146,11 +147,22 @@ const AggregatorManagerProfileDetails = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
+  const [transactionSearchQuery, setTransactionSearchQuery] = useState('');
+  const [transactionPaginationModel, setTransactionPaginationModel] = useState({ page: 0, pageSize: 5 });
 
   const { data: managerResponse, isLoading: loading } = useUserById(id, 'aggregator-managers');
   const managerData = managerResponse?.data;
-  const { data: txResponse } = useUserTransactions(id, 'aggregator-managers');
+  const { data: metricsResponse } = useUserMetrics({
+    type: 'AggregatorManager',
+    userId: id,
+  });
+  const { data: txResponse, isLoading: loadingTransactions } = useUserTransactions(id, 'aggregator-managers', {
+    page: transactionPaginationModel.page + 1,
+    limit: transactionPaginationModel.pageSize,
+    search: transactionSearchQuery || undefined,
+  });
   const managerTransactions = txResponse?.data || [];
+  const transactionPagination = txResponse?.pagination || {};
 
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
   const suspendUserMutation = useSuspendUser();
@@ -200,6 +212,19 @@ const AggregatorManagerProfileDetails = () => {
     setters.setShowShareModal
   );
 
+  const managerStats = useMemo(() => {
+    return formatProfileMetrics(metricsResponse, managerData?.stats);
+  }, [managerData?.stats, metricsResponse]);
+
+  const chartData = useMemo(() => {
+    return getProfileChartData(metricsResponse, managerData?.chartData);
+  }, [managerData?.chartData, metricsResponse]);
+
+  const handleTransactionSearch = useCallback((value) => {
+    setTransactionSearchQuery(value);
+    setTransactionPaginationModel((model) => ({ ...model, page: 0 }));
+  }, []);
+
   const managerActions = [
     {
       label: 'Suspend Account',
@@ -222,7 +247,7 @@ const AggregatorManagerProfileDetails = () => {
   if (loading) return <LoadingState />;
   if (!managerData) return <LoadingState message="Aggregator Manager not found" />;
 
-  const chartSeries = createChartSeries(managerData.chartData);
+  const chartSeries = createChartSeries(chartData);
   const commissionActionButton =
     canManageCommission && managerData?._id ? (
       <button
@@ -341,7 +366,7 @@ const AggregatorManagerProfileDetails = () => {
             onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
             actions={managerActions}
           />
-          <DashboardStats stats={managerData?.stats} />
+          <DashboardStats stats={managerStats} />
           <Card>
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-lg font-urbanist font-semibold text-[#1E1E1E]">Aggregators</h2>
@@ -425,7 +450,7 @@ const AggregatorManagerProfileDetails = () => {
             onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
             actions={managerActions}
           />
-          <DashboardStats stats={managerData?.stats} />
+          <DashboardStats stats={managerStats} />
           <AgentsTable agents={managerData.agents || []} onActionClick={handleAgentActionClick} />
         </div>
 
@@ -502,7 +527,7 @@ const AggregatorManagerProfileDetails = () => {
             onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
             actions={managerActions}
           />
-          <DashboardStats stats={managerData?.stats} />
+          <DashboardStats stats={managerStats} />
           <Card>
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-lg font-urbanist font-semibold text-[#1E1E1E]">Merchants</h2>
@@ -585,10 +610,10 @@ const AggregatorManagerProfileDetails = () => {
           onToggleActionsMenu={() => setters.setShowActionsMenu(!modals.showActionsMenu)}
           actions={managerActions}
         />
-        <DashboardStats stats={managerData?.stats} />
+        <DashboardStats stats={managerStats} />
 
         <TransactionChartsSection
-          chartData={managerData.chartData}
+          chartData={chartData}
           chartSeries={chartSeries}
         />
 
@@ -596,6 +621,12 @@ const AggregatorManagerProfileDetails = () => {
           data={managerTransactions}
           title="Transaction History"
           actions={transactionActions}
+          onSearch={handleTransactionSearch}
+          loading={loadingTransactions}
+          paginationMode="server"
+          rowCount={transactionPagination.total || 0}
+          paginationModel={transactionPaginationModel}
+          onPaginationModelChange={setTransactionPaginationModel}
         />
       </div>
 
