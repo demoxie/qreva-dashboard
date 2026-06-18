@@ -14,12 +14,20 @@ import {
   useActivateUser,
 } from "@/store/features/users/useUsers";
 import { formatUserStats } from "@/utils/formatUserStats";
+import { buildPortalNetworkStats, mapTimeFilterToRange } from "@/utils/formatPortalNetworkStats";
+import { useAuth } from "@/hooks/useAuth";
 
 const Agents = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
   const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 });
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const normalizedRole = String(user?.role || "").toLowerCase();
+  const isPortalAggregator = normalizedRole === "aggregator";
+  const isPortalAggregatorManager = normalizedRole === "aggregator_manager";
+  const isPortalUpline = isPortalAggregator || isPortalAggregatorManager;
+  const metricsRange = mapTimeFilterToRange(timeFilter);
 
   const { data: usersResponse, isLoading } = useUsers({
     type: "Agent",
@@ -36,9 +44,16 @@ const Agents = () => {
     limit: 1,
   });
 
+  const { data: userMetricsResponse } = useUserMetrics(
+    isPortalUpline ? { range: metricsRange } : {},
+  );
+
   const metricsStats = useMemo(
-    () => formatUserStats(usersResponse, activeAgentsResponse, "Agents"),
-    [usersResponse, activeAgentsResponse],
+    () =>
+      isPortalUpline
+        ? buildPortalNetworkStats(userMetricsResponse?.data, normalizedRole)
+        : formatUserStats(usersResponse, activeAgentsResponse, "Agents"),
+    [usersResponse, activeAgentsResponse, isPortalUpline, userMetricsResponse, normalizedRole],
   );
 
   const { modals, setters, selectedAgent, setSelectedAgent } = useAgentModals();
@@ -92,7 +107,13 @@ const Agents = () => {
       <div className="p-6">
         <PageHeader
           title="Agents"
-          subtitle="Here is the full list of agents on the platform"
+          subtitle={
+            isPortalAggregator
+              ? "Here are the agents under your network"
+              : isPortalAggregatorManager
+                ? "Here are the agents within your aggregator network"
+                : "Here is the full list of agents on the platform"
+          }
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
           // actionButton={
