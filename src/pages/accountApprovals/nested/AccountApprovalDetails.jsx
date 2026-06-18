@@ -18,7 +18,7 @@ const DetailItem = ({ label, value, className = '' }) => (
 const ImagePreview = ({ label, src, alt }) => (
   <div>
     <p className="text-xs text-[#808C91] mb-2">{label}</p>
-    {src && (
+    {src && !String(src).startsWith('data:') && (
       <a
         href={src}
         target="_blank"
