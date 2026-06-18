@@ -8,6 +8,7 @@ import { aggregatorColumns, createAggregatorActions } from "./constants";
 import DashboardStats from "@/components/base/DashboardStats";
 import {
   useUsers,
+  useUserMetrics,
   useSuspendUser,
   useActivateUser,
   useInviteAggregator,
@@ -20,6 +21,7 @@ import {
 import { formatUserStats } from "@/utils/formatUserStats";
 import { useAuth } from "@/hooks/useAuth";
 import ManageNetworkModal from "@/components/modals/ManageNetworkModal";
+import { buildPortalNetworkStats, mapTimeFilterToRange } from "@/utils/formatPortalNetworkStats";
 
 const Aggregators = () => {
   const [timeFilter, setTimeFilter] = useState("Today");
@@ -31,6 +33,8 @@ const Aggregators = () => {
   const { user } = useAuth();
   const normalizedRole = (user?.role || "").toLowerCase();
   const canManageAggregators = normalizedRole !== "aggregator" && normalizedRole !== "aggregator_manager";
+  const isPortalAggregatorManager = normalizedRole === "aggregator_manager";
+  const metricsRange = mapTimeFilterToRange(timeFilter);
 
   const { data: usersResponse, isLoading } = useUsers({
     type: "Aggregator",
@@ -52,9 +56,22 @@ const Aggregators = () => {
     limit: 1,
   });
 
+  const { data: userMetricsResponse } = useUserMetrics(
+    isPortalAggregatorManager ? { range: metricsRange } : {},
+  );
+
   const metricsStats = useMemo(
-    () => formatUserStats(totalAggregatorsResponse, activeAggregatorsResponse, "Aggregators"),
-    [totalAggregatorsResponse, activeAggregatorsResponse],
+    () =>
+      isPortalAggregatorManager
+        ? buildPortalNetworkStats(userMetricsResponse?.data, normalizedRole)
+        : formatUserStats(totalAggregatorsResponse, activeAggregatorsResponse, "Aggregators"),
+    [
+      totalAggregatorsResponse,
+      activeAggregatorsResponse,
+      isPortalAggregatorManager,
+      userMetricsResponse,
+      normalizedRole,
+    ],
   );
 
   const { modals, setters, selectedAggregator, setSelectedAggregator } =
@@ -158,7 +175,11 @@ const Aggregators = () => {
       <div className="p-6">
         <PageHeader
           title="Aggregators"
-          subtitle="Here is the full list of aggregators on the platform"
+          subtitle={
+            isPortalAggregatorManager
+              ? "Here are the aggregators within your network"
+              : "Here is the full list of aggregators on the platform"
+          }
           timeFilter={timeFilter}
           onTimeFilterChange={setTimeFilter}
           actionButton={canManageAggregators ? (
