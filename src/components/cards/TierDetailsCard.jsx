@@ -30,11 +30,25 @@ const TierDetailsCard = ({ tier, data }) => {
         <DetailItem label="Address" value={data.address} className="col-span-2" />
         <DetailItem label="Document Type" value={data.documentType} className="col-span-2" />
       </div>
-      <ImagePreview
-        label="Uploaded Photo"
-        src={data.documentUrl}
-        alt={`${data.documentType} Image`}
-      />
+      <div className="space-y-4">
+        <ImagePreview
+          label="Photo ID"
+          src={data.photoIdUrl || data.documentUrl}
+          alt="Photo ID"
+        />
+        <ImagePreview
+          label="Proof Of Address"
+          src={data.proofOfAddressUrl || data.documentUrl}
+          alt="Proof Of Address"
+        />
+        {data.cacDocumentUrl && (
+          <ImagePreview
+            label="CAC Document"
+            src={data.cacDocumentUrl}
+            alt="CAC Document"
+          />
+        )}
+      </div>
     </>
   );
 
@@ -58,6 +72,16 @@ const DetailItem = ({ label, value, className = '' }) => (
 const ImagePreview = ({ label, src, alt }) => (
   <div>
     <p className="text-sm text-gray-600 mb-2">{label}</p>
+    {src && (
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        className="mb-2 block break-all text-xs text-blue-600 underline"
+      >
+        {src}
+      </a>
+    )}
     <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
       {src ? (
         <img 
