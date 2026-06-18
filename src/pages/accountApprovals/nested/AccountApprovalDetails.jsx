@@ -18,6 +18,16 @@ const DetailItem = ({ label, value, className = '' }) => (
 const ImagePreview = ({ label, src, alt }) => (
   <div>
     <p className="text-xs text-[#808C91] mb-2">{label}</p>
+    {src && (
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        className="mb-2 block break-all text-xs text-blue-600 underline"
+      >
+        {src}
+      </a>
+    )}
     <div className="border border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-100 min-h-[300px] flex items-center justify-center">
       {src ? (
         <img src={src} alt={alt} className="w-full h-full object-contain" />
@@ -261,7 +271,7 @@ const AccountApprovalDetails = () => {
           </Card>
 
           {/* KYC Tier 3 Documents */}
-          {(kycDocs.proofOfAddress || kycDocs.photoId) && (
+          {(kycDocs.proofOfAddress || kycDocs.photoId || kycDocs.cacDocument) && (
             <Card className="shadow-none border border-gray-200">
               <div className="p-4 border-b border-gray-100">
                 <h3 className="font-semibold text-gray-900">KYC Tier 3 Documents</h3>
@@ -275,6 +285,9 @@ const AccountApprovalDetails = () => {
                 )}
                 {kycDocs.proofOfAddress && (
                   <ImagePreview label="Proof of Address" src={kycDocs.proofOfAddress} alt="Proof of Address" />
+                )}
+                {kycDocs.cacDocument && (
+                  <ImagePreview label="CAC Document" src={kycDocs.cacDocument} alt="CAC Document" />
                 )}
               </CardContent>
             </Card>
