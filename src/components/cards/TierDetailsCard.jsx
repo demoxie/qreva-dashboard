@@ -72,7 +72,7 @@ const DetailItem = ({ label, value, className = '' }) => (
 const ImagePreview = ({ label, src, alt }) => (
   <div>
     <p className="text-sm text-gray-600 mb-2">{label}</p>
-    {src && (
+    {src && !String(src).startsWith('data:') && (
       <a
         href={src}
         target="_blank"
