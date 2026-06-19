@@ -210,7 +210,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
         transaction?.debitAccountNumber ||
         "-";
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm font-general">
+        <div className="grid grid-cols-1 gap-6 text-sm font-general sm:grid-cols-2">
           <DetailRow
             label="Recipient Name"
             value={
@@ -251,7 +251,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
     // ScanToPay
     if (category.includes("scantopay") || category.includes("scan")) {
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm font-general">
+        <div className="grid grid-cols-1 gap-6 text-sm font-general sm:grid-cols-2">
           {transaction.narration && (
             <DetailRow label="Narration" value={transaction.narration} />
           )}
@@ -292,7 +292,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
       const narration = transaction.narration || utility.narration || meta.narration;
       const account = transaction.debitAccountNumber || transaction.accountNumber || utility.accountNumber;
       return (
-        <div className="grid grid-cols-2 gap-6 text-sm font-general">
+        <div className="grid grid-cols-1 gap-6 text-sm font-general sm:grid-cols-2">
           {phoneNumber && (
             <DetailRow label="Phone Number" value={phoneNumber} />
           )}
@@ -334,7 +334,7 @@ const TransactionDetailsModal = ({ isOpen, onClose, transaction }) => {
 
     // Default / generic
     return (
-      <div className="grid grid-cols-2 gap-6 text-sm font-general">
+      <div className="grid grid-cols-1 gap-6 text-sm font-general sm:grid-cols-2">
         {transaction.narration && (
           <DetailRow label="Narration" value={transaction.narration} />
         )}

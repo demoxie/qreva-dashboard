@@ -32,7 +32,7 @@ const TopTransactionValueCard = ({
       <CardContent className="h-full">
         <div className="space-y-3 flex flex-col justify-between h-full">
           {data.map((item, idx) => (
-            <div key={item.id || idx} className="flex items-center gap-3">
+            <div key={item.id || idx} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
               {/* Icon container */}
               {item.icon && (
                 <span className="w-6 h-6 flex items-center justify-center">
@@ -51,12 +51,12 @@ const TopTransactionValueCard = ({
               )}
 
               {/* Transaction name */}
-              <span className="text-sm font-general font-medium text-[#808C91] flex-1">
+              <span className="text-sm font-general font-medium text-[#808C91] sm:flex-1">
                 {item.name || item.provider || item.typeCategory || item.category || item.type || item.channel || "Unknown"}
               </span>
 
               {/* Progress bar */}
-              <div className="flex-1 h-2 bg-[#D6DADB] rounded-full overflow-hidden">
+              <div className="h-2 w-full flex-1 overflow-hidden rounded-full bg-[#D6DADB]">
                 <div
                   className="h-full rounded-full transition-all duration-300"
                   style={{
@@ -67,7 +67,7 @@ const TopTransactionValueCard = ({
               </div>
 
               {/* Amount */}
-              <span className="text-sm font-general font-medium leading-[124%] text-[#084059] w-24 text-right">
+              <span className="text-sm font-general font-medium leading-[124%] text-[#084059] sm:w-24 sm:text-right">
                 N{(item.value || item.amount || item.totalVolume || item.totalAmount || item.total || 0).toLocaleString()}
               </span>
             </div>

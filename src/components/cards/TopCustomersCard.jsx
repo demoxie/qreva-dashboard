@@ -120,15 +120,15 @@ const TopCustomersCard = ({
   return (
     <Card className="h-full">
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-base font-urbanist font-semibold text-[#1E1E1E]">
             {displayTitle}
           </CardTitle>
           {showAgentToggle && (
-            <div className="inline-flex rounded-lg bg-[#F5F6F7] p-1">
+            <div className="inline-flex w-full rounded-lg bg-[#F5F6F7] p-1 sm:w-auto">
               <button
                 onClick={() => setSelectedType("agents")}
-                className={`px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 ${selectedType === "agents" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
+                className={`flex-1 px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 sm:flex-none ${selectedType === "agents" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
               >
                 <span className="flex items-center gap-1.5">
                   <div className={`w-2 h-2 rounded-full ${selectedType === "agents" ? "bg-[#FF6B2C]" : "bg-[#B0B7C3]"}`}></div>
@@ -137,7 +137,7 @@ const TopCustomersCard = ({
               </button>
               <button
                 onClick={() => setSelectedType("personal")}
-                className={`px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 ${selectedType === "personal" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
+                className={`flex-1 px-3 py-1.5 text-xs font-general font-medium rounded-md transition-all duration-200 sm:flex-none ${selectedType === "personal" ? "bg-white text-[#FF6B2C] shadow-sm" : "text-[#7C8D96] hover:text-[#1E1E1E]"}`}
               >
                 <span className="flex items-center gap-1.5">
                   <div className={`w-2 h-2 rounded-full ${selectedType === "personal" ? "bg-[#FF6B2C]" : "bg-[#B0B7C3]"}`}></div>
@@ -149,7 +149,7 @@ const TopCustomersCard = ({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-x-8">
+        <div className={`flex flex-col gap-3 ${displayData.length > 5 ? 'xl:flex-row xl:gap-x-8' : ''}`}>
           {/* First column: first 5 */}
           <div className="flex flex-col gap-y-2 flex-1">
             {displayData.slice(0, 5).map((customer, idx) => (

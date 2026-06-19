@@ -195,26 +195,30 @@ const DataTable = ({
   );
 
   const isLoading = rest.loading || rest.isLoading;
+  const estimatedTableMinWidth = Math.max(
+    720,
+    gridColumns.reduce((total, column) => total + (column.width || 160), 0),
+  );
 
   return (
     <>
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <CardTitle className="text-lg font-urbanist font-semibold text-[#1E1E1E]">
               {title}
             </CardTitle>
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
               {showSearch && (
-                <div className="flex gap-2 items-center">
-                  <div className="relative">
+                <div className="flex w-full gap-2 items-center sm:w-auto">
+                  <div className="relative w-full sm:w-52">
                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       placeholder="Search here..."
                       value={searchQuery}
                       onChange={(e) => handleSearch(e.target.value)}
-                      className="pl-10 pr-3 py-2 text-sm font-general border border-[#E8EBED] rounded-lg outline-none focus:border-[#84C4CF] bg-white w-52"
+                      className="w-full rounded-lg border border-[#E8EBED] bg-white py-2 pl-10 pr-3 text-sm font-general outline-none focus:border-[#84C4CF]"
                     />
                   </div>
                   {shouldShowFilter && (
@@ -334,7 +338,7 @@ const DataTable = ({
               {showExport && (
                 <button
                   onClick={handleExport}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-general font-medium text-[#1E1E1E] bg-white border border-[#E8EBED] rounded-lg hover:bg-[#F5F6F7] transition-colors"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#E8EBED] bg-white px-4 py-2 text-sm font-general font-medium text-[#1E1E1E] transition-colors hover:bg-[#F5F6F7] sm:w-auto"
                   title="Download Report"
                 >
                   <Download size={16} className="text-[#7C8D96]" />
@@ -344,134 +348,138 @@ const DataTable = ({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="px-0 h-full">
-          <DataGrid
-            className="w-full"
-            rows={data}
-            columns={gridColumns}
-            getRowId={
-              getRowId ||
-              ((row) => row._id || row.id || row.userId || row.clientId)
-            }
-            checkboxSelection={showCheckbox}
-            disableRowSelectionOnClick
-            disableColumnResize
-            columnBufferPx={0}
-            paginationMode={
-              paginationMode || (pagination ? "server" : "client")
-            }
-            {...((paginationMode || (pagination ? "server" : "client")) === "server"
-              ? { rowCount: rowCount ?? pagination?.total ?? data.length }
-              : {})}
-            loading={isLoading}
-            paginationModel={
-              externalPaginationModel
-                ? externalPaginationModel
-                : {
-                    page: (pagination?.page || 1) - 1,
-                    pageSize: pagination?.limit || pageSize,
+        <CardContent className="h-full px-0">
+          <div className="overflow-x-auto">
+            <div style={{ minWidth: `${estimatedTableMinWidth}px` }}>
+              <DataGrid
+                className="w-full"
+                rows={data}
+                columns={gridColumns}
+                getRowId={
+                  getRowId ||
+                  ((row) => row._id || row.id || row.userId || row.clientId)
+                }
+                checkboxSelection={showCheckbox}
+                disableRowSelectionOnClick
+                disableColumnResize
+                columnBufferPx={0}
+                paginationMode={
+                  paginationMode || (pagination ? "server" : "client")
+                }
+                {...((paginationMode || (pagination ? "server" : "client")) === "server"
+                  ? { rowCount: rowCount ?? pagination?.total ?? data.length }
+                  : {})}
+                loading={isLoading}
+                paginationModel={
+                  externalPaginationModel
+                    ? externalPaginationModel
+                    : {
+                        page: (pagination?.page || 1) - 1,
+                        pageSize: pagination?.limit || pageSize,
+                      }
+                }
+                onPaginationModelChange={(model) => {
+                  if (onPaginationModelChange) {
+                    onPaginationModelChange(model);
+                  } else if (onPageChange) {
+                    onPageChange(model.page + 1);
                   }
-            }
-            onPaginationModelChange={(model) => {
-              if (onPaginationModelChange) {
-                onPaginationModelChange(model);
-              } else if (onPageChange) {
-                onPageChange(model.page + 1);
-              }
-            }}
-            {...rest}
-            sx={{
-              border: 0,
-              width: "%100",
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-cell:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
-                outline: "none !important",
-              },
-              "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within":
-                {
-                  outline: "none !important",
-                },
-              "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-row.Mui-selected:hover": {
-                backgroundColor: "transparent !important",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "1px solid #f0f0f0",
-                padding: "12px 16px",
-                margin: "12px 0px",
-                fontSize: "14px",
-                fontFamily: "General Sans, sans-serif",
-                color: "#1E1E1E",
-                display: "flex",
-                alignItems: "center",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "transparent",
-                borderBottom: "1px solid #E8EBED",
-                minHeight: "48px !important",
-                maxHeight: "48px !important",
-                lineHeight: "48px !important",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                padding: "12px 0px",
-                backgroundColor: "#F9FAFB",
-                "&:focus": {
-                  outline: "none",
-                },
-                "&:focus-within": {
-                  outline: "none",
-                },
-              },
-              "& .MuiDataGrid-columnHeaderTitle": {
-                fontSize: "12px",
-                marginLeft: "16px",
-                fontWeight: 600,
-                fontFamily: "Urbanist, sans-serif",
-                color: "#344054",
-                textTransform: "none",
-              },
-            }}
-            slots={{
-              pagination: CustomPagination,
-              loadingOverlay: CustomLoadingOverlay,
-            }}
-            slotProps={{
-              pagination: {
-                currentPage: externalPaginationModel
-                  ? externalPaginationModel.page + 1
-                  : pagination?.page || 1,
-                totalPages: externalPaginationModel
-                  ? Math.ceil(
-                      (rowCount || data.length) /
-                        (externalPaginationModel.pageSize || pageSize),
-                    )
-                  : pagination?.totalPages ||
-                    Math.ceil(
-                      (pagination?.total || data.length) /
-                        (pagination?.limit || pageSize),
-                    ),
-                onPageChange: externalPaginationModel
-                  ? (page) =>
-                      onPaginationModelChange?.({
-                        ...externalPaginationModel,
-                        page: page - 1,
-                      })
-                  : onPageChange,
-                totalItems: rowCount ?? pagination?.total ?? data.length,
-                itemsPerPage:
-                  externalPaginationModel?.pageSize ||
-                  pagination?.limit ||
-                  pageSize,
-              },
-            }}
-          />
+                }}
+                {...rest}
+                sx={{
+                  border: 0,
+                  width: "100%",
+                  "& .MuiDataGrid-row:hover": {
+                    backgroundColor: "transparent !important",
+                  },
+                  "& .MuiDataGrid-cell:hover": {
+                    backgroundColor: "transparent !important",
+                  },
+                  "& .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within": {
+                    outline: "none !important",
+                  },
+                  "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within":
+                    {
+                      outline: "none !important",
+                    },
+                  "& .MuiDataGrid-row.Mui-selected": {
+                    backgroundColor: "transparent !important",
+                  },
+                  "& .MuiDataGrid-row.Mui-selected:hover": {
+                    backgroundColor: "transparent !important",
+                  },
+                  "& .MuiDataGrid-cell": {
+                    borderBottom: "1px solid #f0f0f0",
+                    padding: "12px 16px",
+                    margin: "12px 0px",
+                    fontSize: "14px",
+                    fontFamily: "General Sans, sans-serif",
+                    color: "#1E1E1E",
+                    display: "flex",
+                    alignItems: "center",
+                  },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: "transparent",
+                    borderBottom: "1px solid #E8EBED",
+                    minHeight: "48px !important",
+                    maxHeight: "48px !important",
+                    lineHeight: "48px !important",
+                  },
+                  "& .MuiDataGrid-columnHeader": {
+                    padding: "12px 0px",
+                    backgroundColor: "#F9FAFB",
+                    "&:focus": {
+                      outline: "none",
+                    },
+                    "&:focus-within": {
+                      outline: "none",
+                    },
+                  },
+                  "& .MuiDataGrid-columnHeaderTitle": {
+                    fontSize: "12px",
+                    marginLeft: "16px",
+                    fontWeight: 600,
+                    fontFamily: "Urbanist, sans-serif",
+                    color: "#344054",
+                    textTransform: "none",
+                  },
+                }}
+                slots={{
+                  pagination: CustomPagination,
+                  loadingOverlay: CustomLoadingOverlay,
+                }}
+                slotProps={{
+                  pagination: {
+                    currentPage: externalPaginationModel
+                      ? externalPaginationModel.page + 1
+                      : pagination?.page || 1,
+                    totalPages: externalPaginationModel
+                      ? Math.ceil(
+                          (rowCount || data.length) /
+                            (externalPaginationModel.pageSize || pageSize),
+                        )
+                      : pagination?.totalPages ||
+                        Math.ceil(
+                          (pagination?.total || data.length) /
+                            (pagination?.limit || pageSize),
+                        ),
+                    onPageChange: externalPaginationModel
+                      ? (page) =>
+                          onPaginationModelChange?.({
+                            ...externalPaginationModel,
+                            page: page - 1,
+                          })
+                      : onPageChange,
+                    totalItems: rowCount ?? pagination?.total ?? data.length,
+                    itemsPerPage:
+                      externalPaginationModel?.pageSize ||
+                      pagination?.limit ||
+                      pageSize,
+                  },
+                }}
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
 

@@ -67,7 +67,7 @@ const RequestDetailsModal = ({ isOpen, onClose, request }) => {
           {/* Sender details */}
           <div className="mb-5">
             <p className="text-xs font-general font-semibold text-[#808C91] uppercase tracking-wide mb-3">Request Sender</p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-general text-[#808C91] mb-1">Name</p>
                 <p className="text-sm font-general font-medium text-[#1E1E1E]">{request.requesterName || 'N/A'}</p>
@@ -86,7 +86,7 @@ const RequestDetailsModal = ({ isOpen, onClose, request }) => {
           {/* Receiver details */}
           <div className="mb-5">
             <p className="text-xs font-general font-semibold text-[#808C91] uppercase tracking-wide mb-3">Request Receiver</p>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-general text-[#808C91] mb-1">Name</p>
                 <p className="text-sm font-general font-medium text-[#1E1E1E]">{receiverName || 'N/A'}</p>
@@ -103,7 +103,7 @@ const RequestDetailsModal = ({ isOpen, onClose, request }) => {
           </div>
 
           {/* Meta */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <p className="text-xs font-general text-[#808C91] mb-1">Request Type</p>
               <p className="text-sm font-general font-medium text-[#1E1E1E]">{request.requestType || 'N/A'}</p>

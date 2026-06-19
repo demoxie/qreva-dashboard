@@ -55,9 +55,9 @@ const detectContractType = (entry) => {
 };
 
 const typeLabel = (type) => {
-  if (type === CONTRACT_TYPE.PERCENTAGE) return 'Percentage';
-  if (type === CONTRACT_TYPE.RANGE) return 'Range';
-  return 'Fixed';
+  if (type === CONTRACT_TYPE.PERCENTAGE) return 'percentage';
+  if (type === CONTRACT_TYPE.RANGE) return 'range';
+  return 'fixed';
 };
 
 const mapRangeToDraft = (rangeItem) => {
