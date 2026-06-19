@@ -12,7 +12,14 @@ import LoadingState from '@/components/common/LoadingState';
 import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
-import { useUserById, useUserMetrics, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import {
+  useUserById,
+  useUserMetrics,
+  useUserTransactions,
+  useSuspendUser,
+  useActivateUser,
+  useUpdateUserProfile,
+} from '@/store/features/users/useUsers';
 import AggregatorCommissionSettingsModal from '@/components/modals/AggregatorCommissionSettingsModal';
 import {
   useAggregatorCommissionSettingsForUser,
@@ -26,6 +33,7 @@ import { createChartSeries } from '@/pages/aggregator/constants';
 import { DataGrid } from '@mui/x-data-grid';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/hooks/useAuth';
+import UpdateCustomerProfileModal from '@/components/modals/UpdateCustomerProfileModal';
 
 const managerProfileTabs = [
   { key: 'profile', label: 'Profile Details' },
@@ -147,6 +155,7 @@ const AggregatorManagerProfileDetails = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [transactionSearchQuery, setTransactionSearchQuery] = useState('');
   const [transactionPaginationModel, setTransactionPaginationModel] = useState({ page: 0, pageSize: 5 });
 
@@ -167,6 +176,7 @@ const AggregatorManagerProfileDetails = () => {
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const updateUserProfileMutation = useUpdateUserProfile();
   const { agentDropdown, openDropdown, closeDropdown } = useAgentDropdown();
   const [aggregatorDropdown, setAggregatorDropdown] = useState({ open: false, row: null, x: 0, y: 0 });
   const canManageCommission = ['SuperAdmin', 'Operation'].includes(user?.role || '');
@@ -227,6 +237,13 @@ const AggregatorManagerProfileDetails = () => {
 
   const managerActions = [
     {
+      label: 'Edit Details',
+      onClick: () => {
+        setters.setShowActionsMenu(false);
+        setShowEditProfileModal(true);
+      },
+    },
+    {
       label: 'Suspend Account',
       onClick: () => {
         setters.setShowActionsMenu(false);
@@ -243,6 +260,14 @@ const AggregatorManagerProfileDetails = () => {
       onSettled: () => setters.setShowSuspendModal(false),
     });
   }, [managerData, setters, suspendUserMutation, activateUserMutation]);
+
+  const handleUpdateProfile = useCallback((payload) => {
+    if (!managerData?._id) return;
+    updateUserProfileMutation.mutate(
+      { userId: managerData._id, userType: 'aggregator-managers', payload },
+      { onSuccess: () => setShowEditProfileModal(false) },
+    );
+  }, [managerData?._id, updateUserProfileMutation]);
 
   if (loading) return <LoadingState />;
   if (!managerData) return <LoadingState message="Aggregator Manager not found" />;
@@ -319,6 +344,13 @@ const AggregatorManagerProfileDetails = () => {
           onSuspend={handleSuspend}
           suspendTitle="Suspend Manager"
           suspendMessage="Are you sure you want to suspend this Aggregator Manager account?"
+        />
+        <UpdateCustomerProfileModal
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          user={managerData}
+          onSubmit={handleUpdateProfile}
+          isSaving={updateUserProfileMutation.isPending}
         />
         <AggregatorCommissionSettingsModal
           isOpen={isCommissionModalOpen}
@@ -404,6 +436,13 @@ const AggregatorManagerProfileDetails = () => {
             </button>
           </div>
         )}
+        <UpdateCustomerProfileModal
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          user={managerData}
+          onSubmit={handleUpdateProfile}
+          isSaving={updateUserProfileMutation.isPending}
+        />
         <AggregatorCommissionSettingsModal
           isOpen={isCommissionModalOpen}
           onClose={() => setIsCommissionModalOpen(false)}
@@ -455,6 +494,13 @@ const AggregatorManagerProfileDetails = () => {
         </div>
 
         <AgentDropdownMenu dropdown={agentDropdown} onClose={closeDropdown} />
+        <UpdateCustomerProfileModal
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          user={managerData}
+          onSubmit={handleUpdateProfile}
+          isSaving={updateUserProfileMutation.isPending}
+        />
         <AggregatorCommissionSettingsModal
           isOpen={isCommissionModalOpen}
           onClose={() => setIsCommissionModalOpen(false)}
@@ -565,6 +611,13 @@ const AggregatorManagerProfileDetails = () => {
             </button>
           </div>
         )}
+        <UpdateCustomerProfileModal
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          user={managerData}
+          onSubmit={handleUpdateProfile}
+          isSaving={updateUserProfileMutation.isPending}
+        />
         <AggregatorCommissionSettingsModal
           isOpen={isCommissionModalOpen}
           onClose={() => setIsCommissionModalOpen(false)}
@@ -637,6 +690,13 @@ const AggregatorManagerProfileDetails = () => {
         onSuspend={handleSuspend}
         suspendTitle="Suspend Manager"
         suspendMessage="Are you sure you want to suspend this Aggregator Manager account?"
+      />
+      <UpdateCustomerProfileModal
+        isOpen={showEditProfileModal}
+        onClose={() => setShowEditProfileModal(false)}
+        user={managerData}
+        onSubmit={handleUpdateProfile}
+        isSaving={updateUserProfileMutation.isPending}
       />
       <AggregatorCommissionSettingsModal
         isOpen={isCommissionModalOpen}

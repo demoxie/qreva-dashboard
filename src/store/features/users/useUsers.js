@@ -66,6 +66,42 @@ export const useActivateUser = () => {
   });
 };
 
+export const useRetryUserAccountCreation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, userType }) => usersApi.retryUserAccountCreation(userId, userType),
+    onSuccess: (response, variables) => {
+      handleSuccess(response?.message || 'Account creation retry started successfully.');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      if (variables?.userId) {
+        queryClient.invalidateQueries({ queryKey: ['user', variables.userType || 'users', variables.userId] });
+        queryClient.invalidateQueries({ queryKey: ['user-transactions', variables.userType || 'users', variables.userId] });
+      }
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to retry account creation.');
+    },
+  });
+};
+
+export const useUpdateUserProfile = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, userType, payload }) => usersApi.updateUserProfile(userId, userType, payload),
+    onSuccess: (response, variables) => {
+      handleSuccess(response?.message || 'User profile updated successfully.');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      if (variables?.userId) {
+        queryClient.invalidateQueries({ queryKey: ['user', variables.userType || 'users', variables.userId] });
+        queryClient.invalidateQueries({ queryKey: ['user-transactions', variables.userType || 'users', variables.userId] });
+      }
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to update user profile.');
+    },
+  });
+};
+
 export const useUpdateUserTransactionLevel = () => {
   const queryClient = useQueryClient();
   return useMutation({

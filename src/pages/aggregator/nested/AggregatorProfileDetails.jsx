@@ -13,7 +13,14 @@ import LoadingState from '@/components/common/LoadingState';
 import AgentsTable from '@/components/aggregators/AgentsTable';
 import AgentDropdownMenu from '@/components/aggregators/AgentDropdownMenu';
 import TransactionChartsSection from '@/components/aggregators/TransactionChartSection';
-import { useUserById, useUserMetrics, useUserTransactions, useSuspendUser, useActivateUser } from '@/store/features/users/useUsers';
+import {
+  useUserById,
+  useUserMetrics,
+  useUserTransactions,
+  useSuspendUser,
+  useActivateUser,
+  useUpdateUserProfile,
+} from '@/store/features/users/useUsers';
 import AggregatorCommissionSettingsModal from '@/components/modals/AggregatorCommissionSettingsModal';
 import {
   useAggregatorCommissionSettingsForUser,
@@ -25,6 +32,7 @@ import { createTransactionActions } from '@/utils/profileUtils';
 import { formatProfileMetrics, getProfileChartData } from '@/utils/formatProfileMetrics';
 import { aggregatorProfileTabs, createChartSeries } from '../constants';
 import { useAuth } from '@/hooks/useAuth';
+import UpdateCustomerProfileModal from '@/components/modals/UpdateCustomerProfileModal';
 
 const AggregatorProfileDetails = () => {
   const { id } = useParams();
@@ -33,6 +41,7 @@ const AggregatorProfileDetails = () => {
   const [timeFilter, setTimeFilter] = useState('Today');
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
   const [isCommissionModalOpen, setIsCommissionModalOpen] = useState(false);
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [transactionSearchQuery, setTransactionSearchQuery] = useState('');
   const [transactionPaginationModel, setTransactionPaginationModel] = useState({ page: 0, pageSize: 5 });
   
@@ -52,6 +61,7 @@ const AggregatorProfileDetails = () => {
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useAggregatorProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const updateUserProfileMutation = useUpdateUserProfile();
   const { agentDropdown, openDropdown, closeDropdown } = useAgentDropdown();
   const canManageCommission = ['SuperAdmin', 'Operation'].includes(user?.role || '');
   const { data: profileCommissionResponse, isLoading: isLoadingProfileCommission, refetch: refetchProfileCommission } =
@@ -100,6 +110,13 @@ const AggregatorProfileDetails = () => {
 
   const aggregatorActions = [
     {
+      label: 'Edit Details',
+      onClick: () => {
+        setters.setShowActionsMenu(false);
+        setShowEditProfileModal(true);
+      }
+    },
+    {
       label: 'Suspend Aggregator',
       onClick: () => {
         setters.setShowActionsMenu(false);
@@ -116,6 +133,14 @@ const AggregatorProfileDetails = () => {
       onSettled: () => setters.setShowSuspendModal(false),
     });
   }, [aggregatorData, setters, suspendUserMutation, activateUserMutation]);
+
+  const handleUpdateProfile = useCallback((payload) => {
+    if (!aggregatorData?._id) return;
+    updateUserProfileMutation.mutate(
+      { userId: aggregatorData._id, userType: 'aggregators', payload },
+      { onSuccess: () => setShowEditProfileModal(false) },
+    );
+  }, [aggregatorData?._id, updateUserProfileMutation]);
 
   if (loading) return <LoadingState />;
   if (!aggregatorData) return <LoadingState message="Aggregator not found" />;
@@ -168,6 +193,13 @@ const AggregatorProfileDetails = () => {
           onSuspend={handleSuspend}
           suspendTitle="Suspend Aggregator"
           suspendMessage="Are you sure you want to suspend this aggregator?"
+        />
+        <UpdateCustomerProfileModal
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          user={aggregatorData}
+          onSubmit={handleUpdateProfile}
+          isSaving={updateUserProfileMutation.isPending}
         />
         <AggregatorCommissionSettingsModal
           isOpen={isCommissionModalOpen}
@@ -222,6 +254,13 @@ const AggregatorProfileDetails = () => {
         </div>
 
         <AgentDropdownMenu dropdown={agentDropdown} onClose={closeDropdown} />
+        <UpdateCustomerProfileModal
+          isOpen={showEditProfileModal}
+          onClose={() => setShowEditProfileModal(false)}
+          user={aggregatorData}
+          onSubmit={handleUpdateProfile}
+          isSaving={updateUserProfileMutation.isPending}
+        />
         <AggregatorCommissionSettingsModal
           isOpen={isCommissionModalOpen}
           onClose={() => setIsCommissionModalOpen(false)}
@@ -296,6 +335,13 @@ const AggregatorProfileDetails = () => {
         onSuspend={handleSuspend}
         suspendTitle="Suspend Aggregator"
         suspendMessage="Are you sure you want to suspend this aggregator?"
+      />
+      <UpdateCustomerProfileModal
+        isOpen={showEditProfileModal}
+        onClose={() => setShowEditProfileModal(false)}
+        user={aggregatorData}
+        onSubmit={handleUpdateProfile}
+        isSaving={updateUserProfileMutation.isPending}
       />
       <AggregatorCommissionSettingsModal
         isOpen={isCommissionModalOpen}
