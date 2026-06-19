@@ -79,7 +79,7 @@ const DashboardStats = ({ stats, route }) => {
 
             {/* 2. AMOUNT SECTION - Now starts at the same Y-axis as others */}
             <div className="flex items-center gap-2 mt-1 mb-1">
-              <div className="text-[32px] font-semibold font-general text-white leading-none">
+              <div className="text-[28px] font-semibold font-general leading-none text-white sm:text-[32px]">
                 {show ? stat.value : "••••••"}
               </div>
 
@@ -132,7 +132,7 @@ const DashboardStats = ({ stats, route }) => {
   //  RENDER FINAL GRID
   // ---------------------------
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 items-stretch">
+    <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4 items-stretch">
       {statsToDisplay.map((stat, idx) => {
         if (
           idx === 0 &&
@@ -165,7 +165,7 @@ const DashboardStats = ({ stats, route }) => {
               </div>
 
               {/* 2. AMOUNT SECTION - Will always be perfectly leveled */}
-              <div className="text-[32px] font-semibold font-general text-[#084059] mb-1 leading-none">
+              <div className="mb-1 text-[28px] font-semibold font-general leading-none text-[#084059] sm:text-[32px]">
                 {stat.value}
               </div>
 

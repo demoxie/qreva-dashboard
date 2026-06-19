@@ -283,6 +283,7 @@ const PublicRoute = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(() => {
     return location.pathname.split('/')[1] || 'dashboard';
   });
@@ -290,6 +291,7 @@ const DashboardLayout = ({ children }) => {
   useEffect(() => {
     const section = location.pathname.split('/')[1] || 'dashboard';
     setActiveSection(section);
+    setIsMobileSidebarOpen(false);
   }, [location.pathname]);
 
   return (
@@ -300,9 +302,14 @@ const DashboardLayout = ({ children }) => {
         activeSection={activeSection}
         setActiveSection={setActiveSection}
         PERMISSIONS={PERMISSIONS}
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Breadcrumb user={user} />
+        <Breadcrumb
+          user={user}
+          onOpenSidebar={() => setIsMobileSidebarOpen(true)}
+        />
         <div className="flex-1 overflow-auto bg-gray-50">
           {children}
         </div>

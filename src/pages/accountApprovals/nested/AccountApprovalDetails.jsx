@@ -222,7 +222,7 @@ const AccountApprovalDetails = () => {
             <div className="p-4 border-b border-gray-100">
               <h3 className="font-semibold text-gray-900">Personal Details</h3>
             </div>
-            <CardContent className="p-4 grid grid-cols-2 gap-6">
+            <CardContent className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2">
               <DetailItem label="First Name" value={user.firstName} />
               <DetailItem label="Last Name" value={user.lastName} />
               <DetailItem label="Email Address" value={user.emailAddress} />
@@ -240,7 +240,7 @@ const AccountApprovalDetails = () => {
               <div className="p-4 border-b border-gray-100">
                 <h3 className="font-semibold text-gray-900">Address</h3>
               </div>
-              <CardContent className="p-4 grid grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2">
                 <DetailItem label="Address" value={address.address1} className="col-span-2" />
                 <DetailItem label="City" value={address.city} />
                 <DetailItem label="State" value={address.state} />
@@ -254,7 +254,7 @@ const AccountApprovalDetails = () => {
             <div className="p-4 border-b border-gray-100">
               <h3 className="font-semibold text-gray-900">Identity Verification</h3>
             </div>
-            <CardContent className="p-4 grid grid-cols-2 gap-6">
+            <CardContent className="grid grid-cols-1 gap-6 p-4 sm:grid-cols-2">
               {user.bvn && (
                 <>
                   <DetailItem label="Identity Type" value={user.identityType2 || 'BVN'} />

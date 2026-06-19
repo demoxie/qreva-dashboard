@@ -5,9 +5,9 @@ const PersonalDetailsCard = ({ user }) => {
     : null;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+    <div className="mb-6 rounded-lg bg-white p-4 shadow-sm sm:p-6">
       <h3 className="text-lg font-semibold mb-4">Personal Details</h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <DetailItem label="First Name" value={user.firstName} />
         <DetailItem label="Last Name" value={user.lastName} />
         <DetailItem label="Email Address" value={user.emailAddress} />
@@ -22,7 +22,7 @@ const PersonalDetailsCard = ({ user }) => {
         {(user.referralCode || user.referralLink) && (
           <DetailItem label="Referral Link" value={user.referralLink} />
         )}
-        <DetailItem label="Address" value={personal.address} className="col-span-2" />
+        <DetailItem label="Address" value={personal.address} className="sm:col-span-2" />
       </div>
     </div>
   );

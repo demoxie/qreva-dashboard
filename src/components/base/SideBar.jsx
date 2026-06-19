@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, ChevronUp, LogOut } from 'lucide-react';
+import { ChevronDown, ChevronUp, LogOut, X } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
 import { ROUTES, MENU_STRUCTURE } from '@/config/routes.config';
 import LogoutConfirmationModal from '@/components/modals/LogoutConfirmationModal';
@@ -42,7 +42,7 @@ const ICON_MAP = {
   disputed: DisputedIcon,
 };
 
-const Sidebar = ({ user, onLogout, setActiveSection, PERMISSIONS }) => {
+const Sidebar = ({ user, onLogout, setActiveSection, PERMISSIONS, isOpen, onClose }) => {
   const permissions = PERMISSIONS[user.role] || [];
   const navigate = useNavigate();
   const location = useLocation();
@@ -58,6 +58,7 @@ const Sidebar = ({ user, onLogout, setActiveSection, PERMISSIONS }) => {
   const handleMenuClick = (route) => {
     setActiveSection(route.path);
     navigate(route.path);
+    onClose?.();
   };
 
   const toggleSection = (sectionId) => {
@@ -134,13 +135,33 @@ const Sidebar = ({ user, onLogout, setActiveSection, PERMISSIONS }) => {
   };
 
   return (
-    <div className="w-[270px] bg-white border-r border-[#E8EBED] h-screen flex flex-col">
+    <>
+      <div
+        className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-200 lg:hidden ${
+          isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'
+        }`}
+        onClick={onClose}
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen w-[270px] flex-col border-r border-[#E8EBED] bg-white transition-transform duration-200 lg:static lg:z-auto lg:translate-x-0 ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-[#E8EBED]">
+      <div className="flex items-center justify-between border-b border-[#E8EBED] px-5 py-4 sm:px-6 sm:py-5">
         <div className="flex items-center gap-2">
-          <img src={logo} alt="Qreva Logo" className="w-8 h-8" />
+          <img src={logo} alt="Qreva Logo" className="h-8 w-8" />
           <span className="text-[24px] font-urbanist font-semibold text-[#084059]">Qreva</span>
         </div>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-lg p-2 text-[#7C8D96] hover:bg-gray-100 lg:hidden"
+          aria-label="Close navigation"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       {/* Menu Items */}
@@ -187,7 +208,8 @@ const Sidebar = ({ user, onLogout, setActiveSection, PERMISSIONS }) => {
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={onLogout}
       />
-    </div>
+      </aside>
+    </>
   );
 };
 

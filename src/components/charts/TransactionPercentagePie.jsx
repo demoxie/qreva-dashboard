@@ -34,7 +34,7 @@ const TransactionPercentagePie = ({
           <div
             className={`flex items-center gap-8 ${wrapped ? "flex flex-col justify-between h-full space-y-3" : ""}`}
           >
-            <div className="w-full min-w-[150px]">
+            <div className="w-full min-w-0">
               <PieChart
                 series={[
                   {
@@ -53,7 +53,7 @@ const TransactionPercentagePie = ({
               />
             </div>
             <div className="w-full px-4 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {normalizedData.map((item) => (
                   <div key={item.id} className="flex items-center gap-2">
                     <div

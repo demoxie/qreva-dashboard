@@ -68,11 +68,11 @@ const LoginPage = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen bg-[#F7FAFA] flex flex-col items-center justify-center p-4">
-      <div className="flex items-center gap-2 mb-4 w-[152px]">
+      <div className="mb-4 flex w-full max-w-[220px] items-center justify-center gap-2">
         <div className="h-10 flex items-center justify-center">
           <img src={logo} alt="Logo" className="w-10 h-10" />
         </div>
-        <span className="text-[36px] font-medium text-[#084059] font-urbanist">Qreva</span>
+        <span className="font-urbanist text-[32px] font-medium text-[#084059] sm:text-[36px]">Qreva</span>
       </div>
 
       <Card className="w-full max-w-md">

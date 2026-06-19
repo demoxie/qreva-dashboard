@@ -96,7 +96,7 @@ const ChangePasswordModal = ({ isOpen, onClose, onSubmit }) => {
                 </div>
 
                 {/* Validation Chips Grid */}
-                <div className="grid grid-cols-2 gap-3 mb-8">
+                <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <ValidationChip isValid={rules.length} text="8-12 characters" />
                     <ValidationChip isValid={rules.special} text="Special character(s)" />
                     <ValidationChip isValid={rules.upper} text="Upper case character" />

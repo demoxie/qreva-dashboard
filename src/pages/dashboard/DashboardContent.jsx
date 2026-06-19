@@ -248,7 +248,7 @@ const DashboardContent = () => {
 
   return (
     <div className="flex-1 overflow-auto bg-gray-50">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <PageHeader
           title="Dashboard"
           subtitle="Here is how this has been performing so far"

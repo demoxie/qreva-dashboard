@@ -15,7 +15,7 @@ const ProfileLayout = ({
 
   return (
     <div className="flex-1 overflow-auto bg-[#F7FAFA]">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <PageHeader
           title="View Profile Details"
           subtitle="Here is the full profile details of this user"

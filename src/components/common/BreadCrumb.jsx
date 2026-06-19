@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { ChevronLeft, Bell, Settings } from 'lucide-react';
+import { ChevronLeft, Bell, Settings, Menu } from 'lucide-react';
 import { getRouteConfig, ROUTES } from '@/config/routes.config';
 import NotificationsPanel from '@/components/common/NotificationsPanel';
 import { useNotifications } from '@/store/features/notifications/useNotifications';
 
-const Breadcrumb = ({ user }) => {
+const Breadcrumb = ({ user, onOpenSidebar }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
@@ -132,9 +132,16 @@ const Breadcrumb = ({ user }) => {
   const segments = getBreadcrumbSegments();
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#E8EBED]">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E8EBED] bg-white px-4 py-3 sm:px-6 sm:py-4">
       {/* Left side - Back button and breadcrumb/title */}
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <button
+          onClick={onOpenSidebar}
+          className="rounded-lg p-2 hover:bg-gray-100 transition-colors lg:hidden"
+          aria-label="Open navigation"
+        >
+          <Menu size={20} className="text-[#084059]" />
+        </button>
         {canGoBack && (
           <button
             onClick={handleBack}
@@ -145,7 +152,7 @@ const Breadcrumb = ({ user }) => {
           </button>
         )}
         {segments ? (
-          <nav className="flex items-center gap-1 text-sm">
+          <nav className="hidden items-center gap-1 text-sm sm:flex">
             {segments.map((seg, idx) => (
               <span key={idx} className="flex items-center gap-1">
                 {idx > 0 && <span className="text-[#808C91]">/</span>}
@@ -163,18 +170,23 @@ const Breadcrumb = ({ user }) => {
             ))}
           </nav>
         ) : (
-          <h1 className="text-sm font-general font-medium text-[#FF5B04]">
+          <h1 className="truncate text-sm font-general font-medium text-[#FF5B04]">
             {getDynamicLabel()}
+          </h1>
+        )}
+        {segments && (
+          <h1 className="truncate text-sm font-general font-medium text-[#FF5B04] sm:hidden">
+            {segments[segments.length - 1]?.label}
           </h1>
         )}
       </div>
 
       {/* Right side - Notifications, Settings, User Badge */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <div className="relative">
           <button
             onClick={handleToggleNotif}
-            className="p-3 hover:bg-gray-100 transition-colors relative border border-[#D9D9D9] rounded-full"
+            className="relative rounded-full border border-[#D9D9D9] p-2.5 transition-colors hover:bg-gray-100 sm:p-3"
             aria-label="Notifications"
           >
             <Bell size={20} className="text-[#7C8D96]" />
@@ -188,15 +200,15 @@ const Breadcrumb = ({ user }) => {
         </div>
 
         <button
-          className="p-3 hover:bg-gray-100 transition-colors border border-[#D9D9D9] rounded-full"
+          className="rounded-full border border-[#D9D9D9] p-2.5 transition-colors hover:bg-gray-100 sm:p-3"
           aria-label="Settings"
           onClick={() => navigate('/settings')}
         >
           <Settings size={20} className="text-[#7C8D96]" />
         </button>
-        <hr className="h-8 border-l border-gray-300" />
+        <hr className="hidden h-8 border-l border-gray-300 sm:block" />
 
-        <div className="flex items-center gap-2 h-11 bg-[#F7FAFA] border border-[#D9D9D9] rounded-[36px] px-1 w-10">
+        <div className="flex h-10 w-10 items-center gap-2 rounded-[36px] border border-[#D9D9D9] bg-[#F7FAFA] px-1 sm:h-11">
           <span className="text-[12.8px] font-urbanist font-semibold text-[#1E1E1E]  bg-[#CEEBF5] w-8 h-8 rounded-full flex items-center justify-center">
             {user?.username?.split(' ').map(n => n[0]).join('').toUpperCase() || 'JFD'}
           </span>

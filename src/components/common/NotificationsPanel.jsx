@@ -61,7 +61,7 @@ const NotificationsPanel = ({ onClose }) => {
   return (
     <div
       ref={panelRef}
-      className="absolute right-0 top-full mt-2 w-[380px] bg-white rounded-xl shadow-xl border border-[#E8EBED] z-50 overflow-hidden"
+      className="absolute right-0 top-full z-50 mt-2 w-[min(380px,calc(100vw-1rem))] overflow-hidden rounded-xl border border-[#E8EBED] bg-white shadow-xl"
       style={{ maxHeight: '520px' }}
     >
       {/* Header */}

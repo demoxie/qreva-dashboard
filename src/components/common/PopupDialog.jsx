@@ -16,7 +16,7 @@ const PopupDialog = ({
     switch(type) {
       case 'region':
         return (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <p className="text-sm font-general text-[#7C8D96]">Location</p>
               <p className="text-base font-general font-semibold text-[#1E1E1E]">
@@ -74,7 +74,7 @@ const PopupDialog = ({
             </div>
 
             {/* Transaction Details */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E8EBED]">
+            <div className="grid grid-cols-1 gap-4 border-t border-[#E8EBED] pt-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <p className="text-sm font-general text-[#7C8D96]">Recipient Mobile</p>
                 <p className="text-base font-general font-semibold text-[#1E1E1E]">
@@ -136,7 +136,7 @@ const PopupDialog = ({
             </div>
 
             {/* Customer Details */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#E8EBED]">
+            <div className="grid grid-cols-1 gap-4 border-t border-[#E8EBED] pt-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <p className="text-sm font-general text-[#7C8D96]">Total Transactions</p>
                 <p className="text-base font-general font-semibold text-[#1E1E1E]">

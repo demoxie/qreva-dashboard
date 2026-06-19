@@ -2,7 +2,7 @@ const TierDetailsCard = ({ tier, data }) => {
   if (!data) return null;
 
   const renderTier1 = () => (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <DetailItem label="Valid ID" value={data.validId} />
       <DetailItem label="BVN Number" value={data.bvnNumber} />
     </div>
@@ -10,7 +10,7 @@ const TierDetailsCard = ({ tier, data }) => {
 
   const renderTier2 = () => (
     <>
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <DetailItem label="Valid ID" value={data.validId} />
         <DetailItem label="NIN Number" value={data.ninNumber} />
       </div>
@@ -24,11 +24,11 @@ const TierDetailsCard = ({ tier, data }) => {
 
   const renderTier3 = () => (
     <>
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <DetailItem label="State" value={data.state} />
         <DetailItem label="Local Government Area" value={data.lga} />
-        <DetailItem label="Address" value={data.address} className="col-span-2" />
-        <DetailItem label="Document Type" value={data.documentType} className="col-span-2" />
+        <DetailItem label="Address" value={data.address} className="sm:col-span-2" />
+        <DetailItem label="Document Type" value={data.documentType} className="sm:col-span-2" />
       </div>
       <div className="space-y-4">
         <ImagePreview
@@ -53,7 +53,7 @@ const TierDetailsCard = ({ tier, data }) => {
   );
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+    <div className="mb-6 rounded-lg bg-white p-4 shadow-sm sm:p-6">
       <h3 className="text-lg font-semibold mb-4">Tier {tier} Details</h3>
       {tier === 1 && renderTier1()}
       {tier === 2 && renderTier2()}
@@ -82,7 +82,7 @@ const ImagePreview = ({ label, src, alt }) => (
         {src}
       </a>
     )}
-    <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+    <div className="h-56 w-full overflow-hidden rounded-lg bg-gray-100 sm:h-64">
       {src ? (
         <img 
           src={src} 

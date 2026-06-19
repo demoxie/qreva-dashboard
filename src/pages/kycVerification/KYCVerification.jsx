@@ -100,7 +100,7 @@ const KYCVerification = () => {
         />
 
         {/* BVN vs NIN and Top Customers */}
-        <div className="grid grid-cols-5 lg:grid-cols-5 gap-6 mb-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-5 mb-6">
           <div className='col-span-2'>
             <PaymentComparisonPie 
               data={metrics?.bvnVsNin || []}

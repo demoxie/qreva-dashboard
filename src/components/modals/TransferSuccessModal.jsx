@@ -49,7 +49,7 @@ const TransferSuccessModal = ({ isOpen, onClose, handleSaveBeneficiary }) => {
         <h3 className="text-2xl font-urbanist font-bold text-[#1E1E1E] mb-2">Transfer Successful</h3>
         <p className="text-sm text-[#808C91] mb-6 font-general">Transaction ID: 12345FGTRI567</p>
 
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <button
             onClick={handleSaveBeneficiary}
             className="flex flex-col items-center justify-center p-4 border bg-[#F7FAFA] border-[#E8EBED] rounded-lg hover:bg-gray-50 cursor-pointer"
