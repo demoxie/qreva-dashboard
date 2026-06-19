@@ -7,6 +7,8 @@ import {
   useUserTransactions,
   useSuspendUser,
   useActivateUser,
+  useRetryUserAccountCreation,
+  useUpdateUserProfile,
   useUpdateUserTransactionLevel,
 } from '@/store/features/users/useUsers';
 import ProfileLayout from '@/components/profile/ProfileLayout';
@@ -16,6 +18,7 @@ import ProfileModals from '@/components/profile/ProfileModals';
 import LoadingState from '@/components/common/LoadingState';
 import PaymentComparisonPie from '@/components/charts/PaymentComparisonPie';
 import MultiLineChart from '@/components/charts/MultiLineChart';
+import UpdateCustomerProfileModal from '@/components/modals/UpdateCustomerProfileModal';
 import { createTransactionActions } from '@/utils/profileUtils';
 import { useAuth } from '@/hooks/useAuth';
 import { formatProfileMetrics, getProfileChartData } from '@/utils/formatProfileMetrics';
@@ -90,6 +93,7 @@ const AgentProfileDetails = () => {
   const activeTab = searchParams.get('tab') || 'transactions';
   const { user } = useAuth();
   const [selectedLevel, setSelectedLevel] = useState('STARTER');
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 5 });
 
@@ -111,6 +115,8 @@ const AgentProfileDetails = () => {
   const { modals, setters, selectedTransaction, setSelectedTransaction } = useProfileModals();
   const suspendUserMutation = useSuspendUser();
   const activateUserMutation = useActivateUser();
+  const retryAccountCreationMutation = useRetryUserAccountCreation();
+  const updateUserProfileMutation = useUpdateUserProfile();
   const updateTransactionLevelMutation = useUpdateUserTransactionLevel();
   const canManageTransactionLevel = useMemo(
     () => ['SuperAdmin', 'Operation'].includes(user?.role || ''),
@@ -171,6 +177,19 @@ const AgentProfileDetails = () => {
     });
   };
 
+  const handleRetryAccountCreation = () => {
+    if (!agentData?._id) return;
+    retryAccountCreationMutation.mutate({ userId: agentData._id, userType: 'agents' });
+  };
+
+  const handleUpdateProfile = (payload) => {
+    if (!agentData?._id) return;
+    updateUserProfileMutation.mutate(
+      { userId: agentData._id, userType: 'agents', payload },
+      { onSuccess: () => setShowEditProfileModal(false) },
+    );
+  };
+
   return (
      <ProfileLayout
       userData={agentData}
@@ -178,6 +197,13 @@ const AgentProfileDetails = () => {
       onTabChange={handleTabChange}
       availableTabs={availableTabs}
       actions={[
+        {
+          label: 'Edit Details',
+          onClick: () => {
+            setters.setShowActionsMenu(false);
+            setShowEditProfileModal(true);
+          }
+        },
         {
           label: 'Suspend Agent',
           onClick: () => {
@@ -197,7 +223,13 @@ const AgentProfileDetails = () => {
             isSaving={updateTransactionLevelMutation.isPending}
             canManage={canManageTransactionLevel}
           />
-          <ProfileDetailsView userData={agentData} showBusinessDetails />
+          <ProfileDetailsView
+            userData={agentData}
+            showBusinessDetails
+            onRetryAccountCreation={handleRetryAccountCreation}
+            isRetryingAccountCreation={retryAccountCreationMutation.isPending}
+            canRetryAccountCreation
+          />
         </>
       ) : (
         <TransactionView
@@ -234,6 +266,13 @@ const AgentProfileDetails = () => {
         onSuspend={handleSuspend}
         suspendTitle="Suspend Agent"
         suspendMessage="Are you sure you want to suspend this agent?"
+      />
+      <UpdateCustomerProfileModal
+        isOpen={showEditProfileModal}
+        onClose={() => setShowEditProfileModal(false)}
+        user={agentData}
+        onSubmit={handleUpdateProfile}
+        isSaving={updateUserProfileMutation.isPending}
       />
     </ProfileLayout>
   );

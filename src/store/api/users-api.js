@@ -31,6 +31,16 @@ export const usersApi = {
     return data;
   },
 
+  retryUserAccountCreation: async (userId, userType = 'users') => {
+    const { data } = await apiClient.patch(`/admin/dashboard/${userType}/${userId}/retry-account-creation`);
+    return data;
+  },
+
+  updateUserProfile: async (userId, userType = 'users', payload) => {
+    const { data } = await apiClient.patch(`/admin/dashboard/${userType}/${userId}/profile`, payload);
+    return data;
+  },
+
   updateUserTransactionLevel: async (userId, payload) => {
     const { data } = await apiClient.patch(`/admin/dashboard/users/${userId}/transaction-level`, payload);
     return data;

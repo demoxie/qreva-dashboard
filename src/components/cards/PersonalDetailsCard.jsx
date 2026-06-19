@@ -13,6 +13,7 @@ const PersonalDetailsCard = ({ user }) => {
         <DetailItem label="Email Address" value={user.emailAddress} />
         <DetailItem label="Mobile Number" value={user.phoneNumber} />
         <DetailItem label="Date of Birth" value={dob} />
+        <DetailItem label="Account Status" value={user.status} />
         <DetailItem label="Gender" value={personal.gender} />
         <DetailItem label="State" value={personal.state} />
         <DetailItem label="LGA" value={personal.lga} />
