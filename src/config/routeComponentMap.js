@@ -8,6 +8,7 @@ import SoftPOS from "@/pages/softPOS/SoftPOS";
 import Transfers from "@/pages/transfers/Tranfers";
 import Users from "@/pages/users/Users";
 import Agents from "@/pages/agents/Agents";
+import Merchants from "@/pages/merchants/Merchants";
 import Aggregators from "@/pages/aggregator/Aggregators";
 import AggregatorManagers from "@/pages/aggregatorManager/AggregatorManager";
 import MyEarnings from "@/pages/myearnings/MyEarnings";
@@ -64,6 +65,7 @@ export const RouteComponentMap = {
   INWARD_TRANSFERS: Transfers,
   USERS: Users,
   AGENTS: Agents,
+  MERCHANTS: Merchants,
   AGGREGATOR: Aggregators,
   AGGREGATOR_MANAGER: AggregatorManagers,
   EARNINGS: MyEarnings,

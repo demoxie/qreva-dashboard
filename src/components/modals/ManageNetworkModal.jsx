@@ -123,7 +123,7 @@ const ManageNetworkModal = ({
 
         <div className="border border-[#E8EBED] rounded-lg p-4">
           <h3 className="text-sm font-semibold text-[#1E1E1E] mb-3">
-            Current {memberType === "Agent" ? "Agents" : "Aggregators"} ({members.length})
+            Current {ownerType === 'aggregator_manager' ? 'Aggregators' : 'Agents / Merchants'} ({members.length})
           </h3>
           {isLoadingNetwork ? (
             <p className="text-sm text-[#808C91]">Loading members...</p>
@@ -153,7 +153,7 @@ const ManageNetworkModal = ({
             </div>
           ) : (
             <p className="text-sm text-[#808C91]">
-              No {memberType === "Agent" ? "agents" : "aggregators"} assigned yet.
+              No {ownerType === 'aggregator_manager' ? 'aggregators' : 'agents or merchants'} assigned yet.
             </p>
           )}
         </div>
