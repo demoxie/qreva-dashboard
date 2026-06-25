@@ -35,6 +35,7 @@ const ICON_MAP = {
   earnings: EarningsIcon,
   balances: EarningsIcon,
   users: UsersIcon,
+  merchants: UsersIcon,
   agents: AgentsIcon,
   aggregator: AggregatorIcon,
   aggregatorManager: AggregatorManagerIcon,

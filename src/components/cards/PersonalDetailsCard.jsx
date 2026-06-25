@@ -3,6 +3,9 @@ const PersonalDetailsCard = ({ user }) => {
   const dob = personal.dateOfBirth
     ? new Date(personal.dateOfBirth).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' })
     : null;
+  const signedUpDate = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-NG', { year: 'numeric', month: 'long', day: 'numeric' })
+    : null;
 
   return (
     <div className="mb-6 rounded-lg bg-white p-4 shadow-sm sm:p-6">
@@ -13,6 +16,7 @@ const PersonalDetailsCard = ({ user }) => {
         <DetailItem label="Email Address" value={user.emailAddress} />
         <DetailItem label="Mobile Number" value={user.phoneNumber} />
         <DetailItem label="Date of Birth" value={dob} />
+        <DetailItem label="Signed Up" value={signedUpDate} />
         <DetailItem label="Account Status" value={user.status} />
         <DetailItem label="Gender" value={personal.gender} />
         <DetailItem label="State" value={personal.state} />

@@ -92,6 +92,12 @@ export const ROUTES = {
     icon: 'agents',
     permission: 'agents:view',
   },
+  MERCHANTS: {
+    path: '/merchants',
+    label: 'Merchants',
+    icon: 'users',
+    permission: 'users:view',
+  },
   AGGREGATOR: {
     path: '/aggregators',
     label: 'Aggregators',
@@ -460,6 +466,7 @@ export const MENU_STRUCTURE = [
     items: [
       { routeKey: 'USERS' },
       { routeKey: 'AGENTS' },
+      { routeKey: 'MERCHANTS' },
       { routeKey: 'AGGREGATOR' },
       { routeKey: 'AGGREGATOR_MANAGER' },
     ],
