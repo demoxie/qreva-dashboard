@@ -246,6 +246,7 @@ const DashboardContent = () => {
     selectedTransaction,
   };
 
+  console.log("Check if Admin",isAdmin, user.role);
   return (
     <div className="flex-1 overflow-auto bg-gray-50">
       <div className="p-4 sm:p-6">
