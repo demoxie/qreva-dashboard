@@ -260,6 +260,15 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/change-password" replace />;
   }
 
+  // /change-password isn't a registered route (it has no permission of its
+  // own), and every authenticated admin must be able to reach it regardless
+  // of what permissions they hold — otherwise getRouteConfig silently falls
+  // back to the Dashboard route's permission, gating a first-time admin out
+  // of the very page that lets them set a usable password.
+  if (currentPath === '/change-password') {
+    return children;
+  }
+
   const route = getRouteConfig(currentPath);
   const rolePermissions = PERMISSIONS[user.role] || [];
   const runtimePermissions = Array.isArray(user?.permissions) && user.permissions.length

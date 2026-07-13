@@ -11,6 +11,16 @@ export const authApi = {
     return data;
   },
 
+  forgotPassword: async (payload) => {
+    const { data } = await apiClient.post('/admin/auth/forgot-password', payload);
+    return data;
+  },
+
+  resetPassword: async (payload) => {
+    const { data } = await apiClient.post('/admin/auth/reset-password', payload);
+    return data;
+  },
+
   sendOtp: async () => {
     const { data } = await apiClient.post('/admin/auth/send-otp');
     return data;

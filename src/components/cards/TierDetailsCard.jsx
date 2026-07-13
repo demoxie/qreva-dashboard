@@ -48,6 +48,13 @@ const TierDetailsCard = ({ tier, data }) => {
             alt="CAC Document"
           />
         )}
+        {data.cac2DocumentUrl && (
+          <ImagePreview
+            label="CAC 2 Document (Particulars of Directors)"
+            src={data.cac2DocumentUrl}
+            alt="CAC 2 Document"
+          />
+        )}
       </div>
     </>
   );
