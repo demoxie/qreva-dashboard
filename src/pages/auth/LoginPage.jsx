@@ -5,14 +5,204 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
-import { useLogin } from '../../store/features/auth/useAuth';
+import { useLogin, useForgotPassword, useResetPassword } from '../../store/features/auth/useAuth';
 import { handleError } from '@/store/utils/handleError';
-import { loginSchema } from './schema';
+import { loginSchema, forgotPasswordSchema, resetPasswordSchema } from './schema';
 import { getInputBorderColor, getFloatingLabelClasses } from './utils/inputHelpers';
 import { inputStyles, buttonStyles, iconButtonStyles } from './utils/inputStyles';
 
+const ForgotPasswordEmailForm = ({ onSent, onCancel }) => {
+  const forgotPassword = useForgotPassword();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, touchedFields, isValid },
+    watch,
+  } = useForm({
+    resolver: yupResolver(forgotPasswordSchema),
+    mode: 'onTouched',
+  });
+  const email = watch('email');
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await forgotPassword.mutateAsync({ emailAddress: data.email });
+      onSent({ email: data.email, temporaryId: response?.data?.temporaryId });
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <p className="text-sm text-[#808C91] font-general">
+        Enter the email address linked to your admin account and we'll send you a one-time code to reset your password.
+      </p>
+      <div className="relative">
+        <input
+          type="email"
+          id="forgotEmail"
+          {...register('email')}
+          disabled={forgotPassword.isPending}
+          className={`${inputStyles.base} ${getInputBorderColor(errors.email, touchedFields.email, email)}`}
+          placeholder=" "
+        />
+        <label htmlFor="forgotEmail" className={getFloatingLabelClasses(email)}>
+          Email Address
+        </label>
+        {errors.email && touchedFields.email && (
+          <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+        )}
+      </div>
+
+      <Button
+        type="submit"
+        disabled={!isValid || forgotPassword.isPending}
+        className={buttonStyles.primary(isValid, forgotPassword.isPending)}
+      >
+        {forgotPassword.isPending ? 'Sending code...' : 'Send Reset Code'}
+      </Button>
+
+      <button
+        type="button"
+        onClick={onCancel}
+        disabled={forgotPassword.isPending}
+        className={`${buttonStyles.link} w-full text-center`}
+      >
+        Back to login
+      </button>
+    </form>
+  );
+};
+
+const ResetPasswordForm = ({ email, temporaryId, onSuccess, onCancel, onResend }) => {
+  const resetPassword = useResetPassword();
+  const [showPassword, setShowPassword] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, touchedFields, isValid },
+    watch,
+  } = useForm({
+    resolver: yupResolver(resetPasswordSchema),
+    mode: 'onTouched',
+  });
+  const otp = watch('otp');
+  const newPassword = watch('newPassword');
+  const confirmPassword = watch('confirmPassword');
+
+  const onSubmit = async (data) => {
+    try {
+      await resetPassword.mutateAsync({
+        temporaryId,
+        otp: data.otp,
+        newPassword: data.newPassword,
+      });
+      onSuccess();
+    } catch (error) {
+      handleError(error);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <p className="text-sm text-[#808C91] font-general">
+        We sent a code to <span className="font-semibold text-[#1E1E1E]">{email}</span>. Enter it below with your new password.
+      </p>
+
+      <div className="relative">
+        <input
+          type="text"
+          id="otp"
+          {...register('otp')}
+          disabled={resetPassword.isPending}
+          className={`${inputStyles.base} ${getInputBorderColor(errors.otp, touchedFields.otp, otp)}`}
+          placeholder=" "
+        />
+        <label htmlFor="otp" className={getFloatingLabelClasses(otp)}>
+          Enter OTP
+        </label>
+        {errors.otp && touchedFields.otp && (
+          <p className="text-xs text-red-500 mt-1">{errors.otp.message}</p>
+        )}
+      </div>
+
+      <div className="relative">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          id="newPassword"
+          {...register('newPassword')}
+          disabled={resetPassword.isPending}
+          className={`${inputStyles.withIcon} ${getInputBorderColor(errors.newPassword, touchedFields.newPassword, newPassword)}`}
+          placeholder=" "
+        />
+        <label htmlFor="newPassword" className={getFloatingLabelClasses(newPassword)}>
+          New Password
+        </label>
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          disabled={resetPassword.isPending}
+          className={iconButtonStyles}
+        >
+          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+        </button>
+        {errors.newPassword && touchedFields.newPassword && (
+          <p className="text-xs text-red-500 mt-1">{errors.newPassword.message}</p>
+        )}
+      </div>
+
+      <div className="relative">
+        <input
+          type={showPassword ? 'text' : 'password'}
+          id="confirmPassword"
+          {...register('confirmPassword')}
+          disabled={resetPassword.isPending}
+          className={`${inputStyles.base} ${getInputBorderColor(errors.confirmPassword, touchedFields.confirmPassword, confirmPassword)}`}
+          placeholder=" "
+        />
+        <label htmlFor="confirmPassword" className={getFloatingLabelClasses(confirmPassword)}>
+          Confirm New Password
+        </label>
+        {errors.confirmPassword && touchedFields.confirmPassword && (
+          <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
+        )}
+      </div>
+
+      <Button
+        type="submit"
+        disabled={!isValid || resetPassword.isPending}
+        className={buttonStyles.primary(isValid, resetPassword.isPending)}
+      >
+        {resetPassword.isPending ? 'Resetting password...' : 'Reset Password'}
+      </Button>
+
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={onResend}
+          disabled={resetPassword.isPending}
+          className={buttonStyles.link}
+        >
+          Resend code
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={resetPassword.isPending}
+          className={buttonStyles.link}
+        >
+          Back to login
+        </button>
+      </div>
+    </form>
+  );
+};
+
 const LoginPage = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [mode, setMode] = useState('login'); // 'login' | 'forgot-email' | 'forgot-reset'
+  const [resetContext, setResetContext] = useState(null);
   const login = useLogin();
 
   const {
@@ -62,9 +252,38 @@ const LoginPage = ({ onLogin }) => {
   };
 
   const handleForgotPassword = () => {
-    console.log('Forgot password clicked');
-    alert('Forgot password functionality will be implemented');
+    setMode('forgot-email');
   };
+
+  const handleForgotPasswordSent = (context) => {
+    setResetContext(context);
+    setMode('forgot-reset');
+  };
+
+  const handleResetSuccess = () => {
+    setResetContext(null);
+    setMode('login');
+  };
+
+  const handleCancelReset = () => {
+    setResetContext(null);
+    setMode('login');
+  };
+
+  const headerCopy = {
+    login: {
+      title: 'Sign in with your registered email',
+      subtitle: 'Use your registered email to sign in to your dashboard',
+    },
+    'forgot-email': {
+      title: 'Reset your password',
+      subtitle: "We'll email you a one-time code to verify it's you",
+    },
+    'forgot-reset': {
+      title: 'Enter your new password',
+      subtitle: 'Check your inbox for the reset code',
+    },
+  }[mode];
 
   return (
     <div className="min-h-screen bg-[#F7FAFA] flex flex-col items-center justify-center p-4">
@@ -78,14 +297,29 @@ const LoginPage = ({ onLogin }) => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center font-urbanist font-bold leading-[120%] tracking-tight text-[#1E1E1E]">
-            Sign in with your registered email
+            {headerCopy.title}
           </CardTitle>
           <p className="text-sm text-center text-[#808C91] font-general leading-[145%]">
-            Use your registered email to sign in to your dashboard
+            {headerCopy.subtitle}
           </p>
         </CardHeader>
 
         <CardContent>
+          {mode === 'forgot-email' && (
+            <ForgotPasswordEmailForm onSent={handleForgotPasswordSent} onCancel={handleCancelReset} />
+          )}
+
+          {mode === 'forgot-reset' && (
+            <ResetPasswordForm
+              email={resetContext?.email}
+              temporaryId={resetContext?.temporaryId}
+              onSuccess={handleResetSuccess}
+              onCancel={handleCancelReset}
+              onResend={() => setMode('forgot-email')}
+            />
+          )}
+
+          {mode === 'login' && (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="relative">
               <select
@@ -208,6 +442,7 @@ const LoginPage = ({ onLogin }) => {
               )}
             </Button>
           </form>
+          )}
         </CardContent>
       </Card>
     </div>

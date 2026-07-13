@@ -24,6 +24,20 @@ const forgotPasswordSchema = yup.object({
     .trim(),
 });
 
+const resetPasswordSchema = yup.object({
+  otp: yup
+    .string()
+    .required('OTP is required'),
+  newPassword: yup
+    .string()
+    .required('New password is required')
+    .min(8, 'Password must be at least 8 characters'),
+  confirmPassword: yup
+    .string()
+    .required('Please confirm your password')
+    .oneOf([yup.ref('newPassword')], 'Passwords must match'),
+});
+
 const changePasswordSchema = yup.object({
   currentPassword: yup
     .string()
@@ -44,4 +58,4 @@ const changePasswordSchema = yup.object({
 });
 
 
-export { loginSchema, forgotPasswordSchema, changePasswordSchema };
+export { loginSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema };

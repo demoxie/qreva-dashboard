@@ -214,20 +214,59 @@ const hasGrantedPermission = (grantedPermissions, requiredPermission) => {
   return grantedPermissions.some((item) => typeof item === 'string' && !item.startsWith('!') && matchesPermission(item, requiredPermission));
 };
 
+// Resolves whether a route's required permission is satisfied, including
+// legacy aliases and the hand-rolled section fallbacks used across the app.
+const checkRoutePermission = (requiredPermission, runtimePermissions) => {
+  if (!requiredPermission) return true;
+  if (hasGrantedPermission(runtimePermissions, requiredPermission)) return true;
+
+  const aliases = LEGACY_PERMISSION_ALIASES[requiredPermission] || [];
+  if (aliases.some((alias) => hasGrantedPermission(runtimePermissions, alias))) return true;
+
+  if (requiredPermission === 'transactions') return hasGrantedPermission(runtimePermissions, 'dashboard.transactions.view') || runtimePermissions.includes('section:transactions');
+  if (requiredPermission === 'accounts') return hasGrantedPermission(runtimePermissions, 'users.view') || runtimePermissions.includes('section:accounts');
+  if (requiredPermission === 'approvals') {
+    return (
+      hasGrantedPermission(runtimePermissions, 'approvals.accounts.view') ||
+      hasGrantedPermission(runtimePermissions, 'approvals.disputes.view') ||
+      hasGrantedPermission(runtimePermissions, 'approvals.limitIncrease.view') ||
+      runtimePermissions.includes('section:approvals')
+    );
+  }
+  return false;
+};
+
+// Finds the first route the user actually has permission for, so a failed
+// permission check never redirects to another route that will also fail
+// (which previously caused an infinite Navigate loop).
+const getFirstAccessiblePath = (runtimePermissions) => {
+  const accessible = getAllRoutes().find((route) => checkRoutePermission(route.permission, runtimePermissions));
+  return accessible?.path || null;
+};
+
 // ============ PROTECTED ROUTE COMPONENT ============
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
   const mustChangePassword = localStorage.getItem('mustChangePassword') === 'true';
   const currentPath = location.pathname;
-  
+
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-  
+
   // Redirect to change password if required (except on change-password route itself)
   if (mustChangePassword && currentPath !== '/change-password') {
     return <Navigate to="/change-password" replace />;
+  }
+
+  // /change-password isn't a registered route (it has no permission of its
+  // own), and every authenticated admin must be able to reach it regardless
+  // of what permissions they hold — otherwise getRouteConfig silently falls
+  // back to the Dashboard route's permission, gating a first-time admin out
+  // of the very page that lets them set a usable password.
+  if (currentPath === '/change-password') {
+    return children;
   }
 
   const route = getRouteConfig(currentPath);
@@ -236,30 +275,22 @@ const ProtectedRoute = ({ children }) => {
     ? user.permissions
     : rolePermissions;
   const requiredPermission = route?.permission;
-  const hasPermission = (() => {
-    if (!requiredPermission) return true;
-    if (hasGrantedPermission(runtimePermissions, requiredPermission)) return true;
-
-    const aliases = LEGACY_PERMISSION_ALIASES[requiredPermission] || [];
-    if (aliases.some((alias) => hasGrantedPermission(runtimePermissions, alias))) return true;
-
-    if (requiredPermission === 'transactions') return hasGrantedPermission(runtimePermissions, 'dashboard.transactions.view') || runtimePermissions.includes('section:transactions');
-    if (requiredPermission === 'accounts') return hasGrantedPermission(runtimePermissions, 'users.view') || runtimePermissions.includes('section:accounts');
-    if (requiredPermission === 'approvals') {
-      return (
-        hasGrantedPermission(runtimePermissions, 'approvals.accounts.view') ||
-        hasGrantedPermission(runtimePermissions, 'approvals.disputes.view') ||
-        hasGrantedPermission(runtimePermissions, 'approvals.limitIncrease.view') ||
-        runtimePermissions.includes('section:approvals')
-      );
-    }
-    return false;
-  })();
+  const hasPermission = checkRoutePermission(requiredPermission, runtimePermissions);
 
   if (!hasPermission) {
-    return <Navigate to="/dashboard" replace />;
+    const fallbackPath = getFirstAccessiblePath(runtimePermissions);
+    if (fallbackPath && fallbackPath !== currentPath) {
+      return <Navigate to={fallbackPath} replace />;
+    }
+
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-2 text-center p-6">
+        <h1 className="text-xl font-bold">Access Denied</h1>
+        <p className="text-gray-600">Your account doesn't have permission to view any pages. Please contact an administrator.</p>
+      </div>
+    );
   }
-  
+
   return children;
 };
 

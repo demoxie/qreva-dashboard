@@ -271,7 +271,7 @@ const AccountApprovalDetails = () => {
           </Card>
 
           {/* KYC Tier 3 Documents */}
-          {(kycDocs.proofOfAddress || kycDocs.photoId || kycDocs.cacDocument) && (
+          {(kycDocs.proofOfAddress || kycDocs.photoId || kycDocs.cacDocument || kycDocs.cac2Document) && (
             <Card className="shadow-none border border-gray-200">
               <div className="p-4 border-b border-gray-100">
                 <h3 className="font-semibold text-gray-900">KYC Tier 3 Documents</h3>
@@ -288,6 +288,9 @@ const AccountApprovalDetails = () => {
                 )}
                 {kycDocs.cacDocument && (
                   <ImagePreview label="CAC Document" src={kycDocs.cacDocument} alt="CAC Document" />
+                )}
+                {kycDocs.cac2Document && (
+                  <ImagePreview label="CAC 2 Document (Particulars of Directors)" src={kycDocs.cac2Document} alt="CAC 2 Document" />
                 )}
               </CardContent>
             </Card>

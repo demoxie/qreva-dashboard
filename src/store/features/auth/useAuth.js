@@ -39,6 +39,46 @@ export const useLogin = () => {
   });
 };
 
+const throwIfErrorStatus = (response, fallbackMessage) => {
+  const statusCode = response?.statusCode;
+  if (statusCode && statusCode >= 400) {
+    const error = new Error(response?.message || fallbackMessage);
+    error.response = { data: response, status: statusCode };
+    throw error;
+  }
+  return response;
+};
+
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const response = await authApi.forgotPassword(payload);
+      return throwIfErrorStatus(response, 'Failed to request password reset.');
+    },
+    onSuccess: (response) => {
+      handleSuccess(response.message || 'OTP sent to your email.');
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to request password reset.');
+    },
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const response = await authApi.resetPassword(payload);
+      return throwIfErrorStatus(response, 'Failed to reset password.');
+    },
+    onSuccess: (response) => {
+      handleSuccess(response.message || 'Password reset successfully.');
+    },
+    onError: (error) => {
+      handleError(error, 'Failed to reset password.');
+    },
+  });
+};
+
 export const useChangePassword = () => {
   return useMutation({
     mutationFn: authApi.changePassword,

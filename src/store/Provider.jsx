@@ -1,9 +1,18 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'sonner';
+import { handleError } from './utils/handleError';
 
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      // Surface query (GET) failures the same way mutations already do,
+      // instead of failing silently into an empty/error UI with no toast.
+      if (query.meta?.silent) return;
+      handleError(error);
+    },
+  }),
   defaultOptions: {
     queries: {
       retry: 1,
