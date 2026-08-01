@@ -22,6 +22,27 @@ export const approvalsApi = {
     return data;
   },
 
+  // ── Business Account Approvals (Tier 4) ──────────────────────────────
+  listBusinessAccountApprovals: async (params = {}) => {
+    const { data } = await apiClient.get('/admin/approvals/business-accounts', { params });
+    return data;
+  },
+
+  getBusinessAccountApprovalDetails: async (userId) => {
+    const { data } = await apiClient.get(`/admin/approvals/business-accounts/${userId}`);
+    return data;
+  },
+
+  approveBusinessAccount: async (userId) => {
+    const { data } = await apiClient.post(`/admin/approvals/business-accounts/${userId}/approve`);
+    return data;
+  },
+
+  declineBusinessAccount: async ({ userId, reason }) => {
+    const { data } = await apiClient.post(`/admin/approvals/business-accounts/${userId}/decline`, { reason });
+    return data;
+  },
+
   // ── Disputed Transactions ──────────────────────────────────────────
   listDisputes: async (params = {}) => {
     const { data } = await apiClient.get('/admin/approvals/disputes', { params });

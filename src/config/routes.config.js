@@ -118,6 +118,12 @@ export const ROUTES = {
     icon: 'accountsApprovals',
     permission: 'approvals:view',
   },
+  BUSINESS_ACCOUNT_APPROVALS: {
+    path: '/business-account-approvals',
+    label: 'Business Account Approvals',
+    icon: 'accountsApprovals',
+    permission: 'approvals:view',
+  },
 
    DISPUTED_TRANSACTIONS: {
     path: '/disputed-transactions',
@@ -383,6 +389,14 @@ export const ROUTES = {
     permission: 'approvals',
     dynamic: true,
   },
+  BUSINESS_ACCOUNT_APPROVALS_DETAILS: {
+    path: '/business-account-approvals/:type/:id',
+    label: 'View Details',
+    parent: '/business-account-approvals',
+    icon: null,
+    permission: 'approvals',
+    dynamic: true,
+  },
   DISPUTED_TRANSACTIONS_DETAILS: {
     path: '/disputed-transactions/:id',
     label: 'View Details',
@@ -478,6 +492,7 @@ export const MENU_STRUCTURE = [
     permission: 'section:approvals',
     items: [
       { routeKey: 'ACCOUNTS_APPROVALS' },
+      { routeKey: 'BUSINESS_ACCOUNT_APPROVALS' },
       { routeKey: 'DISPUTED_TRANSACTIONS' },
     ],
   },
